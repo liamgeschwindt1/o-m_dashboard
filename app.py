@@ -9,7 +9,7 @@ from typing import Any
 
 import requests
 import streamlit as st
-import streamlit.components.v1 as components
+# st.iframe replaces the deprecated st.components.v1.html
 
 from assets.tiera_styles import TIERA_STYLES
 from components.leaflet_map_bridge import build_leaflet_map_html
@@ -275,92 +275,36 @@ except Exception:
 # Hidden bridge input
 st.text_input("tiera-bridge", key="tiera_bridge", label_visibility="collapsed", placeholder="__tiera_bridge__")
 
-# Bridge relay: a tiny invisible iframe that listens for postMessage
-# from the map iframe and writes to the hidden input in the parent doc.
-# components.html() iframes CAN run JS (unlike st.markdown which uses innerHTML).
-_BRIDGE_RELAY_HTML = """<!DOCTYPE html>
-<html><head><style>*{margin:0;padding:0;}</style></head>
-<body>
+# Bridge listener: st.html with unsafe_allow_javascript=True runs directly
+# in the parent document (NOT iframed), so it CAN access the DOM.
+st.html("""
 <script>
-(function(){
-  var pw = window.parent;
-  if (!pw) return;
-
-  // Listen for messages from sibling iframes (the map)
-  pw.addEventListener('message', function(e) {
+if (!window._tieraBridge) {
+  window._tieraBridge = true;
+  window.addEventListener('message', function(e) {
     if (!e.data || !e.data._tiera) return;
-    try {
-      var el = pw.document.querySelector('input[placeholder="__tiera_bridge__"]');
-      if (!el) {
-        // Fallback: search all inputs
-        var inputs = pw.document.querySelectorAll('input[type="text"]');
-        for (var i = 0; i < inputs.length; i++) {
-          if (inputs[i].getAttribute('aria-label') === 'tiera-bridge') {
-            el = inputs[i]; break;
-          }
+    var el = document.querySelector('input[placeholder="__tiera_bridge__"]');
+    if (!el) {
+      var inputs = document.querySelectorAll('input');
+      for (var i = 0; i < inputs.length; i++) {
+        if (inputs[i].getAttribute('aria-label') === 'tiera-bridge') {
+          el = inputs[i]; break;
         }
       }
-      if (!el) return;
-      var data = JSON.stringify(e.data);
-      var setter = Object.getOwnPropertyDescriptor(
-        pw.HTMLInputElement.prototype, 'value'
-      ).set;
-      setter.call(el, data);
-      el.dispatchEvent(new Event('input', {bubbles: true}));
-      el.dispatchEvent(new Event('change', {bubbles: true}));
-    } catch(err) {
-      // silent
     }
+    if (!el) return;
+    var data = JSON.stringify(e.data);
+    var setter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype, 'value'
+    ).set;
+    setter.call(el, data);
+    el.dispatchEvent(new Event('input', {bubbles: true}));
+    el.dispatchEvent(new Event('change', {bubbles: true}));
   });
-
-  // Sidebar resize handle
-  function initResize() {
-    if (pw.document.getElementById('t-resize-handle')) return;
-    var sb = pw.document.querySelector(
-      '[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child'
-    );
-    if (!sb) return;
-    var h = pw.document.createElement('div');
-    h.id = 't-resize-handle';
-    h.style.cssText = 'position:fixed;top:0;width:5px;height:100vh;'
-      + 'cursor:col-resize;z-index:10001;background:transparent;'
-      + 'transition:background .15s';
-    h.style.left = sb.getBoundingClientRect().right + 'px';
-    pw.document.body.appendChild(h);
-    var drag = false, sx = 0, swidth = 0;
-    h.addEventListener('mousedown', function(ev) {
-      ev.preventDefault(); drag = true; sx = ev.clientX;
-      swidth = sb.getBoundingClientRect().width;
-      h.style.background = 'rgba(0,0,0,.15)';
-      pw.document.body.style.userSelect = 'none';
-    });
-    pw.document.addEventListener('mousemove', function(ev) {
-      if (!drag) return; ev.preventDefault();
-      var nw = Math.min(600, Math.max(180, swidth + ev.clientX - sx));
-      sb.style.setProperty('width', nw+'px', 'important');
-      sb.style.setProperty('min-width', nw+'px', 'important');
-      sb.style.setProperty('max-width', nw+'px', 'important');
-      sb.style.setProperty('flex-basis', nw+'px', 'important');
-      h.style.left = nw + 'px';
-    });
-    pw.document.addEventListener('mouseup', function() {
-      if (!drag) return; drag = false;
-      h.style.background = 'transparent';
-      pw.document.body.style.userSelect = '';
-    });
-    h.addEventListener('mouseenter', function() {
-      if (!drag) h.style.background = 'rgba(0,0,0,.08)';
-    });
-    h.addEventListener('mouseleave', function() {
-      if (!drag) h.style.background = 'transparent';
-    });
-  }
-  setTimeout(initResize, 500);
-  setTimeout(initResize, 1500);
-})();
+}
 </script>
-</body></html>"""
-components.html(_BRIDGE_RELAY_HTML, height=0)
+""", unsafe_allow_javascript=True)
+
 step = st.session_state.step
 
 # ── Two-column layout ───────────────────────────────────────────────────────────
@@ -696,4 +640,4 @@ with right_col:
         zoom=czoom,
         maptiler_key=maptiler_key,
     )
-    components.html(map_html, height=900, scrolling=False)
+    st.iframe(map_html, height=900)
