@@ -9,7 +9,7 @@ interface Props {
   endLabel: string
   pinMode: PinMode
   status: string
-  hasOrsKey: boolean
+  hasRoutingKey: boolean
   onSetCoords: (role: 'start' | 'end', lat: number, lng: number, label: string) => void
   onClearCoords: (role: 'start' | 'end') => void
   onSetPinMode: (mode: PinMode) => void
@@ -22,7 +22,7 @@ function EndpointBlock({
   coords,
   label,
   pinActive,
-  hasOrsKey,
+  hasRoutingKey,
   onSetCoords,
   onClear,
   onTogglePin,
@@ -31,7 +31,7 @@ function EndpointBlock({
   coords: [number, number] | null
   label: string
   pinActive: boolean
-  hasOrsKey: boolean
+  hasRoutingKey: boolean
   onSetCoords: (lat: number, lng: number, label: string) => void
   onClear: () => void
   onTogglePin: () => void
@@ -41,7 +41,7 @@ function EndpointBlock({
   const [searching, setSearching] = useState(false)
 
   async function handleSearch() {
-    if (!query.trim() || !hasOrsKey) return
+    if (!query.trim() || !hasRoutingKey) return
     setSearching(true)
     try {
       const results = await geocode(query)
@@ -72,7 +72,7 @@ function EndpointBlock({
         />
         <button
           onClick={handleSearch}
-          disabled={!hasOrsKey || searching}
+          disabled={!hasRoutingKey || searching}
           className="px-2 py-1.5 text-xs rounded border border-neutral-200 bg-white
                      text-neutral-600 hover:border-neutral-400 disabled:opacity-30
                      transition-colors shrink-0"
@@ -139,14 +139,14 @@ export default function StepDestination({
   endLabel,
   pinMode,
   status,
-  hasOrsKey,
+  hasRoutingKey,
   onSetCoords,
   onClearCoords,
   onSetPinMode,
   onGenerate,
   onBack,
 }: Props) {
-  const canGenerate = hasOrsKey && !!startCoords && !!endCoords
+  const canGenerate = hasRoutingKey && !!startCoords && !!endCoords
 
   return (
     <div className="flex flex-col gap-4 px-4 py-3">
@@ -154,9 +154,9 @@ export default function StepDestination({
         Destination Planning
       </h3>
 
-      {!hasOrsKey && (
+      {!hasRoutingKey && (
         <p className="text-[11px] text-red-600">
-          Add <code className="text-[10px] bg-neutral-100 px-1 rounded">ORS_API_KEY</code> to
+          Add <code className="text-[10px] bg-neutral-100 px-1 rounded">GRAPHHOPPER_API_KEY</code> to
           environment variables.
         </p>
       )}
@@ -166,7 +166,7 @@ export default function StepDestination({
         coords={startCoords}
         label={startLabel}
         pinActive={pinMode === 'start'}
-        hasOrsKey={hasOrsKey}
+        hasRoutingKey={hasRoutingKey}
         onSetCoords={(lat, lng, label) => onSetCoords('start', lat, lng, label)}
         onClear={() => onClearCoords('start')}
         onTogglePin={() => onSetPinMode(pinMode === 'start' ? null : 'start')}
@@ -177,7 +177,7 @@ export default function StepDestination({
         coords={endCoords}
         label={endLabel}
         pinActive={pinMode === 'end'}
-        hasOrsKey={hasOrsKey}
+        hasRoutingKey={hasRoutingKey}
         onSetCoords={(lat, lng, label) => onSetCoords('end', lat, lng, label)}
         onClear={() => onClearCoords('end')}
         onTogglePin={() => onSetPinMode(pinMode === 'end' ? null : 'end')}

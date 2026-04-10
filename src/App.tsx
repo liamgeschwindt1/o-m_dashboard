@@ -8,6 +8,7 @@ import StepCalibration from './components/StepCalibration'
 import StepRefinement from './components/StepRefinement'
 import StepUplink from './components/StepUplink'
 import { useAppState } from './hooks/useAppState'
+import { fetchRoute } from './api/client'
 import type { PinMode, Step } from './types/instruction'
 
 const MODES = ['idle', 'plan', 'calibrate', 'refine', 'review'] as const
@@ -77,6 +78,42 @@ function App() {
     [state.viaPoints, set],
   )
 
+  /* ── Route drag (step 2 — drag polyline to reshape) ── */
+  const handleRouteDrag = useCallback(
+    async (lat: number, lng: number) => {
+      const id = `via-${crypto.randomUUID?.() ?? Date.now()}`
+      const newVia = { id, lat, lng }
+      // Insert the via point, then reroute with the updated list.
+      // We need to compute new viaPoints inline since set is async via reducer.
+      const updatedVia = [...state.viaPoints, newVia]
+      set({ viaPoints: updatedVia, status: 'Rerouting…' })
+      // Trigger reroute with the new via points
+      if (!state.startCoords || !state.endCoords) return
+      const wps: [number, number][] = [
+        state.startCoords,
+        ...updatedVia.map((v): [number, number] => [v.lat, v.lng]),
+        state.endCoords,
+      ]
+      set({ loading: true })
+      try {
+        const { path, nodes } = await fetchRoute(wps)
+        set({
+          viaPoints: updatedVia,
+          routePath: path,
+          nodes,
+          loading: false,
+          status: `Route updated — ${nodes.length} steps.`,
+        })
+      } catch (err) {
+        set({
+          loading: false,
+          status: `Routing error: ${err instanceof Error ? err.message : err}`,
+        })
+      }
+    },
+    [state.viaPoints, state.startCoords, state.endCoords, set],
+  )
+
   /* ── Route click (step 3 — insert node) ── */
   const handleRouteClick = useCallback(
     (lat: number, lng: number, nearestIdx: number) => {
@@ -120,7 +157,7 @@ function App() {
             endLabel={state.endLabel}
             pinMode={state.pinMode}
             status={state.status}
-            hasOrsKey={state.hasOrsKey}
+            hasRoutingKey={state.hasRoutingKey}
             onSetCoords={(role, lat, lng, label) => {
               if (role === 'start') {
                 set({ startCoords: [lat, lng], startLabel: label, startCands: [] })
@@ -237,6 +274,7 @@ function App() {
           onPinDrag={handlePinDrag}
           onViaDrag={handleViaDrag}
           onViaAdd={handleViaAdd}
+          onRouteDrag={handleRouteDrag}
           onRouteClick={handleRouteClick}
         />
       </main>

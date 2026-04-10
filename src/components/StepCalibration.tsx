@@ -28,8 +28,8 @@ export default function StepCalibration({
         Path Calibration
       </h3>
       <p className="text-[11px] text-neutral-500 leading-relaxed">
-        Drag the <strong>S</strong> or <strong>E</strong> pins to adjust endpoints.
-        Click the route line to add an intermediate waypoint.
+        Drag the route line to reshape the path. Drag the <strong>S</strong> or{' '}
+        <strong>E</strong> pins to adjust endpoints.
       </p>
 
       {status && (

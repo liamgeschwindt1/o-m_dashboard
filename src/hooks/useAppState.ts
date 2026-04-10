@@ -34,7 +34,7 @@ export interface AppState {
   status: string
   loading: boolean
   maptilerKey: string
-  hasOrsKey: boolean
+  hasRoutingKey: boolean
   email: string
   submitted: boolean
 }
@@ -58,7 +58,7 @@ const INIT: AppState = {
   status: '',
   loading: false,
   maptilerKey: '',
-  hasOrsKey: false,
+  hasRoutingKey: false,
   email: '',
   submitted: false,
 }
@@ -107,7 +107,7 @@ export function useAppState() {
   useEffect(() => {
     getConfig()
       .then((cfg) =>
-        set({ maptilerKey: cfg.maptiler_key, hasOrsKey: cfg.has_ors_key }),
+        set({ maptilerKey: cfg.maptiler_key, hasRoutingKey: cfg.has_routing_key }),
       )
       .catch(() => {})
   }, [set])

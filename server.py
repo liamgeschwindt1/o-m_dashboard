@@ -1,4 +1,4 @@
-"""Lightweight FastAPI backend that proxies ORS requests so API keys stay server-side."""
+"""Lightweight FastAPI backend that proxies GraphHopper requests so API keys stay server-side."""
 from __future__ import annotations
 
 import os
@@ -19,21 +19,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-ORS_DIRECTIONS = "https://api.openrouteservice.org/v2/directions/foot-walking/geojson"
-ORS_GEOCODE = "https://api.openrouteservice.org/geocode/search"
+GH_ROUTE = "https://graphhopper.com/api/1/route"
+GH_GEOCODE = "https://graphhopper.com/api/1/geocode"
 
-STEP_TYPES: dict[int, str] = {
-    0: "left", 1: "right", 2: "sharp-left", 3: "sharp-right",
-    4: "slight-left", 5: "slight-right", 6: "straight", 7: "roundabout",
-    8: "roundabout-exit", 9: "u-turn", 10: "destination", 11: "start",
-    12: "keep-left", 13: "keep-right",
+SIGN_MAP: dict[int, str] = {
+    -3: "sharp-left", -2: "left", -1: "slight-left",
+    0: "straight",
+    1: "slight-right", 2: "right", 3: "sharp-right",
+    4: "destination", 5: "destination",
+    6: "roundabout",
 }
 
 
-def _ors_key() -> str:
-    key = os.environ.get("ORS_API_KEY", "")
+def _gh_key() -> str:
+    key = os.environ.get("GRAPHHOPPER_API_KEY", "")
     if not key:
-        raise HTTPException(503, "ORS_API_KEY not configured")
+        raise HTTPException(503, "GRAPHHOPPER_API_KEY not configured")
     return key
 
 
@@ -58,59 +59,85 @@ class GeoSearchRequest(BaseModel):
 def get_config():
     return {
         "maptiler_key": _maptiler_key(),
-        "has_ors_key": bool(os.environ.get("ORS_API_KEY")),
+        "has_routing_key": bool(os.environ.get("GRAPHHOPPER_API_KEY")),
     }
 
 
 @app.post("/api/route")
 def compute_route(body: RouteRequest):
-    key = _ors_key()
-    coords = [[lng, lat] for lat, lng in body.waypoints]
+    key = _gh_key()
+    # GraphHopper expects points as lat,lng strings
+    params: dict[str, Any] = {
+        "key": key,
+        "vehicle": "foot",
+        "locale": "en",
+        "instructions": "true",
+        "points_encoded": "false",
+        "type": "json",
+    }
+    # Add each waypoint as a point parameter
+    point_params = [f"{lat},{lng}" for lat, lng in body.waypoints]
+
     try:
-        resp = requests.post(
-            ORS_DIRECTIONS,
-            headers={"Authorization": key, "Content-Type": "application/json"},
-            json={"coordinates": coords},
+        resp = requests.get(
+            GH_ROUTE,
+            params={**params, "point": point_params},
             timeout=12,
         )
         resp.raise_for_status()
     except requests.HTTPError as exc:
-        raise HTTPException(502, f"ORS error {exc.response.status_code}") from exc
+        detail = ""
+        try:
+            detail = exc.response.text[:300]
+        except Exception:
+            pass
+        raise HTTPException(502, f"GraphHopper error {exc.response.status_code}: {detail}") from exc
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc
 
-    feature = resp.json()["features"][0]
-    raw = feature["geometry"]["coordinates"]
-    path = [{"lat": round(c[1], 6), "lng": round(c[0], 6)} for c in raw]
+    data = resp.json()
+    if "paths" not in data or len(data["paths"]) == 0:
+        raise HTTPException(502, "No route returned from GraphHopper")
+
+    best = data["paths"][0]
+    raw_coords = best["points"]["coordinates"]  # [[lng, lat, alt?], ...]
+    path = [{"lat": round(c[1], 6), "lng": round(c[0], 6)} for c in raw_coords]
 
     nodes: list[dict[str, Any]] = []
     idx = 0
-    for seg in feature["properties"].get("segments", []):
-        for step in seg.get("steps", []):
-            wi = step["way_points"][0]
-            c = raw[wi]
-            nodes.append({
-                "id": f"node-{uuid.uuid4().hex[:8]}",
-                "index": idx,
-                "lat": round(c[1], 6),
-                "lng": round(c[0], 6),
-                "instruction": step.get("instruction", ""),
-                "type": STEP_TYPES.get(step.get("type", 0), "step"),
-                "distance_m": round(step.get("distance", 0)),
-                "duration_s": round(step.get("duration", 0)),
-            })
-            idx += 1
+    for instr in best.get("instructions", []):
+        interval = instr.get("interval", [0])
+        ci = interval[0]
+        if ci < len(raw_coords):
+            c = raw_coords[ci]
+        else:
+            c = raw_coords[-1]
+
+        sign = instr.get("sign", 0)
+        step_type = SIGN_MAP.get(sign, "step")
+
+        nodes.append({
+            "id": f"node-{uuid.uuid4().hex[:8]}",
+            "index": idx,
+            "lat": round(c[1], 6),
+            "lng": round(c[0], 6),
+            "instruction": instr.get("text", ""),
+            "type": step_type,
+            "distance_m": round(instr.get("distance", 0)),
+            "duration_s": round(instr.get("time", 0) / 1000),
+        })
+        idx += 1
 
     return {"path": path, "nodes": nodes}
 
 
 @app.post("/api/geocode")
 def geocode(body: GeoSearchRequest):
-    key = _ors_key()
+    key = _gh_key()
     try:
         r = requests.get(
-            ORS_GEOCODE,
-            params={"api_key": key, "text": body.query, "size": body.size},
+            GH_GEOCODE,
+            params={"key": key, "q": body.query, "limit": body.size, "locale": "en"},
             timeout=8,
         )
         r.raise_for_status()
@@ -119,9 +146,10 @@ def geocode(body: GeoSearchRequest):
 
     return [
         {
-            "label": f["properties"]["label"],
-            "lat": round(f["geometry"]["coordinates"][1], 6),
-            "lng": round(f["geometry"]["coordinates"][0], 6),
+            "label": hit.get("name", "") + (", " + hit.get("city", "") if hit.get("city") else "") + (", " + hit.get("country", "") if hit.get("country") else ""),
+            "lat": round(hit["point"]["lat"], 6),
+            "lng": round(hit["point"]["lng"], 6),
         }
-        for f in r.json().get("features", [])
+        for hit in r.json().get("hits", [])
+        if "point" in hit
     ]

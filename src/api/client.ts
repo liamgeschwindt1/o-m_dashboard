@@ -26,7 +26,7 @@ export async function geocode(query: string): Promise<GeoCandidate[]> {
 
 export async function getConfig(): Promise<{
   maptiler_key: string
-  has_ors_key: boolean
+  has_routing_key: boolean
 }> {
   const res = await fetch(`${BASE}/config`)
   if (!res.ok) throw new Error(`Config failed: ${res.status}`)

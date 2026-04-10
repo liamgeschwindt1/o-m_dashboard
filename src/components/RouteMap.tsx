@@ -31,6 +31,7 @@ interface RouteMapProps {
   onPinDrag: (role: 'start' | 'end', lat: number, lng: number) => void
   onViaDrag: (id: string, lat: number, lng: number) => void
   onViaAdd: (lat: number, lng: number) => void
+  onRouteDrag: (lat: number, lng: number) => void
   onRouteClick: (lat: number, lng: number, nearestIdx: number) => void
 }
 
@@ -151,6 +152,7 @@ export default function RouteMap({
   onPinDrag,
   onViaDrag,
   onViaAdd,
+  onRouteDrag,
   onRouteClick,
 }: RouteMapProps) {
   const center = useMemo<[number, number]>(() => {
@@ -197,7 +199,13 @@ export default function RouteMap({
       <ClickHandler mode={mode} onMapClick={onMapClick} />
 
       {/* Route line */}
-      {pathPositions.length > 1 && (
+      {pathPositions.length > 1 && mode === 'calibrate' && (
+        <DraggableRoute
+          positions={pathPositions}
+          onDragEnd={onRouteDrag}
+        />
+      )}
+      {pathPositions.length > 1 && mode !== 'calibrate' && (
         <Polyline
           positions={pathPositions}
           pathOptions={{
@@ -206,7 +214,7 @@ export default function RouteMap({
             opacity: 0.85,
             lineJoin: 'round',
             lineCap: 'round',
-            interactive: mode === 'calibrate' || mode === 'refine',
+            interactive: mode === 'refine',
           }}
           eventHandlers={{
             click: handleRouteLineClick,
@@ -293,6 +301,105 @@ export default function RouteMap({
       ))}
     </MapContainer>
   )
+}
+
+/* ── Draggable route line for calibration mode ── */
+function DraggableRoute({
+  positions,
+  onDragEnd,
+}: {
+  positions: [number, number][]
+  onDragEnd: (lat: number, lng: number) => void
+}) {
+  const map = useMap()
+  const lineRef = useRef<L.Polyline | null>(null)
+  const ghostRef = useRef<L.Marker | null>(null)
+
+  useEffect(() => {
+    const line = L.polyline(positions, {
+      color: '#111',
+      weight: 4,
+      opacity: 0.85,
+      lineJoin: 'round',
+      lineCap: 'round',
+      interactive: true,
+    }).addTo(map)
+
+    lineRef.current = line
+
+    // Thicker invisible line for easier grab target
+    const hitLine = L.polyline(positions, {
+      color: 'transparent',
+      weight: 18,
+      opacity: 0,
+      interactive: true,
+    }).addTo(map)
+
+    const ghostIcon = L.divIcon({
+      className: '',
+      html: `<div style="
+        width:14px;height:14px;border-radius:50%;
+        background:#555;border:2px solid #fff;
+        box-shadow:0 1px 6px rgba(0,0,0,0.4);cursor:grabbing;
+      "></div>`,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+    })
+
+    function onMouseDown(e: L.LeafletMouseEvent) {
+      L.DomEvent.stopPropagation(e)
+      map.dragging.disable()
+
+      const ghost = L.marker(e.latlng, {
+        icon: ghostIcon,
+        draggable: true,
+        zIndexOffset: 700,
+      }).addTo(map)
+
+      ghostRef.current = ghost
+
+      // Simulate drag start
+      const markerEl = ghost.getElement()
+      if (markerEl) {
+        markerEl.style.cursor = 'grabbing'
+      }
+
+      ghost.on('dragend', () => {
+        const pos = ghost.getLatLng()
+        map.removeLayer(ghost)
+        ghostRef.current = null
+        map.dragging.enable()
+        onDragEnd(
+          Math.round(pos.lat * 1e6) / 1e6,
+          Math.round(pos.lng * 1e6) / 1e6,
+        )
+      })
+
+      // Start the marker drag immediately
+      const origEvent = (e as any).originalEvent as MouseEvent
+      if (origEvent && markerEl) {
+        const evt = new MouseEvent('mousedown', {
+          bubbles: true,
+          clientX: origEvent.clientX,
+          clientY: origEvent.clientY,
+        })
+        markerEl.dispatchEvent(evt)
+      }
+    }
+
+    hitLine.on('mousedown', onMouseDown)
+
+    return () => {
+      map.removeLayer(line)
+      map.removeLayer(hitLine)
+      if (ghostRef.current) {
+        map.removeLayer(ghostRef.current)
+      }
+      lineRef.current = null
+    }
+  }, [map, positions, onDragEnd])
+
+  return null
 }
 
 /* ── Editable popup for refine mode ── */
