@@ -294,65 +294,87 @@ header[data-testid="stHeader"],
 }
 
 /* ================================================================
-   Stepper (glowing vertical progress)
+   Stepper (horizontal numbered dots)
+   Target the 5-column row uniquely (only stepper has 5 cols)
    ================================================================ */
-.t-stepper-btn {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0.65rem 1.5rem;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-dim);
-  cursor: pointer;
-  border: none;
-  background: none;
-  transition: all var(--transition);
-  text-align: left;
-  width: 100%;
+[data-testid="stColumn"]:first-child
+  [data-testid="stHorizontalBlock"]:has(
+    > [data-testid="stColumn"]:nth-child(5):last-child
+  ) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  padding: 0.9rem 1rem 0.6rem !important;
 }
-.t-stepper-btn::before {
+
+/* Each column in the dot row */
+[data-testid="stColumn"]:first-child
+  [data-testid="stHorizontalBlock"]:has(
+    > [data-testid="stColumn"]:nth-child(5):last-child
+  ) > [data-testid="stColumn"] {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: auto !important;
+  padding: 0 6px !important;
+}
+
+/* All dot buttons: circle shape */
+[data-testid="stColumn"]:first-child
+  [data-testid="stHorizontalBlock"]:has(
+    > [data-testid="stColumn"]:nth-child(5):last-child
+  ) .stButton > button {
+  width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  max-width: 30px !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  font-family: var(--mono) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+/* Done steps: subtle filled circle */
+[data-testid="stColumn"]:first-child
+  [data-testid="stHorizontalBlock"]:has(
+    > [data-testid="stColumn"]:nth-child(5):last-child
+  ) .stButton > button:not([kind="primary"]):not(:disabled) {
+  background: rgba(247, 247, 247, 0.1) !important;
+  border-color: rgba(247, 247, 247, 0.2) !important;
+  color: var(--text) !important;
+}
+
+/* Current step: golden (already styled by primary button rules) */
+
+/* Future steps: dim (already styled by :disabled rules) */
+[data-testid="stColumn"]:first-child
+  [data-testid="stHorizontalBlock"]:has(
+    > [data-testid="stColumn"]:nth-child(5):last-child
+  ) .stButton > button:disabled {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 50% !important;
+  opacity: 0.25 !important;
+}
+
+/* Connector bars between dots (via column gaps) */
+[data-testid="stColumn"]:first-child
+  [data-testid="stHorizontalBlock"]:has(
+    > [data-testid="stColumn"]:nth-child(5):last-child
+  ) > [data-testid="stColumn"]:not(:last-child)::after {
   content: '';
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(247, 247, 247, 0.15);
-  font-size: 10px;
-  font-weight: 600;
-  font-family: var(--mono);
-  flex-shrink: 0;
-  transition: all var(--transition);
-}
-.t-stepper-btn.is-done { color: var(--text-mid); }
-.t-stepper-btn.is-done::before {
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  width: 12px;
+  height: 1.5px;
   background: rgba(247, 247, 247, 0.12);
-  border-color: rgba(247, 247, 247, 0.25);
-  content: '✓';
-  color: var(--text);
-  font-size: 11px;
-}
-.t-stepper-btn.is-current {
-  color: var(--text);
-  font-weight: 600;
-}
-.t-stepper-btn.is-current::before {
-  background: var(--text);
-  border-color: var(--text);
-  content: '●';
-  color: var(--bg);
-  font-size: 8px;
-}
-.t-stepper-btn.is-future {
-  opacity: 0.35;
-  cursor: default;
-}
-.t-stepper-btn.is-future::before {
-  content: '';
-  border-color: rgba(247, 247, 247, 0.1);
 }
 
 /* ================================================================
