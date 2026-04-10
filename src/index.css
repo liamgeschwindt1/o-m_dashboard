@@ -1,27 +1,11 @@
+@import "tailwindcss";
+
 :root {
   font-family: Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  --bg: #f8fafc;
-  --panel: #ffffff;
-  --panel-soft: #f7fbff;
-  --text: #334155;
-  --text-heading: #0f172a;
-  --muted: #475569;
-  --border: #cbd5e1;
-  --border-strong: #94a3b8;
-  --accent: #0f62fe;
-  --accent-soft: rgba(15, 98, 254, 0.18);
-  --input-bg: #ffffff;
-  --code-bg: #e2e8f0;
-
-  color: var(--text);
-  background: var(--bg);
 }
 
 * {
@@ -30,56 +14,9 @@
 
 body {
   margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background: var(--bg);
 }
 
 #root {
   min-height: 100vh;
-}
-
-h1,
-h2,
-h3 {
-  color: var(--text-heading);
-  line-height: 1.15;
-}
-
-h1 {
-  margin: 0 0 0.55rem;
-  font-size: clamp(2rem, 3.3vw, 3rem);
-}
-
-p {
-  margin: 0;
-}
-
-code,
-pre {
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-}
-
-code {
-  padding: 0.15rem 0.35rem;
-  border-radius: 0.4rem;
-  background: var(--code-bg);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #020617;
-    --panel: #0f172a;
-    --panel-soft: #111c30;
-    --text: #cbd5e1;
-    --text-heading: #f8fafc;
-    --muted: #94a3b8;
-    --border: #1e293b;
-    --border-strong: #334155;
-    --accent: #7dd3fc;
-    --accent-soft: rgba(125, 211, 252, 0.18);
-    --input-bg: #020617;
-    --code-bg: #1e293b;
-  }
 }
 
