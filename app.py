@@ -533,7 +533,6 @@ with right_col:
             center_lng=map_center_lng,
         ),
         height=640,
-        scrolling=False,
     )
     st.markdown("</div>", unsafe_allow_html=True)
 
