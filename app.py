@@ -329,10 +329,17 @@ with left_col:
             st.session_state.start_address = sq
 
         if st.session_state.start_coords:
-            st.markdown(
+            sc1a, sc1b = st.columns([0.8, 0.2])
+            sc1a.markdown(
                 f'<div class="t-coord">✓ {st.session_state.start_label[:42]}</div>',
                 unsafe_allow_html=True,
             )
+            if sc1b.button("✕", key="clr_start", use_container_width=True):
+                st.session_state.start_coords = None
+                st.session_state.start_label  = ""
+                st.session_state.start_cands  = []
+                st.session_state.route_status = "Start cleared."
+                st.rerun()
         if st.session_state.start_cands:
             chosen = st.selectbox(" ", [c["label"] for c in st.session_state.start_cands],
                                   key="s_pick", label_visibility="collapsed")
@@ -357,10 +364,17 @@ with left_col:
             st.session_state.end_address = eq
 
         if st.session_state.end_coords:
-            st.markdown(
+            ec1a, ec1b = st.columns([0.8, 0.2])
+            ec1a.markdown(
                 f'<div class="t-coord">✓ {st.session_state.end_label[:42]}</div>',
                 unsafe_allow_html=True,
             )
+            if ec1b.button("✕", key="clr_end", use_container_width=True):
+                st.session_state.end_coords = None
+                st.session_state.end_label  = ""
+                st.session_state.end_cands  = []
+                st.session_state.route_status = "End cleared."
+                st.rerun()
         if st.session_state.end_cands:
             echosen = st.selectbox(" ", [c["label"] for c in st.session_state.end_cands],
                                    key="e_pick", label_visibility="collapsed")
