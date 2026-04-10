@@ -6,72 +6,99 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body, #map { width: 100%; height: 100vh; background: #fff; }
-    .leaflet-container { background: #f8f8f8; font-family: "Inter", sans-serif; }
+    html, body, #map { width: 100%; height: 100vh; background: #031119; }
+    .leaflet-container { background: #031119; font-family: "Poppins", "Inter", sans-serif; }
     .leaflet-bar a {
-      background: #fff !important; color: #111 !important;
-      border-color: #ddd !important; font-size: 16px !important;
+      background: rgba(27, 53, 79, 0.85) !important;
+      color: #F7F7F7 !important;
+      border-color: rgba(1, 180, 175, 0.2) !important;
+      font-size: 16px !important;
+      backdrop-filter: blur(12px);
     }
-    .leaflet-bar a:hover { background: #f0f0f0 !important; }
+    .leaflet-bar a:hover { background: rgba(1, 180, 175, 0.15) !important; }
     .leaflet-control-attribution {
-      background: rgba(255,255,255,0.85) !important;
-      color: #999; font-size: 10px !important;
+      background: rgba(3, 17, 25, 0.75) !important;
+      color: rgba(247, 247, 247, 0.4); font-size: 10px !important;
+      backdrop-filter: blur(8px);
     }
+    .leaflet-control-attribution a { color: rgba(1, 180, 175, 0.6) !important; }
     .leaflet-popup-content-wrapper {
-      background: #fff; border: 1px solid #ddd;
-      border-radius: 6px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      color: #111;
+      background: rgba(27, 53, 79, 0.9);
+      border: 1px solid rgba(1, 180, 175, 0.25);
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      color: #F7F7F7;
+      backdrop-filter: saturate(1.5) blur(16px);
     }
-    .leaflet-popup-tip { background: #fff; }
+    .leaflet-popup-tip { background: rgba(27, 53, 79, 0.9); }
     .leaflet-popup-content { margin: 0; }
+    .leaflet-tooltip.node-tip {
+      background: rgba(27, 53, 79, 0.92);
+      border: 1px solid rgba(1, 180, 175, 0.3);
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+      color: #F7F7F7;
+      padding: 0.5rem 0.7rem;
+      font-family: "Poppins", sans-serif;
+      backdrop-filter: saturate(1.5) blur(14px);
+    }
+    .leaflet-tooltip.node-tip::before { border-top-color: rgba(1, 180, 175, 0.3); }
     .pop { padding: 0.6rem 0.75rem; min-width: 200px; }
     .pop-num {
       display: inline-flex; align-items: center; justify-content: center;
       width: 20px; height: 20px; border-radius: 50%;
-      background: #111; color: #fff;
+      background: #01B4AF; color: #031119;
       font-size: 10px; font-weight: 700; margin-right: 6px;
       font-family: "JetBrains Mono", monospace;
     }
     .pop-type {
       font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
-      text-transform: uppercase; color: #666;
+      text-transform: uppercase; color: rgba(247,247,247,0.55);
     }
-    .pop-text { margin-top: 4px; font-size: 12px; line-height: 1.5; color: #333; }
-    .pop-dist { margin-top: 3px; font-size: 10px; color: #999; font-family: "JetBrains Mono", monospace; }
+    .pop-text { margin-top: 4px; font-size: 12px; line-height: 1.5; color: rgba(247,247,247,0.8); }
+    .pop-dist { margin-top: 3px; font-size: 10px; color: rgba(247,247,247,0.4); font-family: "JetBrains Mono", monospace; }
     .step-circle {
       display: flex; align-items: center; justify-content: center;
       border-radius: 50%;
       font-family: "JetBrains Mono", monospace;
       font-weight: 700; cursor: pointer;
-      transition: transform 0.12s;
-      background: #fff; border: 2px solid #111; color: #111;
+      transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+      background: rgba(27, 53, 79, 0.85); border: 2px solid #01B4AF; color: #01B4AF;
+      box-shadow: 0 0 6px rgba(1, 180, 175, 0.15);
     }
-    .step-circle:hover { transform: scale(1.15); }
+    .step-circle:hover { transform: scale(1.18); box-shadow: 0 0 14px rgba(1, 180, 175, 0.35); }
     .step-circle.active {
-      background: #111; color: #fff;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.28);
+      background: #01B4AF; color: #031119;
+      box-shadow: 0 0 18px rgba(1, 180, 175, 0.5), 0 0 4px rgba(1, 180, 175, 0.9);
     }
     .pin {
       display: flex; align-items: center; justify-content: center;
       border-radius: 50%; cursor: grab;
       font-size: 11px; font-weight: 700;
       font-family: "JetBrains Mono", monospace;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      transition: transform 0.12s;
+      transition: transform 0.15s ease-in-out;
     }
-    .pin:hover { transform: scale(1.12); }
-    .pin-start { background: #111; color: #fff; border: 2px solid #111; }
-    .pin-end   { background: #fff; color: #111; border: 2px solid #111; }
+    .pin:hover { transform: scale(1.14); }
+    .pin-start {
+      background: #01B4AF; color: #031119;
+      border: 2px solid #01B4AF;
+      box-shadow: 0 0 14px rgba(1, 180, 175, 0.4);
+    }
+    .pin-end {
+      background: #FFB100; color: #031119;
+      border: 2px solid #FFB100;
+      box-shadow: 0 0 14px rgba(255, 177, 0, 0.35);
+    }
     .via-dot {
       width: 12px; height: 12px; border-radius: 50%;
-      background: #666; border: 2px solid #fff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      background: rgba(1, 180, 175, 0.6); border: 2px solid rgba(247,247,247,0.6);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.4);
       cursor: grab;
     }
     .click-dot {
       width: 6px; height: 6px; border-radius: 50%;
-      background: #111; border: none;
+      background: #01B4AF; border: none;
+      box-shadow: 0 0 8px rgba(1, 180, 175, 0.5);
     }
     .leaflet-container.mode-plan    { cursor: crosshair; }
     .leaflet-container.mode-calibrate { cursor: crosshair; }
@@ -156,11 +183,11 @@
       map = L.map('map', { center: [centerLat, centerLng], zoom: zoom, zoomControl: true });
       var tileUrl, tileAttr, tileOpts;
       if (maptilerKey) {
-        tileUrl = 'https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=' + maptilerKey;
+        tileUrl = 'https://api.maptiler.com/maps/streets-v2-dark/{z}/{x}/{y}.png?key=' + maptilerKey;
         tileAttr = '&copy; <a href="https://www.maptiler.com/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
         tileOpts = {};
       } else {
-        tileUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+        tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
         tileAttr = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>';
         tileOpts = { subdomains: 'abcd' };
       }
@@ -177,7 +204,7 @@
     /* ── Route polyline ── */
     if (routePath.length) {
       routeLayer = L.polyline(routePath, {
-        color: '#111', weight: 3, opacity: 0.85,
+        color: '#01B4AF', weight: 3, opacity: 0.85,
         lineJoin: 'round', lineCap: 'round',
         interactive: (mode === 'calibrate' || mode === 'refine')
       }).addTo(map);
@@ -216,16 +243,15 @@
           zIndexOffset: isActive ? 400 : 0
         });
         var dist = n.distance_m ? '<div class="pop-dist">' + n.distance_m + ' m</div>' : '';
-        var popHtml = '<div class="pop"><div style="display:flex;align-items:center;margin-bottom:3px">'
+        var tipHtml = '<div style="min-width:140px"><div style="display:flex;align-items:center;margin-bottom:3px">'
           + '<span class="pop-num">' + (n.index+1) + '</span>'
           + '<span class="pop-type">' + esc(n.type) + '</span></div>'
           + '<div class="pop-text">' + esc(n.instruction || 'No instruction.') + '</div>'
           + dist + '</div>';
-        m.bindPopup(popHtml, { maxWidth: 280 });
+        m.bindTooltip(tipHtml, { direction: 'top', offset: [0, -12], opacity: 0.95, className: 'node-tip' });
         m.on('click', function(e) {
           L.DomEvent.stopPropagation(e);
           setComponentValue({ type: 'node_click', nodeId: n.id, ts: Date.now() });
-          this.openPopup();
         });
         m.addTo(map);
         nodeMarkers.push(m);
@@ -235,7 +261,7 @@
     /* ── Start / End pins ── */
     if (startCoords) {
       var sm = L.marker(startCoords, {
-        icon: makePinIcon('pin-start', 'S'),
+        icon: makePinIcon('pin-start', 'A'),
         draggable: (mode === 'calibrate'),
         zIndexOffset: 600
       }).addTo(map);
@@ -249,7 +275,7 @@
     }
     if (endCoords) {
       var em = L.marker(endCoords, {
-        icon: makePinIcon('pin-end', 'E'),
+        icon: makePinIcon('pin-end', 'B'),
         draggable: (mode === 'calibrate'),
         zIndexOffset: 600
       }).addTo(map);

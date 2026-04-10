@@ -213,7 +213,7 @@ def _handle_map_event(event: dict) -> bool:
             "index":       ins_idx,
             "lat":         lat,
             "lng":         lng,
-            "instruction": "Add instruction here.",
+            "instruction": "",
             "type":        "step",
             "distance_m":  0,
             "duration_s":  0,
@@ -275,21 +275,22 @@ left_col, right_col = st.columns([1, 5], gap="small")
 with left_col:
     st.markdown(
         '<div class="t-brand"><div class="t-brand-name">TIERA</div>'
-        '<div class="t-brand-sub">powered by Touchpulse</div></div>',
+        '<div class="t-brand-sub">O&M Command Center · powered by Touchpulse</div></div>',
         unsafe_allow_html=True,
     )
 
-    # Stepper (clickable for completed steps)
+    # Stepper (glowing vertical progress)
     STEP_LABELS = ["Identity", "Destination", "Calibration", "Refinement", "Uplink"]
+    st.markdown('<div style="position:relative">', unsafe_allow_html=True)
     for i, label in enumerate(STEP_LABELS):
-        if i == step:
-            marker = "●"
-        elif i < step:
-            marker = "✓"
+        if i < step:
+            cls = "t-stepper-btn is-done"
+        elif i == step:
+            cls = "t-stepper-btn is-current"
         else:
-            marker = "○"
+            cls = "t-stepper-btn is-future"
         if st.button(
-            f"{marker}  {label}",
+            f"{label}",
             key=f"nav_{i}",
             disabled=(i > step),
             use_container_width=True,
@@ -297,24 +298,26 @@ with left_col:
             if i != step:
                 st.session_state.step = i
                 st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('<div class="t-divider"></div>', unsafe_allow_html=True)
 
     # ── Step 0: Identity ──────────────────────────────────────────────────────
     if step == 0:
-        st.markdown('<div class="t-section">Route Identity</div>', unsafe_allow_html=True)
+        st.markdown('<div class="t-section t-stream">Route Identity</div>', unsafe_allow_html=True)
         meta = st.session_state.metadata
         rn = st.text_input("Route Name",        value=meta["route_name"], placeholder="e.g. Highgate Loop A",   key="m_rn")
         oc = st.text_input("Organization Code", value=meta["org_code"],   placeholder="e.g. TP-001",            key="m_oc")
         ow = st.text_input("Owner Name",        value=meta["owner"],      placeholder="e.g. J. Smith",          key="m_ow")
         ct = st.text_input("Contact",           value=meta["contact"],    placeholder="e.g. j@org.com",         key="m_ct")
         st.session_state.metadata = {"route_name": rn, "org_code": oc, "owner": ow, "contact": ct}
-        if st.button("Continue →", key="s0_next", use_container_width=True):
+        st.markdown('<div class="t-gap"></div>', unsafe_allow_html=True)
+        if st.button("Continue →", key="s0_next", use_container_width=True, type="primary"):
             st.session_state.step = 1
             st.rerun()
 
     # ── Step 1: Destination ────────────────────────────────────────────────────
     elif step == 1:
-        st.markdown('<div class="t-section">Destination Planning</div>', unsafe_allow_html=True)
+        st.markdown('<div class="t-section t-stream">Destination Planning</div>', unsafe_allow_html=True)
         if not ors_key:
             st.markdown(
                 '<div class="t-warn">Add <code>ORS_API_KEY</code> to Streamlit Secrets.</div>',
@@ -424,9 +427,9 @@ with left_col:
 
     # ── Step 2: Calibration ────────────────────────────────────────────────────
     elif step == 2:
-        st.markdown('<div class="t-section">Path Calibration</div>', unsafe_allow_html=True)
+        st.markdown('<div class="t-section t-stream">Path Calibration</div>', unsafe_allow_html=True)
         st.markdown(
-            '<div class="t-hint">Drag the <strong>S</strong> or <strong>E</strong> pins to adjust endpoints. '
+            '<div class="t-hint">Drag the <strong>A</strong> or <strong>B</strong> pins to adjust endpoints. '
             'Click the route line to add an intermediate waypoint.</div>',
             unsafe_allow_html=True,
         )
@@ -461,7 +464,7 @@ with left_col:
 
     # ── Step 3: Refinement ──────────────────────────────────────────────────────
     elif step == 3:
-        st.markdown('<div class="t-section">Tactical Refinement</div>', unsafe_allow_html=True)
+        st.markdown('<div class="t-section t-stream">Tactical Refinement</div>', unsafe_allow_html=True)
 
         # Navigation at the top
         c1, c2 = st.columns(2)
@@ -473,17 +476,13 @@ with left_col:
             st.rerun()
 
         st.markdown(
-            '<div class="t-hint">Select a step to edit its instruction. '
-            'Click the route line on the map to inject a new node.</div>',
+            '<div class="t-hint">Hover a node on the map to see its instruction. '
+            'Click a node to edit it here. Click the route line to add a new node.</div>',
             unsafe_allow_html=True,
         )
 
-        # Auto-select first node when entering step 3
         nodes = st.session_state.nodes
         active_id = st.session_state.active_node_id
-        if nodes and (active_id is None or not any(n["id"] == active_id for n in nodes)):
-            st.session_state.active_node_id = nodes[0]["id"]
-            active_id = nodes[0]["id"]
 
         if not nodes:
             st.markdown(
@@ -492,37 +491,74 @@ with left_col:
                 unsafe_allow_html=True,
             )
 
-        for i, node in enumerate(nodes):
-            is_active = node["id"] == active_id
-            ac = "t-node--active" if is_active else ""
+        # Show edit panel only for the active (clicked) node
+        active_node = None
+        active_idx = None
+        if active_id:
+            for i, n in enumerate(nodes):
+                if n["id"] == active_id:
+                    active_node = n
+                    active_idx = i
+                    break
 
-            # Header row: node badge + select button
-            r1, r2 = st.columns([0.85, 0.15])
-            r1.markdown(
-                f'<div class="t-node {ac}">'
-                f'<div class="t-node-num">{i + 1}</div>'
-                f'<div class="t-node-meta">{node["type"].upper()}</div>'
+        if active_node is not None:
+            st.markdown(
+                f'<div class="t-node t-node--active" style="margin-top:0.5rem">'
+                f'<div class="t-node-num">{active_idx + 1}</div>'
+                f'<div class="t-node-meta">{active_node["type"].upper()}</div>'
                 f'</div>',
                 unsafe_allow_html=True,
             )
-            if r2.button("▶" if not is_active else "●", key=f"sel_{i}", use_container_width=True):
-                st.session_state.active_node_id = node["id"]
-                st.rerun()
 
-            # Editable text area for active node
-            if is_active:
-                new_txt = st.text_area(
-                    "Instruction", value=node["instruction"],
-                    height=68, key=f"instr_{i}",
-                    label_visibility="collapsed",
-                )
-                if st.button("Save ✓", key=f"save_{i}", use_container_width=True, type="primary"):
-                    if new_txt != node["instruction"]:
-                        st.session_state.nodes[i] = {**node, "instruction": new_txt}
-                    st.rerun()
-            else:
+            # Type selector
+            type_options = ["start", "step", "right", "left", "straight",
+                            "u-turn", "landmark", "hazard", "arrive"]
+            cur_type = active_node.get("type", "step")
+            cur_idx = type_options.index(cur_type) if cur_type in type_options else 1
+            new_type = st.selectbox(
+                "Type", type_options, index=cur_idx,
+                key=f"type_{active_idx}", label_visibility="collapsed",
+                format_func=lambda x: x.upper(),
+            )
+            if new_type != cur_type:
+                st.session_state.nodes[active_idx]["type"] = new_type
+
+            # Instruction text
+            new_txt = st.text_area(
+                "Instruction", value=active_node["instruction"],
+                height=68, key=f"instr_{active_idx}",
+                label_visibility="collapsed",
+            )
+            if new_txt != active_node["instruction"]:
+                st.session_state.nodes[active_idx]["instruction"] = new_txt
+
+            # Action buttons
+            bc1, bc2, bc3 = st.columns(3)
+            if bc1.button("Save ✓", key=f"save_{active_idx}", use_container_width=True, type="primary"):
+                st.session_state.nodes[active_idx] = {
+                    **active_node,
+                    "instruction": new_txt,
+                    "type": new_type,
+                }
+                st.session_state.active_node_id = None
+                st.rerun()
+            if bc2.button("🗑 Delete", key=f"del_{active_idx}", use_container_width=True):
+                st.session_state.nodes.pop(active_idx)
+                for i, n in enumerate(st.session_state.nodes):
+                    n["index"] = i
+                st.session_state.active_node_id = None
+                st.session_state.route_status = "Node deleted."
+                st.rerun()
+            if bc3.button("Close", key=f"close_{active_idx}", use_container_width=True):
+                st.session_state.active_node_id = None
+                st.rerun()
+        else:
+            # No node selected
+            if nodes:
                 st.markdown(
-                    f'<div class="t-node-text">{node["instruction"]}</div>',
+                    f'<div class="t-hint" style="padding-top:1.5rem;text-align:center">'
+                    f'{len(nodes)} node{"s" if len(nodes) != 1 else ""} on route. '
+                    f'Click one on the map to edit.</div>',
                     unsafe_allow_html=True,
                 )
 
@@ -530,14 +566,14 @@ with left_col:
     elif step == 4:
         if st.session_state.submitted:
             st.markdown(
-                '<div class="t-success">'
+                '<div class="t-success t-stream">'
                 "Your custom route has been submitted successfully and will be reviewed. "
                 "You will receive a confirmation once this is available in the app."
                 '</div>',
                 unsafe_allow_html=True,
             )
         else:
-            st.markdown('<div class="t-section">Uplink</div>', unsafe_allow_html=True)
+            st.markdown('<div class="t-section t-stream">Uplink</div>', unsafe_allow_html=True)
             st.markdown(
                 '<div class="t-hint">Enter your email address to receive a confirmation.</div>',
                 unsafe_allow_html=True,
@@ -565,6 +601,12 @@ with left_col:
                 file_name="tiera-route.json", mime="application/json",
                 use_container_width=True,
             )
+
+            st.markdown('<div class="t-gap"></div>', unsafe_allow_html=True)
+            st.markdown('<div class="t-alert-btn">', unsafe_allow_html=True)
+            if st.button("☎ Call Operator", key="call_op", use_container_width=True):
+                pass  # Human-in-the-loop placeholder
+            st.markdown('</div>', unsafe_allow_html=True)
 
             if st.button("← Back", key="s4_back", use_container_width=True):
                 st.session_state.step = 3

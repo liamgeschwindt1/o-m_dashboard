@@ -1,15 +1,27 @@
 TIERA_STYLES = """
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --bg:        #FFFFFF;
-  --sidebar:   #FAFAFA;
-  --border:    #EDEDED;
-  --text:      #111111;
-  --muted:     #888888;
-  --accent:    #000000;
-  --danger:    #CC0000;
-  --radius:    6px;
+  --bg:           #031119;
+  --panel:        rgba(27, 53, 79, 0.65);
+  --panel-solid:  #1B354F;
+  --border:       rgba(1, 180, 175, 0.18);
+  --border-glow:  rgba(1, 180, 175, 0.45);
+  --text:         #F7F7F7;
+  --text-dim:     rgba(247, 247, 247, 0.55);
+  --text-mid:     rgba(247, 247, 247, 0.75);
+  --accent:       #01B4AF;
+  --accent-dim:   rgba(1, 180, 175, 0.15);
+  --alert:        #FFB100;
+  --alert-dim:    rgba(255, 177, 0, 0.12);
+  --danger:       #FF4D4D;
+  --success:      #34D399;
+  --radius:       10px;
+  --radius-sm:    6px;
+  --transition:   0.2s ease-in-out;
+  --blur:         saturate(1.8) blur(24px);
+  --font:         'Poppins', sans-serif;
+  --mono:         'JetBrains Mono', monospace;
 }
 
 /* ── Global reset ── */
@@ -21,7 +33,7 @@ html, body,
 .main {
   background: var(--bg) !important;
   color: var(--text) !important;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font);
   font-size: 13px;
   margin: 0 !important;
   padding: 0 !important;
@@ -41,7 +53,7 @@ header[data-testid="stHeader"],
   padding: 0 !important;
 }
 
-/* Block-container: zero but no overflow clip */
+/* Block-container */
 .main .block-container,
 [data-testid="stMainBlockContainer"],
 [data-testid="stMain"] > div {
@@ -69,24 +81,41 @@ header[data-testid="stHeader"],
   background: var(--bg) !important;
 }
 
-/* ── Sidebar column (scroll container) ── */
+/* ── Sidebar column (floating glassmorphic blade) ── */
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child {
-  flex: 0 0 300px !important;
-  max-width: 300px !important;
-  min-width: 300px !important;
-  width: 300px !important;
+  flex: 0 0 340px !important;
+  max-width: 340px !important;
+  min-width: 340px !important;
+  width: 340px !important;
   height: 100vh !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
+  background: var(--panel) !important;
+  backdrop-filter: var(--blur) !important;
+  -webkit-backdrop-filter: var(--blur) !important;
   border-right: 1px solid var(--border) !important;
-  background: var(--sidebar) !important;
   padding: 0 !important;
   margin: 0 !important;
+  z-index: 10 !important;
 }
 
-/* All wrapper divs inside sidebar: break flex-grow chain
-   so content overflows and the column scrollbar appears. */
+/* Scrollbar styling */
+.main [data-testid="stHorizontalBlock"]:first-of-type
+  > [data-testid="stColumn"]:first-child::-webkit-scrollbar {
+  width: 4px;
+}
+.main [data-testid="stHorizontalBlock"]:first-of-type
+  > [data-testid="stColumn"]:first-child::-webkit-scrollbar-track {
+  background: transparent;
+}
+.main [data-testid="stHorizontalBlock"]:first-of-type
+  > [data-testid="stColumn"]:first-child::-webkit-scrollbar-thumb {
+  background: rgba(1, 180, 175, 0.25);
+  border-radius: 4px;
+}
+
+/* All wrapper divs inside sidebar: break flex-grow chain */
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child > div,
 .main [data-testid="stHorizontalBlock"]:first-of-type
@@ -108,7 +137,7 @@ header[data-testid="stHeader"],
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child
   [data-testid="stVerticalBlock"] {
-  gap: 0.2rem !important;
+  gap: 0.25rem !important;
   padding: 0 !important;
   padding-bottom: 2rem !important;
   height: auto !important;
@@ -142,7 +171,7 @@ header[data-testid="stHeader"],
   overflow: visible !important;
 }
 
-/* ── Map column ── */
+/* ── Map column (full-screen canvas) ── */
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:last-child {
   flex: 1 1 auto !important;
@@ -152,7 +181,6 @@ header[data-testid="stHeader"],
   margin: 0 !important;
 }
 
-/* ── Force all wrappers inside map column to fill height ── */
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:last-child > div,
 .main [data-testid="stHorizontalBlock"]:first-of-type
@@ -166,7 +194,6 @@ header[data-testid="stHeader"],
   margin: 0 !important;
 }
 
-/* ── Map iframe fills right column ── */
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:last-child iframe {
   width: 100% !important;
@@ -175,141 +202,347 @@ header[data-testid="stHeader"],
   border: none !important;
 }
 
-/* ── Brand ── */
+/* ================================================================
+   Brand
+   ================================================================ */
 .t-brand {
-  padding: 1.2rem 1rem 0.9rem;
+  padding: 1.5rem 1.5rem 1.2rem;
   border-bottom: 1px solid var(--border);
 }
 .t-brand-name {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px; font-weight: 600;
-  letter-spacing: 0.22em; color: var(--text);
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  color: var(--accent);
+  text-shadow: 0 0 18px rgba(1, 180, 175, 0.3);
 }
 .t-brand-sub {
-  font-size: 10px; color: var(--muted);
-  margin-top: 2px; letter-spacing: 0.04em;
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 3px;
+  letter-spacing: 0.06em;
+  font-weight: 300;
 }
 
-.t-divider { height: 1px; background: var(--border); margin: 0 0 0.5rem; }
+.t-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 0.2rem 0 0.6rem;
+}
 
-/* ── Section typography ── */
+/* ================================================================
+   Section & Typography
+   ================================================================ */
 .t-section {
-  font-size: 11px; font-weight: 600;
-  letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--text); padding: 0 1rem 0.5rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 0.6rem 1.5rem 0.5rem;
 }
 .t-field-label {
-  font-size: 10px; font-weight: 600;
-  letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--muted); padding: 0.15rem 1rem 0.2rem;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 0.15rem 1.5rem 0.2rem;
 }
 .t-hint {
-  font-size: 11px; color: var(--muted);
-  padding: 0.2rem 1rem; line-height: 1.5;
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 0.2rem 1.5rem;
+  line-height: 1.6;
 }
 .t-gap { height: 0.5rem; }
 .t-coord {
-  font-size: 11px; color: #338833;
-  padding: 0.15rem 0; line-height: 1.4;
-  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  padding: 0.15rem 0;
+  line-height: 1.4;
+  font-family: var(--mono);
 }
 .t-status {
-  font-size: 11px; color: var(--muted);
-  padding: 0.2rem 1rem 0.3rem; line-height: 1.5;
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 0.2rem 1.5rem 0.3rem;
+  line-height: 1.5;
 }
 .t-via {
-  font-size: 11px; font-family: 'JetBrains Mono', monospace;
-  color: var(--text); padding: 0.15rem 1rem;
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--text-mid);
+  padding: 0.15rem 1.5rem;
 }
-.t-warn { font-size: 11px; color: var(--danger); padding: 0.2rem 1rem; }
+.t-warn {
+  font-size: 11px;
+  color: var(--alert);
+  padding: 0.2rem 1.5rem;
+}
 .t-success {
-  padding: 1.5rem 1rem; font-size: 13px;
-  line-height: 1.7; color: var(--text);
-  border: 1px solid var(--border); border-radius: var(--radius);
-  margin: 0.8rem 1rem; background: #F8F8F8;
+  padding: 1.5rem 1.5rem;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--radius);
+  margin: 0.8rem 1.5rem;
+  background: var(--accent-dim);
 }
 
-/* ── Instruction nodes ── */
+/* ================================================================
+   Stepper (glowing vertical progress)
+   ================================================================ */
+.t-stepper-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.65rem 1.5rem;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dim);
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: all var(--transition);
+  text-align: left;
+  width: 100%;
+}
+.t-stepper-btn::before {
+  content: '';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(1, 180, 175, 0.3);
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--mono);
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+.t-stepper-btn.is-done { color: var(--text-mid); }
+.t-stepper-btn.is-done::before {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(1, 180, 175, 0.35);
+  content: '✓';
+  color: var(--bg);
+  font-size: 11px;
+}
+.t-stepper-btn.is-current {
+  color: var(--text);
+  font-weight: 600;
+}
+.t-stepper-btn.is-current::before {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 14px rgba(1, 180, 175, 0.5), 0 0 4px rgba(1, 180, 175, 0.8);
+  content: '●';
+  color: var(--bg);
+  font-size: 8px;
+}
+.t-stepper-btn.is-future {
+  opacity: 0.4;
+  cursor: default;
+}
+.t-stepper-btn.is-future::before {
+  content: '';
+  border-color: rgba(247, 247, 247, 0.15);
+}
+/* Stepper connecting line */
+.t-stepper-track {
+  position: absolute;
+  left: calc(1.5rem + 10px);
+  top: 0;
+  bottom: 0;
+  width: 1.5px;
+  background: rgba(1, 180, 175, 0.12);
+  z-index: 0;
+}
+
+/* ================================================================
+   Instruction nodes (refinement step)
+   ================================================================ */
 .t-node {
-  display: flex; align-items: center; gap: 8px;
-  padding: 0.4rem 1rem; cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
   border-left: 2px solid transparent;
+  transition: all var(--transition);
 }
-.t-node--active { border-left-color: var(--text); background: #F5F5F5; }
+.t-node:hover {
+  background: rgba(1, 180, 175, 0.06);
+}
+.t-node--active {
+  border-left-color: var(--accent) !important;
+  background: rgba(1, 180, 175, 0.08) !important;
+}
 .t-node-num {
-  width: 20px; height: 20px; border-radius: 50%;
-  border: 1.5px solid var(--text);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 600; flex-shrink: 0;
-  font-family: 'JetBrains Mono', monospace;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+  font-family: var(--mono);
+  color: var(--accent);
+  transition: all var(--transition);
 }
-.t-node--active .t-node-num { background: var(--text); color: var(--bg); }
+.t-node--active .t-node-num {
+  background: var(--accent);
+  color: var(--bg);
+  box-shadow: 0 0 10px rgba(1, 180, 175, 0.3);
+}
 .t-node-meta {
-  font-size: 10px; letter-spacing: 0.1em;
-  color: var(--muted); text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-family: var(--mono);
 }
 .t-node-text {
-  font-size: 11px; color: var(--muted);
-  padding: 0.15rem 1rem 0.3rem 2.7rem; line-height: 1.5;
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 0.15rem 1.5rem 0.3rem 3.5rem;
+  line-height: 1.5;
 }
 
-/* ── Widget overrides ── */
+/* ================================================================
+   Widget overrides (dark inputs)
+   ================================================================ */
 [data-testid="stTextInput"] input,
 [data-testid="stTextArea"] textarea,
 [data-testid="stNumberInput"] input,
 [data-baseweb="select"] > div {
-  background: var(--bg) !important;
+  background: rgba(3, 17, 25, 0.5) !important;
   border: 1px solid var(--border) !important;
-  border-radius: var(--radius) !important;
+  border-radius: var(--radius-sm) !important;
   color: var(--text) !important;
   font-size: 12px !important;
+  font-family: var(--font) !important;
+  transition: border-color var(--transition) !important;
+}
+[data-testid="stTextInput"] input::placeholder,
+[data-testid="stTextArea"] textarea::placeholder {
+  color: var(--text-dim) !important;
 }
 [data-testid="stTextInput"] input:focus,
 [data-testid="stTextArea"] textarea:focus {
-  border-color: var(--text) !important;
-  box-shadow: none !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 1px var(--accent), 0 0 12px rgba(1, 180, 175, 0.15) !important;
 }
 [data-testid="stTextArea"] textarea {
-  caret-color: var(--text) !important;
+  caret-color: var(--accent) !important;
 }
 label, [data-testid="stWidgetLabel"] {
-  font-size: 11px !important; color: var(--muted) !important;
+  font-size: 11px !important;
+  color: var(--text-dim) !important;
+  font-family: var(--font) !important;
 }
 
-/* ── Buttons ── */
-.stButton > button {
-  background: var(--bg) !important;
+/* Select dropdowns */
+[data-baseweb="select"] [data-baseweb="select-option"] {
+  font-size: 12px !important;
+  background: var(--panel-solid) !important;
   color: var(--text) !important;
+}
+[data-baseweb="popover"] > div {
+  background: var(--panel-solid) !important;
   border: 1px solid var(--border) !important;
-  border-radius: var(--radius) !important;
-  font-size: 12px !important; font-weight: 500 !important;
-  padding: 0.3rem 0.5rem !important;
-  box-shadow: none !important;
-  text-align: left !important;
-  justify-content: flex-start !important;
+  border-radius: var(--radius-sm) !important;
 }
-.stButton > button:hover { border-color: #999 !important; }
-.stButton > button[kind="primary"] {
-  background: var(--text) !important;
-  color: var(--bg) !important;
-  border-color: var(--text) !important;
-  text-align: center !important;
-  justify-content: center !important;
+[data-baseweb="select"] [data-baseweb="select-option"]:hover {
+  background: var(--accent-dim) !important;
 }
-.stButton > button[kind="primary"]:hover { background: #333 !important; }
-.stButton > button:disabled { opacity: 0.35 !important; }
-.stDownloadButton > button {
-  background: var(--bg) !important;
-  color: var(--text) !important;
+
+/* ================================================================
+   Buttons
+   ================================================================ */
+.stButton > button {
+  background: rgba(1, 180, 175, 0.08) !important;
+  color: var(--text-mid) !important;
   border: 1px solid var(--border) !important;
   border-radius: var(--radius) !important;
   font-size: 12px !important;
+  font-weight: 500 !important;
+  font-family: var(--font) !important;
+  padding: 0.45rem 0.75rem !important;
+  box-shadow: none !important;
+  text-align: left !important;
+  justify-content: flex-start !important;
+  transition: all var(--transition) !important;
+  cursor: pointer !important;
+}
+.stButton > button:hover {
+  border-color: var(--border-glow) !important;
+  background: rgba(1, 180, 175, 0.12) !important;
+  color: var(--text) !important;
 }
 
-[data-baseweb="select"] [data-baseweb="select-option"] { font-size: 12px !important; }
+/* Primary buttons — Teal */
+.stButton > button[kind="primary"] {
+  background: var(--accent) !important;
+  color: var(--bg) !important;
+  border-color: var(--accent) !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  justify-content: center !important;
+  box-shadow: 0 0 16px rgba(1, 180, 175, 0.25) !important;
+}
+.stButton > button[kind="primary"]:hover {
+  background: #02CCC7 !important;
+  box-shadow: 0 0 24px rgba(1, 180, 175, 0.4) !important;
+}
+.stButton > button:disabled {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+}
+
+/* Download buttons */
+.stDownloadButton > button {
+  background: rgba(1, 180, 175, 0.08) !important;
+  color: var(--text-mid) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  font-size: 12px !important;
+  font-family: var(--font) !important;
+  transition: all var(--transition) !important;
+}
+.stDownloadButton > button:hover {
+  border-color: var(--border-glow) !important;
+}
+
+/* Alert button (golden yellow) */
+.t-alert-btn > button {
+  background: var(--alert-dim) !important;
+  color: var(--alert) !important;
+  border-color: rgba(255, 177, 0, 0.25) !important;
+  text-align: center !important;
+  justify-content: center !important;
+  font-weight: 600 !important;
+}
+.t-alert-btn > button:hover {
+  background: rgba(255, 177, 0, 0.2) !important;
+  border-color: rgba(255, 177, 0, 0.5) !important;
+  box-shadow: 0 0 14px rgba(255, 177, 0, 0.2) !important;
+}
+
 div[data-testid="stExpander"] {
   border: 1px solid var(--border) !important;
   border-radius: var(--radius) !important;
+  background: transparent !important;
 }
 
 /* ── Sidebar widget inset ── */
@@ -323,7 +556,49 @@ div[data-testid="stExpander"] {
   > [data-testid="stColumn"]:first-child [data-testid="stDownloadButton"],
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child [data-baseweb="select"] {
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+}
+
+/* ================================================================
+   Spinner / loading
+   ================================================================ */
+.stSpinner > div {
+  border-top-color: var(--accent) !important;
+}
+
+/* ================================================================
+   Streaming text animation
+   ================================================================ */
+@keyframes t-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.t-stream {
+  animation: t-fade-in 0.4s ease-out both;
+}
+.t-stream-line {
+  display: block;
+  animation: t-fade-in 0.3s ease-out both;
+}
+.t-stream-line:nth-child(2) { animation-delay: 0.08s; }
+.t-stream-line:nth-child(3) { animation-delay: 0.16s; }
+.t-stream-line:nth-child(4) { animation-delay: 0.24s; }
+.t-stream-line:nth-child(5) { animation-delay: 0.32s; }
+.t-stream-line:nth-child(6) { animation-delay: 0.40s; }
+
+/* ================================================================
+   AI log / streaming card
+   ================================================================ */
+.t-ai-log {
+  padding: 0.8rem 1.5rem;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  border-left: 2px solid var(--accent);
+  margin: 0.4rem 1.5rem;
+  background: rgba(1, 180, 175, 0.04);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 """
