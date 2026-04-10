@@ -192,13 +192,21 @@ def build_leaflet_map_html(
 
   // ── Bridge ────────────────────────────────────────────────────────────────
   function sendBridge(payload) {{
-    const pw = window.parent;
-    const el = pw?.document?.querySelector('input[aria-label="tiera-bridge"]');
-    if (!el) return;
-    const set = Object.getOwnPropertyDescriptor(pw.HTMLInputElement.prototype, 'value').set;
-    set.call(el, JSON.stringify({{ ...payload, ts: Date.now() }}));
-    el.dispatchEvent(new pw.Event('input',  {{ bubbles: true }}));
-    el.dispatchEvent(new pw.Event('change', {{ bubbles: true }}));
+    try {{
+      const pw = window.parent;
+      if (!pw || !pw.document) return;
+      const el = pw.document.querySelector('input[placeholder="__tiera_bridge__"]')
+             || pw.document.querySelector('input[aria-label="tiera-bridge"]');
+      if (!el) {{ console.warn('Bridge input not found'); return; }}
+      const set = Object.getOwnPropertyDescriptor(
+        pw.HTMLInputElement.prototype, 'value'
+      ).set;
+      set.call(el, JSON.stringify({{ ...payload, ts: Date.now() }}));
+      el.dispatchEvent(new pw.Event('input',  {{ bubbles: true }}));
+      el.dispatchEvent(new pw.Event('change', {{ bubbles: true }}));
+    }} catch (err) {{
+      console.error('sendBridge error:', err);
+    }}
   }}
 
   function esc(v) {{

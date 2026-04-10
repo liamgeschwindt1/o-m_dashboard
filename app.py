@@ -261,7 +261,7 @@ except Exception:
     maptiler_key = ""
 
 # Hidden bridge input
-st.text_input("tiera-bridge", key="tiera_bridge", label_visibility="collapsed")
+st.text_input("tiera-bridge", key="tiera_bridge", label_visibility="collapsed", placeholder="__tiera_bridge__")
 
 step = st.session_state.step
 
@@ -278,23 +278,24 @@ with left_col:
         unsafe_allow_html=True,
     )
 
-    # Stepper
+    # Stepper (clickable for completed steps)
     STEP_LABELS = ["Identity", "Destination", "Calibration", "Refinement", "Uplink"]
-    dots = ""
     for i, label in enumerate(STEP_LABELS):
-        if i < step:
-            cls = "done"
-        elif i == step:
-            cls = "active"
+        if i == step:
+            marker = "●"
+        elif i < step:
+            marker = "✓"
         else:
-            cls = "idle"
-        dots += (
-            f'<div class="t-step t-step--{cls}">'
-            f'<div class="t-step-dot"></div>'
-            f'<span class="t-step-label">{label}</span>'
-            f'</div>'
-        )
-    st.markdown(f'<div class="t-stepper">{dots}</div>', unsafe_allow_html=True)
+            marker = "○"
+        if st.button(
+            f"{marker}  {label}",
+            key=f"nav_{i}",
+            disabled=(i > step),
+            use_container_width=True,
+        ):
+            if i != step:
+                st.session_state.step = i
+                st.rerun()
     st.markdown('<div class="t-divider"></div>', unsafe_allow_html=True)
 
     # ── Step 0: Identity ──────────────────────────────────────────────────────
