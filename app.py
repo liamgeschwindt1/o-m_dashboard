@@ -126,6 +126,7 @@ def init():
         "submit_email":     "",
         "submitted":        False,
         "route_status":     "",
+        "pin_mode":         None,
         "tiera_bridge":     "",
         "_last_bridge_ts":  0,
     }
@@ -151,10 +152,21 @@ def apply_bridge() -> bool:
     if ev == "map_click" and st.session_state.step == 1:
         lat = round(float(p["lat"]), 6)
         lng = round(float(p["lng"]), 6)
-        if st.session_state.start_coords is None:
+        pm = st.session_state.get("pin_mode")
+        if pm == "start":
             st.session_state.start_coords = (lat, lng)
             st.session_state.start_label  = f"{lat}, {lng}"
-            st.session_state.route_status = "Start pinned — now click the end point."
+            st.session_state.route_status = "Start pinned."
+            st.session_state.pin_mode = None
+        elif pm == "end":
+            st.session_state.end_coords = (lat, lng)
+            st.session_state.end_label  = f"{lat}, {lng}"
+            st.session_state.route_status = "End pinned."
+            st.session_state.pin_mode = None
+        elif st.session_state.start_coords is None:
+            st.session_state.start_coords = (lat, lng)
+            st.session_state.start_label  = f"{lat}, {lng}"
+            st.session_state.route_status = "Start pinned — now set the end point."
         elif st.session_state.end_coords is None:
             st.session_state.end_coords = (lat, lng)
             st.session_state.end_label  = f"{lat}, {lng}"
@@ -322,12 +334,17 @@ with left_col:
 
         # START
         st.markdown('<div class="t-field-label">START</div>', unsafe_allow_html=True)
-        s1, s2 = st.columns([0.8, 0.2])
+        s1, s2, s3 = st.columns([0.7, 0.15, 0.15])
         sq = s1.text_input("S", value=st.session_state.start_address,
                            placeholder="Address or place…", label_visibility="collapsed", key="sq")
         if s2.button("↵", key="s_srch", use_container_width=True, disabled=not ors_key):
             st.session_state.start_cands   = search_candidates(sq, ors_key)
             st.session_state.start_address = sq
+        pin_s_active = st.session_state.get("pin_mode") == "start"
+        if s3.button("📍" if not pin_s_active else "●", key="s_pin", use_container_width=True):
+            st.session_state.pin_mode = None if pin_s_active else "start"
+            st.session_state.route_status = "" if pin_s_active else "Click the map to set Start."
+            st.rerun()
 
         if st.session_state.start_coords:
             sc1a, sc1b = st.columns([0.8, 0.2])
@@ -357,12 +374,17 @@ with left_col:
 
         # END
         st.markdown('<div class="t-field-label">END</div>', unsafe_allow_html=True)
-        e1, e2 = st.columns([0.8, 0.2])
+        e1, e2, e3 = st.columns([0.7, 0.15, 0.15])
         eq = e1.text_input("E", value=st.session_state.end_address,
                            placeholder="Address or place…", label_visibility="collapsed", key="eq")
         if e2.button("↵", key="e_srch", use_container_width=True, disabled=not ors_key):
             st.session_state.end_cands   = search_candidates(eq, ors_key)
             st.session_state.end_address = eq
+        pin_e_active = st.session_state.get("pin_mode") == "end"
+        if e3.button("📍" if not pin_e_active else "●", key="e_pin", use_container_width=True):
+            st.session_state.pin_mode = None if pin_e_active else "end"
+            st.session_state.route_status = "" if pin_e_active else "Click the map to set End."
+            st.rerun()
 
         if st.session_state.end_coords:
             ec1a, ec1b = st.columns([0.8, 0.2])
