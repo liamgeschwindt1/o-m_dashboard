@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import RouteMap from './components/RouteMap'
 import Sidebar from './components/Sidebar'
-import { initialInstructions } from './data/seedRoute'
 import './App.css'
 import type { Instruction } from './types/instruction'
 import {
@@ -13,15 +12,9 @@ import {
 } from './utils/routeTools'
 
 function App() {
-  const [instructions, setInstructions] =
-    useState<Instruction[]>(initialInstructions)
-  const [activeId, setActiveId] = useState<string | null>(
-    initialInstructions[0]?.id ?? null,
-  )
-  const [routePath, setRoutePath] = useState(buildFallbackRoute(initialInstructions))
-  const [routeStatus, setRouteStatus] = useState(
-    'Ready to snap the walking route with OSRM foot routing.',
-  )
+  const [instructions, setInstructions] = useState<Instruction[]>([])
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const [routePath, setRoutePath] = useState(buildFallbackRoute([]))
 
   useEffect(() => {
     let ignore = false
@@ -34,20 +27,9 @@ function App() {
 
       try {
         const nextPath = await fetchWalkingRoute(instructions)
-
-        if (!ignore) {
-          setRoutePath(nextPath)
-          setRouteStatus(
-            `OSRM walking preview synced across ${instructions.length} editable waypoints.`,
-          )
-        }
+        if (!ignore) setRoutePath(nextPath)
       } catch {
-        if (!ignore) {
-          setRoutePath(buildFallbackRoute(instructions))
-          setRouteStatus(
-            'Using the fallback line preview because the routing service is currently unavailable.',
-          )
-        }
+        if (!ignore) setRoutePath(buildFallbackRoute(instructions))
       }
     }
 
@@ -57,15 +39,6 @@ function App() {
       ignore = true
     }
   }, [instructions])
-
-  const activeInstruction =
-    instructions.find((instruction) => instruction.id === activeId) ??
-    instructions[0]
-
-  const activeJsonPreview = useMemo(
-    () => JSON.stringify(activeInstruction, null, 2),
-    [activeInstruction],
-  )
 
   function updateInstruction(id: string, patch: Partial<Instruction>) {
     setInstructions((currentInstructions) =>
@@ -78,7 +51,6 @@ function App() {
   function handleMarkerDrag(id: string, lat: number, lng: number) {
     updateInstruction(id, { lat, lng })
     setActiveId(id)
-    setRouteStatus('Waypoint moved. The JSON coordinates and route preview were updated.')
   }
 
   function handleRouteInsert(lat: number, lng: number) {
@@ -95,9 +67,6 @@ function App() {
       ]
     })
 
-    setRouteStatus(
-      'New landmark inserted at the nearest route segment and added to the JSON array.',
-    )
   }
 
   function handleExport() {
@@ -119,75 +88,36 @@ function App() {
     link.download = 'om-route.json'
     link.click()
     URL.revokeObjectURL(url)
-
-    setRouteStatus('Exported a clean JSON file with id, lat, lng, text, and type.')
   }
 
   function handleReset() {
-    setInstructions(initialInstructions)
-    setActiveId(initialInstructions[0]?.id ?? null)
-    setRouteStatus('Demo route reset to the starter O&M training path.')
+    setInstructions([])
+    setActiveId(null)
   }
 
   return (
     <div className="app-shell">
-      <header className="app-header">
-        <div>
-          <p className="eyebrow">Orientation &amp; Mobility route creator</p>
-          <h1>Accessible route builder for trainers</h1>
-          <p className="app-summary">
-            Drag instruction dots, click the route line to inject a new landmark,
-            and keep the sidebar synced to the same JSON source of truth.
-          </p>
-        </div>
-
-        <ul className="tip-list">
-          <li>Source of truth: <code>Instruction[]</code></li>
-          <li>Polyline click inserts a new instruction at the nearest segment</li>
-          <li>OSRM foot routing keeps the path aligned to walkable streets</li>
-        </ul>
-      </header>
-
-      <main className="workspace">
-        <section className="map-panel" aria-label="Route map workspace">
-          <div className="panel-heading">
-            <h2>Map workspace</h2>
-            <p className="map-help">
-              Click the blue line to add a point. Drag any numbered dot to refine
-              a landmark, turn cue, or hazard location.
-            </p>
-          </div>
-
-          <div className="map-frame">
-            <RouteMap
-              instructions={instructions}
-              routePath={routePath}
-              activeId={activeId}
-              onSelect={setActiveId}
-              onMarkerDrag={handleMarkerDrag}
-              onRouteInsert={handleRouteInsert}
-            />
-          </div>
-        </section>
-
-        <Sidebar
-          instructions={instructions}
-          activeId={activeId}
-          routeStatus={routeStatus}
-          onSelect={setActiveId}
-          onUpdate={updateInstruction}
-          onExport={handleExport}
-          onReset={handleReset}
-        />
-      </main>
-
-      <section className="json-preview-panel" aria-label="Active JSON preview">
-        <div>
-          <p className="eyebrow">Active point JSON</p>
-          <h2>{activeInstruction?.text ?? 'No active instruction selected'}</h2>
-        </div>
-        <pre>{activeJsonPreview}</pre>
-      </section>
+      <Sidebar
+        instructions={instructions}
+        activeId={activeId}
+        onSelect={setActiveId}
+        onUpdate={updateInstruction}
+        onAdd={handleRouteInsert}
+        onDelete={(id) => {
+          setInstructions((prev) => prev.filter((i) => i.id !== id))
+          setActiveId((prev) => (prev === id ? null : prev))
+        }}
+        onExport={handleExport}
+        onReset={handleReset}
+      />
+      <RouteMap
+        instructions={instructions}
+        routePath={routePath}
+        activeId={activeId}
+        onSelect={setActiveId}
+        onMarkerDrag={handleMarkerDrag}
+        onRouteInsert={handleRouteInsert}
+      />
     </div>
   )
 }

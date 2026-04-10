@@ -4,8 +4,8 @@ import {
   MapContainer,
   Marker,
   Polyline,
-  Popup,
   TileLayer,
+  useMapEvents,
 } from 'react-leaflet'
 
 import type { Instruction } from '../types/instruction'
@@ -29,6 +29,15 @@ function buildInstructionIcon(index: number, isActive: boolean, type: string) {
   })
 }
 
+function MapClickHandler({ onRouteInsert }: { onRouteInsert: (lat: number, lng: number) => void }) {
+  useMapEvents({
+    click(e) {
+      onRouteInsert(e.latlng.lat, e.latlng.lng)
+    },
+  })
+  return null
+}
+
 export default function RouteMap({
   instructions,
   routePath,
@@ -37,15 +46,16 @@ export default function RouteMap({
   onMarkerDrag,
   onRouteInsert,
 }: RouteMapProps) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const center = useMemo<[number, number]>(() => {
     const firstPoint = instructions[0]
-    return firstPoint ? [firstPoint.lat, firstPoint.lng] : [37.77606, -122.41711]
-  }, [instructions])
+    return firstPoint ? [firstPoint.lat, firstPoint.lng] : [51.505, -0.09]
+  }, [])
 
   return (
     <MapContainer
       center={center}
-      zoom={16}
+      zoom={14}
       scrollWheelZoom
       className="route-map"
       attributionControl={false}
@@ -55,27 +65,21 @@ export default function RouteMap({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       />
 
-      <Polyline
-        positions={routePath}
-        pathOptions={{ color: '#1d4ed8', weight: 6, opacity: 0.85 }}
-        eventHandlers={{
-          click: (event) => {
-            onRouteInsert(event.latlng.lat, event.latlng.lng)
-          },
-        }}
-      />
+      <MapClickHandler onRouteInsert={onRouteInsert} />
+
+      {routePath.length > 1 && (
+        <Polyline
+          positions={routePath}
+          pathOptions={{ color: '#1d4ed8', weight: 5, opacity: 0.85 }}
+        />
+      )}
 
       {instructions.map((instruction, index) => (
         <Marker
           key={instruction.id}
           position={[instruction.lat, instruction.lng]}
-          icon={buildInstructionIcon(
-            index,
-            instruction.id === activeId,
-            instruction.type,
-          )}
+          icon={buildInstructionIcon(index, instruction.id === activeId, instruction.type)}
           draggable
-          keyboard
           autoPan
           title={`${index + 1}. ${instruction.type}`}
           eventHandlers={{
@@ -86,12 +90,7 @@ export default function RouteMap({
               onMarkerDrag(instruction.id, lat, lng)
             },
           }}
-        >
-          <Popup>
-            <strong>{instruction.type}</strong>
-            <p>{instruction.text}</p>
-          </Popup>
-        </Marker>
+        />
       ))}
     </MapContainer>
   )

@@ -5,9 +5,10 @@ import type { Instruction, InstructionType } from '../types/instruction'
 interface SidebarProps {
   instructions: Instruction[]
   activeId: string | null
-  routeStatus: string
   onSelect: (id: string) => void
   onUpdate: (id: string, patch: Partial<Instruction>) => void
+  onAdd: (lat: number, lng: number) => void
+  onDelete: (id: string) => void
   onExport: () => void
   onReset: () => void
 }
@@ -24,145 +25,81 @@ const instructionTypes: InstructionType[] = [
 export default function Sidebar({
   instructions,
   activeId,
-  routeStatus,
   onSelect,
   onUpdate,
+  onDelete,
   onExport,
   onReset,
 }: SidebarProps) {
   const cardRefs = useRef<Record<string, HTMLElement | null>>({})
 
   useEffect(() => {
-    if (!activeId) {
-      return
-    }
-
-    cardRefs.current[activeId]?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-    })
+    if (!activeId) return
+    cardRefs.current[activeId]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [activeId])
 
   return (
-    <aside className="sidebar" aria-label="Instruction editor">
+    <aside className="sidebar" aria-label="Route editor">
       <div className="sidebar__header">
-        <p className="eyebrow">O&amp;M route editor</p>
-        <h2>Sidebar bridge</h2>
-        <p className="sidebar__intro">
-          The JSON array below is the source of truth. Click a marker to focus it
-          here, or update coordinates to move the same point on the map.
-        </p>
-
-        <div className="status-card" role="status" aria-live="polite">
-          {routeStatus}
-        </div>
-
+        <span className="sidebar__title">Route Editor</span>
         <div className="sidebar__actions">
-          <button onClick={onExport}>Export JSON</button>
-          <button className="secondary" onClick={onReset}>
-            Reset demo
-          </button>
-        </div>
-
-        <div className="schema-card">
-          <strong>Export schema</strong>
-          <code>{`{ id, lat, lng, text, type }`}</code>
+          {instructions.length > 0 && (
+            <button onClick={onExport}>Export</button>
+          )}
+          {instructions.length > 0 && (
+            <button className="secondary" onClick={onReset}>Clear</button>
+          )}
         </div>
       </div>
 
-      <div className="instruction-list">
-        {instructions.map((instruction, index) => {
-          const isActive = instruction.id === activeId
+      {instructions.length === 0 ? (
+        <p className="sidebar__empty">Click the map to add waypoints.</p>
+      ) : (
+        <div className="instruction-list">
+          {instructions.map((instruction, index) => {
+            const isActive = instruction.id === activeId
 
-          return (
-            <section
-              key={instruction.id}
-              ref={(element) => {
-                cardRefs.current[instruction.id] = element
-              }}
-              className={`instruction-card ${isActive ? 'is-active' : ''}`}
-              aria-current={isActive}
-            >
-              <button
-                className="instruction-card__focus"
+            return (
+              <section
+                key={instruction.id}
+                ref={(el) => { cardRefs.current[instruction.id] = el }}
+                className={`instruction-card ${isActive ? 'is-active' : ''}`}
                 onClick={() => onSelect(instruction.id)}
               >
-                Focus point {index + 1}
-              </button>
+                <div className="instruction-card__row">
+                  <span className="instruction-card__num">{index + 1}</span>
+                  <select
+                    value={instruction.type}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) =>
+                      onUpdate(instruction.id, { type: e.target.value as InstructionType })
+                    }
+                  >
+                    {instructionTypes.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                  <button
+                    className="icon-btn"
+                    title="Remove"
+                    onClick={(e) => { e.stopPropagation(); onDelete(instruction.id) }}
+                  >
+                    ×
+                  </button>
+                </div>
 
-              <div className="instruction-card__meta">
-                <span className={`type-badge type-badge--${instruction.type}`}>
-                  {instruction.type}
-                </span>
-                <code>{instruction.id}</code>
-              </div>
-
-              <label>
-                <span>Instruction type</span>
-                <select
-                  value={instruction.type}
-                  onFocus={() => onSelect(instruction.id)}
-                  onChange={(event) => {
-                    onUpdate(instruction.id, {
-                      type: event.target.value as InstructionType,
-                    })
-                  }}
-                >
-                  {instructionTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label>
-                <span>Instruction text</span>
                 <textarea
-                  rows={3}
+                  rows={2}
+                  placeholder="Instruction text…"
                   value={instruction.text}
-                  onFocus={() => onSelect(instruction.id)}
-                  onChange={(event) => {
-                    onUpdate(instruction.id, { text: event.target.value })
-                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => onUpdate(instruction.id, { text: e.target.value })}
                 />
-              </label>
-
-              <div className="coord-grid">
-                <label>
-                  <span>Latitude</span>
-                  <input
-                    type="number"
-                    step="0.000001"
-                    value={instruction.lat}
-                    onFocus={() => onSelect(instruction.id)}
-                    onChange={(event) => {
-                      onUpdate(instruction.id, {
-                        lat: Number(event.target.value),
-                      })
-                    }}
-                  />
-                </label>
-
-                <label>
-                  <span>Longitude</span>
-                  <input
-                    type="number"
-                    step="0.000001"
-                    value={instruction.lng}
-                    onFocus={() => onSelect(instruction.id)}
-                    onChange={(event) => {
-                      onUpdate(instruction.id, {
-                        lng: Number(event.target.value),
-                      })
-                    }}
-                  />
-                </label>
-              </div>
-            </section>
-          )
-        })}
-      </div>
+              </section>
+            )
+          })}
+        </div>
+      )}
     </aside>
   )
 }

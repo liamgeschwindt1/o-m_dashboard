@@ -9,7 +9,6 @@ from typing import Any
 
 import requests
 import streamlit as st
-import streamlit.components.v1 as components
 
 from assets.tiera_styles import TIERA_STYLES
 from components.leaflet_map_bridge import build_leaflet_map_html
@@ -17,8 +16,9 @@ from components.leaflet_map_bridge import build_leaflet_map_html
 # ── Constants ─────────────────────────────────────────────────────────────────
 CUE_TYPES = ["start", "cue", "turn", "landmark", "hazard", "destination"]
 
-ORS_DIRECTIONS_URL = "https://api.openrouteservice.org/v2/directions/foot-pedestrian"
-ORS_GEOCODE_URL    = "https://api.openrouteservice.org/geocode/search"
+ORS_DIRECTIONS_URL   = "https://api.openrouteservice.org/v2/directions/foot-walking"
+ORS_GEOCODE_URL      = "https://api.openrouteservice.org/geocode/search"
+ORS_GEOCODE_AUTO_URL = "https://api.openrouteservice.org/geocode/autocomplete"
 
 DEFAULT_METADATA: dict[str, str] = {
     "trainer": "",
@@ -129,6 +129,33 @@ def geocode_address(address, api_key):
     return round(lat_v, 6), round(lng_v, 6), feat["properties"]["label"]
 
 
+def search_address_candidates(
+    query: str, api_key: str, size: int = 6
+) -> list[dict]:
+    """Return up to `size` candidate places from ORS geocode search.
+    Each entry: {label, lat, lng}
+    """
+    if not query or not api_key:
+        return []
+    try:
+        resp = requests.get(
+            ORS_GEOCODE_URL,
+            params={"api_key": api_key, "text": query, "size": size},
+            timeout=8,
+        )
+        resp.raise_for_status()
+        return [
+            {
+                "label": f["properties"]["label"],
+                "lat":   round(f["geometry"]["coordinates"][1], 6),
+                "lng":   round(f["geometry"]["coordinates"][0], 6),
+            }
+            for f in resp.json().get("features", [])
+        ]
+    except Exception:
+        return []
+
+
 # ── Session state ─────────────────────────────────────────────────────────────
 
 def initialize_state():
@@ -143,8 +170,12 @@ def initialize_state():
         "start_coords":        None,
         "end_coords":          None,
         "route_status":        "Tactical HUD armed. Click the map to drop a landmark, or drag a node to refine it.",
-        "tiera_bridge":        "",
-        "_last_bridge_ts":     0,
+        "tiera_bridge":           "",
+        "_last_bridge_ts":         0,
+        "start_candidates":        [],
+        "end_candidates":          [],
+        "start_selected_label":    "",
+        "end_selected_label":      "",
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -282,53 +313,118 @@ with left_col:
     with st.expander("OpenRouteService walking route", expanded=True):
         if not ors_api_key:
             st.info(
-                "Add `ORS_API_KEY` to `.streamlit/secrets.toml` to enable live pedestrian routing. "
+                "Add `ORS_API_KEY` in **Streamlit Cloud app settings → Secrets** to enable live pedestrian routing. "
                 "The map shows a straight-line fallback until then.",
                 icon="🔑",
             )
 
-        rc1, rc2 = st.columns(2)
-        start_input = rc1.text_input(
+        # ── Start address search ───────────────────────────────────────────
+        st.caption("START")
+        sc1, sc2 = st.columns([0.78, 0.22])
+        start_query = sc1.text_input(
             "Start address",
             value=st.session_state.start_address,
-            placeholder="e.g. 16th St BART, San Francisco",
+            placeholder="e.g. Het Eeuwsel 57, Eindhoven",
+            label_visibility="collapsed",
         )
-        end_input = rc2.text_input(
+        search_start = sc2.button(
+            "Search", key="search_start_btn",
+            use_container_width=True, disabled=not ors_api_key,
+        )
+        if search_start and start_query:
+            st.session_state.start_candidates = search_address_candidates(start_query, ors_api_key)
+            st.session_state.start_address    = start_query
+        if st.session_state.start_candidates:
+            labels = [c["label"] for c in st.session_state.start_candidates]
+            chosen = st.selectbox(
+                "Pick start location",
+                options=labels,
+                index=labels.index(st.session_state.start_selected_label)
+                      if st.session_state.start_selected_label in labels else 0,
+                key="start_pick",
+            )
+            st.session_state.start_selected_label = chosen
+            start_coord = next(c for c in st.session_state.start_candidates if c["label"] == chosen)
+            st.session_state.start_coords = (start_coord["lat"], start_coord["lng"])
+        else:
+            st.caption("_Type an address and press **Search** to see matches._")
+
+        st.markdown("<hr style='margin:0.4rem 0;border-color:rgba(255,177,0,0.12)'>", unsafe_allow_html=True)
+
+        # ── End address search ─────────────────────────────────────────────
+        st.caption("END")
+        ec1, ec2 = st.columns([0.78, 0.22])
+        end_query = ec1.text_input(
             "End address",
             value=st.session_state.end_address,
-            placeholder="e.g. Mission Dolores Park",
+            placeholder="e.g. De Lampendriessen 31, Eindhoven",
+            label_visibility="collapsed",
         )
+        search_end = ec2.button(
+            "Search", key="search_end_btn",
+            use_container_width=True, disabled=not ors_api_key,
+        )
+        if search_end and end_query:
+            st.session_state.end_candidates = search_address_candidates(end_query, ors_api_key)
+            st.session_state.end_address    = end_query
+        if st.session_state.end_candidates:
+            elabels = [c["label"] for c in st.session_state.end_candidates]
+            echosen = st.selectbox(
+                "Pick end location",
+                options=elabels,
+                index=elabels.index(st.session_state.end_selected_label)
+                      if st.session_state.end_selected_label in elabels else 0,
+                key="end_pick",
+            )
+            st.session_state.end_selected_label = echosen
+            end_coord = next(c for c in st.session_state.end_candidates if c["label"] == echosen)
+            st.session_state.end_coords = (end_coord["lat"], end_coord["lng"])
+        else:
+            st.caption("_Type an address and press **Search** to see matches._")
 
+        st.markdown("<hr style='margin:0.4rem 0;border-color:rgba(255,177,0,0.12)'>", unsafe_allow_html=True)
+
+        # ── Fetch / clear ──────────────────────────────────────────────────
+        can_fetch = (
+            ors_api_key
+            and st.session_state.start_coords is not None
+            and st.session_state.end_coords   is not None
+        )
         fc1, fc2 = st.columns(2)
-        fetch_clicked = fc1.button("Fetch walking route", use_container_width=True, disabled=not ors_api_key)
-        clear_clicked = fc2.button("Clear route",         use_container_width=True)
+        fetch_clicked = fc1.button(
+            "Fetch walking route", use_container_width=True, disabled=not can_fetch
+        )
+        clear_clicked = fc2.button("Clear route", use_container_width=True)
 
-        if fetch_clicked and start_input and end_input:
-            with st.spinner("Geocoding and fetching ORS foot-pedestrian route…"):
+        if fetch_clicked:
+            slat, slng = st.session_state.start_coords
+            elat, elng = st.session_state.end_coords
+            with st.spinner("Fetching ORS foot-walking route…"):
                 try:
-                    slat, slng, slabel = geocode_address(start_input, ors_api_key)
-                    elat, elng, elabel = geocode_address(end_input,   ors_api_key)
                     path = fetch_ors_route(slat, slng, elat, elng, ors_api_key)
-                    st.session_state.start_address = start_input
-                    st.session_state.end_address   = end_input
-                    st.session_state.start_coords  = (slat, slng)
-                    st.session_state.end_coords    = (elat, elng)
-                    st.session_state.route_path    = path
-                    st.session_state.route_status  = (
-                        f"ORS foot-pedestrian route loaded: {slabel} → {elabel}. "
+                    st.session_state.route_path   = path
+                    st.session_state.route_status = (
+                        f"ORS walking route loaded: "
+                        f"{st.session_state.start_selected_label} → "
+                        f"{st.session_state.end_selected_label}. "
                         "Click the blue line to drop a tactical node."
                     )
                     st.rerun()
                 except requests.HTTPError as exc:
-                    st.error(f"ORS request failed: {exc}", icon="🚨")
+                    st.error(f"ORS request failed ({exc.response.status_code}): "
+                             f"{exc.response.text[:200]}", icon="🚨")
                 except Exception as exc:
                     st.error(f"Routing error: {exc}", icon="🚨")
 
         if clear_clicked:
-            st.session_state.route_path   = [{"lat": wp["lat"], "lng": wp["lng"]} for wp in st.session_state.waypoints]
-            st.session_state.start_coords = None
-            st.session_state.end_coords   = None
-            st.session_state.route_status = "Route geometry cleared. Fallback path restored."
+            st.session_state.route_path          = [{"lat": wp["lat"], "lng": wp["lng"]} for wp in st.session_state.waypoints]
+            st.session_state.start_coords        = None
+            st.session_state.end_coords          = None
+            st.session_state.start_candidates    = []
+            st.session_state.end_candidates      = []
+            st.session_state.start_selected_label = ""
+            st.session_state.end_selected_label   = ""
+            st.session_state.route_status        = "Route geometry cleared. Fallback path restored."
             st.rerun()
 
     with st.expander("Session metadata", expanded=False):
@@ -423,12 +519,12 @@ with right_col:
 
     if not ors_api_key:
         st.warning(
-            "Add `ORS_API_KEY` to `.streamlit/secrets.toml` to enable live pedestrian routing.",
+            "Add `ORS_API_KEY` in your Streamlit Cloud app settings → Secrets to enable live pedestrian routing.",
             icon="🔑",
         )
 
     st.markdown("<div class='map-card'>", unsafe_allow_html=True)
-    components.html(
+    st.iframe(
         build_leaflet_map_html(
             waypoints=st.session_state.waypoints,
             active_id=st.session_state.selected_waypoint_id,
