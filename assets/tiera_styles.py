@@ -2,9 +2,9 @@ TIERA_STYLES = """
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --bg:           #111111;
-  --panel:        rgba(20, 20, 20, 0.75);
-  --panel-solid:  #1a1a1a;
+  --bg:           #031119;
+  --panel:        rgba(27, 53, 79, 0.55);
+  --panel-solid:  #1B354F;
   --border:       rgba(247, 247, 247, 0.08);
   --border-hover: rgba(247, 247, 247, 0.18);
   --text:         #F7F7F7;
