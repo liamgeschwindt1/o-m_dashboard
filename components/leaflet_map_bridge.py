@@ -191,63 +191,12 @@ def build_leaflet_map_html(
   const ZOOM       = {j_zoom};
 
   // ── Bridge ────────────────────────────────────────────────────────────────
-  function findBridgeInput() {{
-    try {{
-      const pw = window.parent;
-      if (!pw || !pw.document) return null;
-      // Try multiple selectors
-      return pw.document.querySelector('input[placeholder="__tiera_bridge__"]')
-          || pw.document.querySelector('input[aria-label="tiera-bridge"]')
-          || pw.document.querySelector('[data-testid="stTextInput"] input');
-    }} catch(e) {{ return null; }}
-  }}
-
   function sendBridge(payload) {{
-    const data = JSON.stringify({{ ...payload, ts: Date.now() }});
-
-    function attempt() {{
-      try {{
-        const pw = window.parent;
-        if (!pw || !pw.document) return false;
-        const el = findBridgeInput();
-        if (!el) return false;
-
-        // Use React-compatible native setter
-        const nativeSetter = Object.getOwnPropertyDescriptor(
-          pw.HTMLInputElement.prototype, 'value'
-        );
-        if (nativeSetter && nativeSetter.set) {{
-          nativeSetter.set.call(el, data);
-        }} else {{
-          el.value = data;
-        }}
-
-        // Dispatch multiple event types for React compatibility
-        el.dispatchEvent(new pw.Event('input',  {{ bubbles: true }}));
-        el.dispatchEvent(new pw.Event('change', {{ bubbles: true }}));
-        try {{
-          el.dispatchEvent(new pw.InputEvent('input', {{ bubbles: true, data: data }}));
-        }} catch(x) {{}}
-
-        // Also try the React internal instance approach
-        try {{
-          const key = Object.keys(el).find(k => k.startsWith('__reactProps$') || k.startsWith('__reactInternalInstance$'));
-          if (key && el[key] && el[key].onChange) {{
-            el[key].onChange({{ target: el }});
-          }}
-        }} catch(x) {{}}
-
-        return true;
-      }} catch (err) {{
-        console.error('sendBridge error:', err);
-        return false;
-      }}
-    }}
-
-    // Try immediately, retry after short delay if input not found
-    if (!attempt()) {{
-      setTimeout(attempt, 100);
-      setTimeout(attempt, 300);
+    const data = {{ ...payload, ts: Date.now(), _tiera: true }};
+    try {{
+      window.parent.postMessage(data, '*');
+    }} catch (err) {{
+      console.error('sendBridge postMessage error:', err);
     }}
   }}
 
@@ -262,74 +211,6 @@ def build_leaflet_map_html(
     const fr = window.frameElement;
     if (fr) {{ fr.style.height = '100%'; fr.style.width = '100%'; }}
   }} catch(e) {{}}
-
-  // ── Sidebar resize handle ────────────────────────────────────────────────
-  (function() {{
-    try {{
-      const pd = window.parent.document;
-      const old = pd.getElementById('t-resize-handle');
-      if (old) old.remove();
-      if (pd._trMM) pd.removeEventListener('mousemove', pd._trMM);
-      if (pd._trMU) pd.removeEventListener('mouseup', pd._trMU);
-
-      const sb = pd.querySelector(
-        '[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child'
-      );
-      if (!sb) return;
-
-      const h = pd.createElement('div');
-      h.id = 't-resize-handle';
-      h.style.cssText = 'position:fixed;top:0;width:5px;height:100vh;'
-        + 'cursor:col-resize;z-index:10001;background:transparent;'
-        + 'transition:background .15s;';
-      h.style.left = sb.getBoundingClientRect().right + 'px';
-      pd.body.appendChild(h);
-
-      let drag = false, sx = 0, sw = 0;
-
-      h.addEventListener('mousedown', function(e) {{
-        e.preventDefault();
-        drag = true; sx = e.clientX;
-        sw = sb.getBoundingClientRect().width;
-        h.style.background = 'rgba(0,0,0,0.15)';
-        pd.body.style.userSelect = 'none';
-      }});
-
-      pd._trMM = function(e) {{
-        if (!drag) return;
-        e.preventDefault();
-        const nw = Math.min(600, Math.max(180, sw + e.clientX - sx));
-        sb.style.setProperty('width', nw + 'px', 'important');
-        sb.style.setProperty('min-width', nw + 'px', 'important');
-        sb.style.setProperty('max-width', nw + 'px', 'important');
-        sb.style.setProperty('flex-basis', nw + 'px', 'important');
-        h.style.left = nw + 'px';
-      }};
-      pd.addEventListener('mousemove', pd._trMM);
-
-      pd._trMU = function() {{
-        if (!drag) return;
-        drag = false;
-        h.style.background = 'transparent';
-        pd.body.style.userSelect = '';
-        setTimeout(function() {{
-          try {{
-            pd.querySelectorAll('iframe').forEach(function(ifr) {{
-              try {{ ifr.contentWindow.dispatchEvent(new Event('resize')); }} catch(x) {{}}
-            }});
-          }} catch(ex) {{}}
-        }}, 50);
-      }};
-      pd.addEventListener('mouseup', pd._trMU);
-
-      h.addEventListener('mouseenter', function() {{
-        if (!drag) h.style.background = 'rgba(0,0,0,0.08)';
-      }});
-      h.addEventListener('mouseleave', function() {{
-        if (!drag) h.style.background = 'transparent';
-      }});
-    }} catch(e) {{}}
-  }})();
 
   // ── Map ───────────────────────────────────────────────────────────────────
   const map = L.map('map', {{ center: CENTER, zoom: ZOOM, zoomControl: true }});

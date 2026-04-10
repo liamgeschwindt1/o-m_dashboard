@@ -259,6 +259,81 @@ st.set_page_config(
 )
 st.markdown(f"<style>{TIERA_STYLES}</style>", unsafe_allow_html=True)
 
+# Inject postMessage listener to receive bridge events from iframe
+st.markdown("""
+<script>
+(function() {
+  if (window._tieraBridgeReady) return;
+  window._tieraBridgeReady = true;
+
+  /* ── Bridge: listen for postMessage from iframe ── */
+  window.addEventListener('message', function(e) {
+    if (!e.data || !e.data._tiera) return;
+    var el = document.querySelector('input[placeholder="__tiera_bridge__"]')
+          || document.querySelector('input[aria-label="tiera-bridge"]');
+    if (!el) return;
+    var data = JSON.stringify(e.data);
+    var nativeSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype, 'value'
+    ).set;
+    nativeSetter.call(el, data);
+    el.dispatchEvent(new Event('input', {bubbles: true}));
+    el.dispatchEvent(new Event('change', {bubbles: true}));
+  });
+
+  /* ── Sidebar resize handle ── */
+  function initResize() {
+    var old = document.getElementById('t-resize-handle');
+    if (old) old.remove();
+    var sb = document.querySelector(
+      '[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child'
+    );
+    if (!sb) return;
+    var h = document.createElement('div');
+    h.id = 't-resize-handle';
+    h.style.cssText = 'position:fixed;top:0;width:5px;height:100vh;'
+      + 'cursor:col-resize;z-index:10001;background:transparent;'
+      + 'transition:background .15s;';
+    h.style.left = sb.getBoundingClientRect().right + 'px';
+    document.body.appendChild(h);
+    var drag = false, sx = 0, sw = 0;
+    h.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      drag = true; sx = e.clientX;
+      sw = sb.getBoundingClientRect().width;
+      h.style.background = 'rgba(0,0,0,0.15)';
+      document.body.style.userSelect = 'none';
+    });
+    document.addEventListener('mousemove', function(e) {
+      if (!drag) return;
+      e.preventDefault();
+      var nw = Math.min(600, Math.max(180, sw + e.clientX - sx));
+      sb.style.setProperty('width', nw + 'px', 'important');
+      sb.style.setProperty('min-width', nw + 'px', 'important');
+      sb.style.setProperty('max-width', nw + 'px', 'important');
+      sb.style.setProperty('flex-basis', nw + 'px', 'important');
+      h.style.left = nw + 'px';
+    });
+    document.addEventListener('mouseup', function() {
+      if (!drag) return;
+      drag = false;
+      h.style.background = 'transparent';
+      document.body.style.userSelect = '';
+    });
+    h.addEventListener('mouseenter', function() {
+      if (!drag) h.style.background = 'rgba(0,0,0,0.08)';
+    });
+    h.addEventListener('mouseleave', function() {
+      if (!drag) h.style.background = 'transparent';
+    });
+  }
+  // Wait for DOM to render
+  setTimeout(initResize, 500);
+  setTimeout(initResize, 1500);
+})();
+</script>
+""", unsafe_allow_html=True)
+
 init()
 apply_bridge()
 
