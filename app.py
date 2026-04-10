@@ -486,44 +486,44 @@ with left_col:
             st.session_state.active_node_id = nodes[0]["id"]
             active_id = nodes[0]["id"]
 
-        with st.container(height=420, border=False):
-            if not nodes:
+        if not nodes:
+            st.markdown(
+                '<div class="t-hint" style="padding-top:2rem;text-align:center">'
+                'No instruction nodes yet. Go back and generate a route first.</div>',
+                unsafe_allow_html=True,
+            )
+
+        for i, node in enumerate(nodes):
+            is_active = node["id"] == active_id
+            ac = "t-node--active" if is_active else ""
+
+            # Header row: node badge + select button
+            r1, r2 = st.columns([0.85, 0.15])
+            r1.markdown(
+                f'<div class="t-node {ac}">'
+                f'<div class="t-node-num">{i + 1}</div>'
+                f'<div class="t-node-meta">{node["type"].upper()}</div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+            if r2.button("▶" if not is_active else "●", key=f"sel_{i}", use_container_width=True):
+                st.session_state.active_node_id = node["id"]
+                st.rerun()
+
+            # Editable text area for active node
+            if is_active:
+                new_txt = st.text_area(
+                    "Instruction", value=node["instruction"],
+                    height=68, key=f"instr_{i}",
+                    label_visibility="collapsed",
+                )
+                if new_txt != node["instruction"]:
+                    st.session_state.nodes[i] = {**node, "instruction": new_txt}
+            else:
                 st.markdown(
-                    '<div class="t-hint" style="padding-top:2rem;text-align:center">'
-                    'No instruction nodes yet. Go back and generate a route first.</div>',
+                    f'<div class="t-node-text">{node["instruction"]}</div>',
                     unsafe_allow_html=True,
                 )
-            for i, node in enumerate(nodes):
-                is_active = node["id"] == active_id
-                ac = "t-node--active" if is_active else ""
-
-                # Header row with select button
-                r1, r2 = st.columns([0.85, 0.15])
-                r1.markdown(
-                    f'<div class="t-node {ac}">'
-                    f'<div class="t-node-num">{i + 1}</div>'
-                    f'<div class="t-node-meta">{node["type"].upper()}</div>'
-                    f'</div>',
-                    unsafe_allow_html=True,
-                )
-                if r2.button("▶" if not is_active else "●", key=f"sel_{i}", use_container_width=True):
-                    st.session_state.active_node_id = node["id"]
-                    st.rerun()
-
-                # Always show editable text area for the active node
-                if is_active:
-                    new_txt = st.text_area(
-                        "Instruction", value=node["instruction"],
-                        height=68, key=f"instr_{i}",
-                        label_visibility="collapsed",
-                    )
-                    if new_txt != node["instruction"]:
-                        st.session_state.nodes[i] = {**node, "instruction": new_txt}
-                else:
-                    st.markdown(
-                        f'<div class="t-node-text">{node["instruction"]}</div>',
-                        unsafe_allow_html=True,
-                    )
 
         c1, c2 = st.columns(2)
         if c1.button("Continue to Submit →", key="s3_next", use_container_width=True, type="primary"):

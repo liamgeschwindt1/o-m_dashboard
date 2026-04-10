@@ -191,21 +191,63 @@ def build_leaflet_map_html(
   const ZOOM       = {j_zoom};
 
   // ── Bridge ────────────────────────────────────────────────────────────────
-  function sendBridge(payload) {{
+  function findBridgeInput() {{
     try {{
       const pw = window.parent;
-      if (!pw || !pw.document) return;
-      const el = pw.document.querySelector('input[placeholder="__tiera_bridge__"]')
-             || pw.document.querySelector('input[aria-label="tiera-bridge"]');
-      if (!el) {{ console.warn('Bridge input not found'); return; }}
-      const set = Object.getOwnPropertyDescriptor(
-        pw.HTMLInputElement.prototype, 'value'
-      ).set;
-      set.call(el, JSON.stringify({{ ...payload, ts: Date.now() }}));
-      el.dispatchEvent(new pw.Event('input',  {{ bubbles: true }}));
-      el.dispatchEvent(new pw.Event('change', {{ bubbles: true }}));
-    }} catch (err) {{
-      console.error('sendBridge error:', err);
+      if (!pw || !pw.document) return null;
+      // Try multiple selectors
+      return pw.document.querySelector('input[placeholder="__tiera_bridge__"]')
+          || pw.document.querySelector('input[aria-label="tiera-bridge"]')
+          || pw.document.querySelector('[data-testid="stTextInput"] input');
+    }} catch(e) {{ return null; }}
+  }}
+
+  function sendBridge(payload) {{
+    const data = JSON.stringify({{ ...payload, ts: Date.now() }});
+
+    function attempt() {{
+      try {{
+        const pw = window.parent;
+        if (!pw || !pw.document) return false;
+        const el = findBridgeInput();
+        if (!el) return false;
+
+        // Use React-compatible native setter
+        const nativeSetter = Object.getOwnPropertyDescriptor(
+          pw.HTMLInputElement.prototype, 'value'
+        );
+        if (nativeSetter && nativeSetter.set) {{
+          nativeSetter.set.call(el, data);
+        }} else {{
+          el.value = data;
+        }}
+
+        // Dispatch multiple event types for React compatibility
+        el.dispatchEvent(new pw.Event('input',  {{ bubbles: true }}));
+        el.dispatchEvent(new pw.Event('change', {{ bubbles: true }}));
+        try {{
+          el.dispatchEvent(new pw.InputEvent('input', {{ bubbles: true, data: data }}));
+        }} catch(x) {{}}
+
+        // Also try the React internal instance approach
+        try {{
+          const key = Object.keys(el).find(k => k.startsWith('__reactProps$') || k.startsWith('__reactInternalInstance$'));
+          if (key && el[key] && el[key].onChange) {{
+            el[key].onChange({{ target: el }});
+          }}
+        }} catch(x) {{}}
+
+        return true;
+      }} catch (err) {{
+        console.error('sendBridge error:', err);
+        return false;
+      }}
+    }}
+
+    // Try immediately, retry after short delay if input not found
+    if (!attempt()) {{
+      setTimeout(attempt, 100);
+      setTimeout(attempt, 300);
     }}
   }}
 
