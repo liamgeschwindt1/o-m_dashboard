@@ -11,20 +11,20 @@
     .leaflet-bar a {
       background: rgba(27, 53, 79, 0.85) !important;
       color: #F7F7F7 !important;
-      border-color: rgba(1, 180, 175, 0.2) !important;
+      border-color: rgba(247, 247, 247, 0.1) !important;
       font-size: 16px !important;
       backdrop-filter: blur(12px);
     }
-    .leaflet-bar a:hover { background: rgba(1, 180, 175, 0.15) !important; }
+    .leaflet-bar a:hover { background: rgba(247, 247, 247, 0.08) !important; }
     .leaflet-control-attribution {
       background: rgba(3, 17, 25, 0.75) !important;
       color: rgba(247, 247, 247, 0.4); font-size: 10px !important;
       backdrop-filter: blur(8px);
     }
-    .leaflet-control-attribution a { color: rgba(1, 180, 175, 0.6) !important; }
+    .leaflet-control-attribution a { color: rgba(247, 247, 247, 0.3) !important; }
     .leaflet-popup-content-wrapper {
       background: rgba(27, 53, 79, 0.9);
-      border: 1px solid rgba(1, 180, 175, 0.25);
+      border: 1px solid rgba(247, 247, 247, 0.1);
       border-radius: 10px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
       color: #F7F7F7;
@@ -34,7 +34,7 @@
     .leaflet-popup-content { margin: 0; }
     .leaflet-tooltip.node-tip {
       background: rgba(27, 53, 79, 0.92);
-      border: 1px solid rgba(1, 180, 175, 0.3);
+      border: 1px solid rgba(247, 247, 247, 0.1);
       border-radius: 8px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.35);
       color: #F7F7F7;
@@ -42,12 +42,12 @@
       font-family: "Poppins", sans-serif;
       backdrop-filter: saturate(1.5) blur(14px);
     }
-    .leaflet-tooltip.node-tip::before { border-top-color: rgba(1, 180, 175, 0.3); }
+    .leaflet-tooltip.node-tip::before { border-top-color: rgba(247, 247, 247, 0.1); }
     .pop { padding: 0.6rem 0.75rem; min-width: 200px; }
     .pop-num {
       display: inline-flex; align-items: center; justify-content: center;
       width: 20px; height: 20px; border-radius: 50%;
-      background: #01B4AF; color: #031119;
+      background: #F7F7F7; color: #031119;
       font-size: 10px; font-weight: 700; margin-right: 6px;
       font-family: "JetBrains Mono", monospace;
     }
@@ -63,13 +63,12 @@
       font-family: "JetBrains Mono", monospace;
       font-weight: 700; cursor: pointer;
       transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-      background: rgba(27, 53, 79, 0.85); border: 2px solid #01B4AF; color: #01B4AF;
-      box-shadow: 0 0 6px rgba(1, 180, 175, 0.15);
+      background: rgba(27, 53, 79, 0.85); border: 1.5px solid rgba(247,247,247,0.5); color: #F7F7F7;
     }
-    .step-circle:hover { transform: scale(1.18); box-shadow: 0 0 14px rgba(1, 180, 175, 0.35); }
+    .step-circle:hover { transform: scale(1.18); }
     .step-circle.active {
-      background: #01B4AF; color: #031119;
-      box-shadow: 0 0 18px rgba(1, 180, 175, 0.5), 0 0 4px rgba(1, 180, 175, 0.9);
+      background: #F7F7F7; color: #031119;
+      box-shadow: 0 2px 12px rgba(247,247,247,0.2);
     }
     .pin {
       display: flex; align-items: center; justify-content: center;
@@ -80,9 +79,9 @@
     }
     .pin:hover { transform: scale(1.14); }
     .pin-start {
-      background: #01B4AF; color: #031119;
-      border: 2px solid #01B4AF;
-      box-shadow: 0 0 14px rgba(1, 180, 175, 0.4);
+      background: #FFB100; color: #031119;
+      border: 2px solid #FFB100;
+      box-shadow: 0 0 14px rgba(255, 177, 0, 0.35);
     }
     .pin-end {
       background: #FFB100; color: #031119;
@@ -91,14 +90,13 @@
     }
     .via-dot {
       width: 12px; height: 12px; border-radius: 50%;
-      background: rgba(1, 180, 175, 0.6); border: 2px solid rgba(247,247,247,0.6);
+      background: rgba(247,247,247,0.5); border: 2px solid rgba(247,247,247,0.8);
       box-shadow: 0 1px 6px rgba(0,0,0,0.4);
       cursor: grab;
     }
     .click-dot {
       width: 6px; height: 6px; border-radius: 50%;
-      background: #01B4AF; border: none;
-      box-shadow: 0 0 8px rgba(1, 180, 175, 0.5);
+      background: #F7F7F7; border: none;
     }
     .leaflet-container.mode-plan    { cursor: crosshair; }
     .leaflet-container.mode-calibrate { cursor: crosshair; }
@@ -204,7 +202,7 @@
     /* ── Route polyline ── */
     if (routePath.length) {
       routeLayer = L.polyline(routePath, {
-        color: '#01B4AF', weight: 3, opacity: 0.85,
+        color: '#E0E0E0', weight: 3, opacity: 0.75,
         lineJoin: 'round', lineCap: 'round',
         interactive: (mode === 'calibrate' || mode === 'refine')
       }).addTo(map);

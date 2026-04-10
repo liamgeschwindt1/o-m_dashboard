@@ -3,23 +3,24 @@ TIERA_STYLES = """
 
 :root {
   --bg:           #031119;
-  --panel:        rgba(27, 53, 79, 0.65);
+  --panel:        rgba(27, 53, 79, 0.55);
   --panel-solid:  #1B354F;
-  --border:       rgba(1, 180, 175, 0.18);
-  --border-glow:  rgba(1, 180, 175, 0.45);
+  --border:       rgba(247, 247, 247, 0.08);
+  --border-hover: rgba(247, 247, 247, 0.18);
   --text:         #F7F7F7;
-  --text-dim:     rgba(247, 247, 247, 0.55);
-  --text-mid:     rgba(247, 247, 247, 0.75);
-  --accent:       #01B4AF;
-  --accent-dim:   rgba(1, 180, 175, 0.15);
+  --text-dim:     rgba(247, 247, 247, 0.45);
+  --text-mid:     rgba(247, 247, 247, 0.7);
+  --accent:       #FFB100;
+  --accent-hover: #FFC233;
+  --accent-dim:   rgba(255, 177, 0, 0.10);
   --alert:        #FFB100;
   --alert-dim:    rgba(255, 177, 0, 0.12);
   --danger:       #FF4D4D;
   --success:      #34D399;
-  --radius:       10px;
+  --radius:       8px;
   --radius-sm:    6px;
   --transition:   0.2s ease-in-out;
-  --blur:         saturate(1.8) blur(24px);
+  --blur:         saturate(1.6) blur(20px);
   --font:         'Poppins', sans-serif;
   --mono:         'JetBrains Mono', monospace;
 }
@@ -111,7 +112,7 @@ header[data-testid="stHeader"],
 }
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child::-webkit-scrollbar-thumb {
-  background: rgba(1, 180, 175, 0.25);
+  background: rgba(247, 247, 247, 0.12);
   border-radius: 4px;
 }
 
@@ -206,28 +207,28 @@ header[data-testid="stHeader"],
    Brand
    ================================================================ */
 .t-brand {
-  padding: 1.5rem 1.5rem 1.2rem;
+  padding: 1.8rem 1.5rem 1.4rem;
   border-bottom: 1px solid var(--border);
 }
 .t-brand-name {
-  font-family: var(--mono);
-  font-size: 15px;
+  font-family: var(--font);
+  font-size: 22px;
   font-weight: 700;
-  letter-spacing: 0.28em;
-  color: var(--accent);
-  text-shadow: 0 0 18px rgba(1, 180, 175, 0.3);
+  letter-spacing: 0.04em;
+  color: var(--text);
+  line-height: 1.1;
 }
 .t-brand-sub {
   font-size: 10px;
   color: var(--text-dim);
-  margin-top: 3px;
+  margin-top: 5px;
   letter-spacing: 0.06em;
   font-weight: 300;
 }
 
 .t-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  background: var(--border);
   margin: 0.2rem 0 0.6rem;
 }
 
@@ -239,7 +240,7 @@ header[data-testid="stHeader"],
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--text-mid);
   padding: 0.6rem 1.5rem 0.5rem;
 }
 .t-field-label {
@@ -259,7 +260,7 @@ header[data-testid="stHeader"],
 .t-gap { height: 0.5rem; }
 .t-coord {
   font-size: 11px;
-  color: var(--accent);
+  color: var(--success);
   padding: 0.15rem 0;
   line-height: 1.4;
   font-family: var(--mono);
@@ -286,10 +287,10 @@ header[data-testid="stHeader"],
   font-size: 13px;
   line-height: 1.7;
   color: var(--text);
-  border: 1px solid var(--border-glow);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   margin: 0.8rem 1.5rem;
-  background: var(--accent-dim);
+  background: rgba(52, 211, 153, 0.06);
 }
 
 /* ================================================================
@@ -316,10 +317,10 @@ header[data-testid="stHeader"],
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  border: 1.5px solid rgba(1, 180, 175, 0.3);
+  border: 1.5px solid rgba(247, 247, 247, 0.15);
   font-size: 10px;
   font-weight: 600;
   font-family: var(--mono);
@@ -328,11 +329,10 @@ header[data-testid="stHeader"],
 }
 .t-stepper-btn.is-done { color: var(--text-mid); }
 .t-stepper-btn.is-done::before {
-  background: var(--accent);
-  border-color: var(--accent);
-  box-shadow: 0 0 10px rgba(1, 180, 175, 0.35);
+  background: rgba(247, 247, 247, 0.12);
+  border-color: rgba(247, 247, 247, 0.25);
   content: '✓';
-  color: var(--bg);
+  color: var(--text);
   font-size: 11px;
 }
 .t-stepper-btn.is-current {
@@ -340,30 +340,19 @@ header[data-testid="stHeader"],
   font-weight: 600;
 }
 .t-stepper-btn.is-current::before {
-  background: var(--accent);
-  border-color: var(--accent);
-  box-shadow: 0 0 14px rgba(1, 180, 175, 0.5), 0 0 4px rgba(1, 180, 175, 0.8);
+  background: var(--text);
+  border-color: var(--text);
   content: '●';
   color: var(--bg);
   font-size: 8px;
 }
 .t-stepper-btn.is-future {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: default;
 }
 .t-stepper-btn.is-future::before {
   content: '';
-  border-color: rgba(247, 247, 247, 0.15);
-}
-/* Stepper connecting line */
-.t-stepper-track {
-  position: absolute;
-  left: calc(1.5rem + 10px);
-  top: 0;
-  bottom: 0;
-  width: 1.5px;
-  background: rgba(1, 180, 175, 0.12);
-  z-index: 0;
+  border-color: rgba(247, 247, 247, 0.1);
 }
 
 /* ================================================================
@@ -379,17 +368,17 @@ header[data-testid="stHeader"],
   transition: all var(--transition);
 }
 .t-node:hover {
-  background: rgba(1, 180, 175, 0.06);
+  background: rgba(247, 247, 247, 0.04);
 }
 .t-node--active {
-  border-left-color: var(--accent) !important;
-  background: rgba(1, 180, 175, 0.08) !important;
+  border-left-color: var(--text) !important;
+  background: rgba(247, 247, 247, 0.05) !important;
 }
 .t-node-num {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 1.5px solid var(--accent);
+  border: 1.5px solid var(--text-mid);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -397,13 +386,12 @@ header[data-testid="stHeader"],
   font-weight: 600;
   flex-shrink: 0;
   font-family: var(--mono);
-  color: var(--accent);
+  color: var(--text-mid);
   transition: all var(--transition);
 }
 .t-node--active .t-node-num {
-  background: var(--accent);
+  background: var(--text);
   color: var(--bg);
-  box-shadow: 0 0 10px rgba(1, 180, 175, 0.3);
 }
 .t-node-meta {
   font-size: 10px;
@@ -440,11 +428,11 @@ header[data-testid="stHeader"],
 }
 [data-testid="stTextInput"] input:focus,
 [data-testid="stTextArea"] textarea:focus {
-  border-color: var(--accent) !important;
-  box-shadow: 0 0 0 1px var(--accent), 0 0 12px rgba(1, 180, 175, 0.15) !important;
+  border-color: rgba(247, 247, 247, 0.3) !important;
+  box-shadow: 0 0 0 1px rgba(247, 247, 247, 0.15) !important;
 }
 [data-testid="stTextArea"] textarea {
-  caret-color: var(--accent) !important;
+  caret-color: var(--text) !important;
 }
 label, [data-testid="stWidgetLabel"] {
   font-size: 11px !important;
@@ -464,14 +452,14 @@ label, [data-testid="stWidgetLabel"] {
   border-radius: var(--radius-sm) !important;
 }
 [data-baseweb="select"] [data-baseweb="select-option"]:hover {
-  background: var(--accent-dim) !important;
+  background: rgba(247, 247, 247, 0.06) !important;
 }
 
 /* ================================================================
    Buttons
    ================================================================ */
 .stButton > button {
-  background: rgba(1, 180, 175, 0.08) !important;
+  background: rgba(247, 247, 247, 0.04) !important;
   color: var(--text-mid) !important;
   border: 1px solid var(--border) !important;
   border-radius: var(--radius) !important;
@@ -486,12 +474,12 @@ label, [data-testid="stWidgetLabel"] {
   cursor: pointer !important;
 }
 .stButton > button:hover {
-  border-color: var(--border-glow) !important;
-  background: rgba(1, 180, 175, 0.12) !important;
+  border-color: var(--border-hover) !important;
+  background: rgba(247, 247, 247, 0.07) !important;
   color: var(--text) !important;
 }
 
-/* Primary buttons — Teal */
+/* Primary buttons — Golden Yellow */
 .stButton > button[kind="primary"] {
   background: var(--accent) !important;
   color: var(--bg) !important;
@@ -499,11 +487,9 @@ label, [data-testid="stWidgetLabel"] {
   font-weight: 600 !important;
   text-align: center !important;
   justify-content: center !important;
-  box-shadow: 0 0 16px rgba(1, 180, 175, 0.25) !important;
 }
 .stButton > button[kind="primary"]:hover {
-  background: #02CCC7 !important;
-  box-shadow: 0 0 24px rgba(1, 180, 175, 0.4) !important;
+  background: var(--accent-hover) !important;
 }
 .stButton > button:disabled {
   opacity: 0.3 !important;
@@ -512,7 +498,7 @@ label, [data-testid="stWidgetLabel"] {
 
 /* Download buttons */
 .stDownloadButton > button {
-  background: rgba(1, 180, 175, 0.08) !important;
+  background: rgba(247, 247, 247, 0.04) !important;
   color: var(--text-mid) !important;
   border: 1px solid var(--border) !important;
   border-radius: var(--radius) !important;
@@ -521,7 +507,7 @@ label, [data-testid="stWidgetLabel"] {
   transition: all var(--transition) !important;
 }
 .stDownloadButton > button:hover {
-  border-color: var(--border-glow) !important;
+  border-color: var(--border-hover) !important;
 }
 
 /* Alert button (golden yellow) */
@@ -596,7 +582,7 @@ div[data-testid="stExpander"] {
   line-height: 1.7;
   color: var(--text-dim);
   font-family: var(--mono);
-  border-left: 2px solid var(--accent);
+  border-left: 2px solid var(--text-dim);
   margin: 0.4rem 1.5rem;
   background: rgba(1, 180, 175, 0.04);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;

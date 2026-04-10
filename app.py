@@ -274,8 +274,8 @@ left_col, right_col = st.columns([1, 5], gap="small")
 # ══════════════════════════════════════════════════════════════════════════════════
 with left_col:
     st.markdown(
-        '<div class="t-brand"><div class="t-brand-name">TIERA</div>'
-        '<div class="t-brand-sub">O&M Command Center · powered by Touchpulse</div></div>',
+        '<div class="t-brand"><div class="t-brand-name">O&amp;M Studio</div>'
+        '<div class="t-brand-sub">powered by Touchpulse</div></div>',
         unsafe_allow_html=True,
     )
 
