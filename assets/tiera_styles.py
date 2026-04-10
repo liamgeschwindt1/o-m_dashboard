@@ -2,9 +2,9 @@ TIERA_STYLES = """
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --bg:           #031119;
-  --panel:        rgba(27, 53, 79, 0.55);
-  --panel-solid:  #1B354F;
+  --bg:           #111111;
+  --panel:        rgba(20, 20, 20, 0.75);
+  --panel-solid:  #1a1a1a;
   --border:       rgba(247, 247, 247, 0.08);
   --border-hover: rgba(247, 247, 247, 0.18);
   --text:         #F7F7F7;
@@ -436,7 +436,7 @@ header[data-testid="stHeader"],
 [data-testid="stTextArea"] textarea,
 [data-testid="stNumberInput"] input,
 [data-baseweb="select"] > div {
-  background: rgba(3, 17, 25, 0.5) !important;
+  background: rgba(17, 17, 17, 0.5) !important;
   border: 1px solid var(--border) !important;
   border-radius: var(--radius-sm) !important;
   color: var(--text) !important;
@@ -606,7 +606,7 @@ div[data-testid="stExpander"] {
   font-family: var(--mono);
   border-left: 2px solid var(--text-dim);
   margin: 0.4rem 1.5rem;
-  background: rgba(1, 180, 175, 0.04);
+  background: rgba(52, 211, 153, 0.04);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 """

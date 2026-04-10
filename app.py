@@ -235,7 +235,7 @@ def export_json() -> str:
 
 # ── Bootstrap ───────────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Tiera",
+    page_title="O&M Studio",
     page_icon="▪",
     layout="wide",
     initial_sidebar_state="collapsed",

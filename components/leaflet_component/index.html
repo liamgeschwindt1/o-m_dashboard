@@ -6,10 +6,10 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body, #map { width: 100%; height: 100vh; background: #031119; }
-    .leaflet-container { background: #031119; font-family: "Poppins", "Inter", sans-serif; }
+    html, body, #map { width: 100%; height: 100vh; background: #111111; }
+    .leaflet-container { background: #111111; font-family: "Poppins", "Inter", sans-serif; }
     .leaflet-bar a {
-      background: rgba(27, 53, 79, 0.85) !important;
+      background: rgba(30, 30, 30, 0.85) !important;
       color: #F7F7F7 !important;
       border-color: rgba(247, 247, 247, 0.1) !important;
       font-size: 16px !important;
@@ -17,23 +17,23 @@
     }
     .leaflet-bar a:hover { background: rgba(247, 247, 247, 0.08) !important; }
     .leaflet-control-attribution {
-      background: rgba(3, 17, 25, 0.75) !important;
+      background: rgba(17, 17, 17, 0.75) !important;
       color: rgba(247, 247, 247, 0.4); font-size: 10px !important;
       backdrop-filter: blur(8px);
     }
     .leaflet-control-attribution a { color: rgba(247, 247, 247, 0.3) !important; }
     .leaflet-popup-content-wrapper {
-      background: rgba(27, 53, 79, 0.9);
+      background: rgba(26, 26, 26, 0.92);
       border: 1px solid rgba(247, 247, 247, 0.1);
       border-radius: 10px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
       color: #F7F7F7;
       backdrop-filter: saturate(1.5) blur(16px);
     }
-    .leaflet-popup-tip { background: rgba(27, 53, 79, 0.9); }
+    .leaflet-popup-tip { background: rgba(26, 26, 26, 0.92); }
     .leaflet-popup-content { margin: 0; }
     .leaflet-tooltip.node-tip {
-      background: rgba(27, 53, 79, 0.92);
+      background: rgba(26, 26, 26, 0.94);
       border: 1px solid rgba(247, 247, 247, 0.1);
       border-radius: 8px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.35);
@@ -47,7 +47,7 @@
     .pop-num {
       display: inline-flex; align-items: center; justify-content: center;
       width: 20px; height: 20px; border-radius: 50%;
-      background: #F7F7F7; color: #031119;
+      background: #F7F7F7; color: #111111;
       font-size: 10px; font-weight: 700; margin-right: 6px;
       font-family: "JetBrains Mono", monospace;
     }
@@ -63,11 +63,11 @@
       font-family: "JetBrains Mono", monospace;
       font-weight: 700; cursor: pointer;
       transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-      background: rgba(27, 53, 79, 0.85); border: 1.5px solid rgba(247,247,247,0.5); color: #F7F7F7;
+      background: rgba(26, 26, 26, 0.85); border: 1.5px solid rgba(247,247,247,0.5); color: #F7F7F7;
     }
     .step-circle:hover { transform: scale(1.18); }
     .step-circle.active {
-      background: #F7F7F7; color: #031119;
+      background: #F7F7F7; color: #111111;
       box-shadow: 0 2px 12px rgba(247,247,247,0.2);
     }
     .pin {
@@ -79,12 +79,12 @@
     }
     .pin:hover { transform: scale(1.14); }
     .pin-start {
-      background: #FFB100; color: #031119;
+      background: #FFB100; color: #111111;
       border: 2px solid #FFB100;
       box-shadow: 0 0 14px rgba(255, 177, 0, 0.35);
     }
     .pin-end {
-      background: #FFB100; color: #031119;
+      background: #FFB100; color: #111111;
       border: 2px solid #FFB100;
       box-shadow: 0 0 14px rgba(255, 177, 0, 0.35);
     }
@@ -201,29 +201,42 @@
 
     /* ── Route polyline ── */
     if (routePath.length) {
+      var isInteractive = (mode === 'calibrate' || mode === 'refine');
+
+      /* Invisible wide hit-target line for easier clicking */
+      if (isInteractive) {
+        var hitLine = L.polyline(routePath, {
+          color: 'transparent', weight: 22, opacity: 0,
+          lineJoin: 'round', lineCap: 'round',
+          interactive: true
+        }).addTo(map);
+        clickDots.push(hitLine); /* reuse clickDots array for cleanup */
+
+        if (mode === 'calibrate') {
+          hitLine.on('click', function(e) {
+            L.DomEvent.stopPropagation(e);
+            setComponentValue({ type: 'via_add', lat: e.latlng.lat, lng: e.latlng.lng, ts: Date.now() });
+          });
+        }
+        if (mode === 'refine') {
+          hitLine.on('click', function(e) {
+            L.DomEvent.stopPropagation(e);
+            var best = nodes.length, bestD = Infinity;
+            nodes.forEach(function(n, i) {
+              var d = Math.hypot(n.lat - e.latlng.lat, n.lng - e.latlng.lng);
+              if (d < bestD) { bestD = d; best = i + 1; }
+            });
+            setComponentValue({ type: 'route_click', lat: e.latlng.lat, lng: e.latlng.lng, nearestIdx: best, ts: Date.now() });
+          });
+        }
+      }
+
+      /* Visible route line */
       routeLayer = L.polyline(routePath, {
         color: '#E0E0E0', weight: 3, opacity: 0.75,
         lineJoin: 'round', lineCap: 'round',
-        interactive: (mode === 'calibrate' || mode === 'refine')
+        interactive: false
       }).addTo(map);
-
-      if (mode === 'calibrate') {
-        routeLayer.on('click', function(e) {
-          L.DomEvent.stopPropagation(e);
-          setComponentValue({ type: 'via_add', lat: e.latlng.lat, lng: e.latlng.lng, ts: Date.now() });
-        });
-      }
-      if (mode === 'refine') {
-        routeLayer.on('click', function(e) {
-          L.DomEvent.stopPropagation(e);
-          var best = nodes.length, bestD = Infinity;
-          nodes.forEach(function(n, i) {
-            var d = Math.hypot(n.lat - e.latlng.lat, n.lng - e.latlng.lng);
-            if (d < bestD) { bestD = d; best = i + 1; }
-          });
-          setComponentValue({ type: 'route_click', lat: e.latlng.lat, lng: e.latlng.lng, nearestIdx: best, ts: Date.now() });
-        });
-      }
       /* Only auto-fit when the route itself changes, not on every rerender */
       var rHash = routePath.length + ':' + (routePath[0] || [0,0]).join(',') + ':' + (routePath[routePath.length-1] || [0,0]).join(',');
       if ((mode === 'review' || mode === 'calibrate' || mode === 'refine') && rHash !== lastRouteHash) {
