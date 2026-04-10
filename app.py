@@ -517,8 +517,10 @@ with left_col:
                     height=68, key=f"instr_{i}",
                     label_visibility="collapsed",
                 )
-                if new_txt != node["instruction"]:
-                    st.session_state.nodes[i] = {**node, "instruction": new_txt}
+                if st.button("Save ✓", key=f"save_{i}", use_container_width=True, type="primary"):
+                    if new_txt != node["instruction"]:
+                        st.session_state.nodes[i] = {**node, "instruction": new_txt}
+                    st.rerun()
             else:
                 st.markdown(
                     f'<div class="t-node-text">{node["instruction"]}</div>',
