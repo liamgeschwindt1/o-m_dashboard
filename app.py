@@ -266,7 +266,7 @@ st.text_input("tiera-bridge", key="tiera_bridge", label_visibility="collapsed")
 step = st.session_state.step
 
 # ── Two-column layout ───────────────────────────────────────────────────────────
-left_col, right_col = st.columns([1, 5], gap="none")
+left_col, right_col = st.columns([1, 5], gap="small")
 
 # ══════════════════════════════════════════════════════════════════════════════════
 # SIDEBAR
