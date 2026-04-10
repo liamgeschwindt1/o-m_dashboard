@@ -232,6 +232,8 @@ function App() {
           pinMode={state.pinMode}
           onMapClick={handleMapClick}
           onNodeClick={(id) => set({ activeNodeId: id })}
+          onUpdateNode={(id, patch) => dispatch({ type: 'UPDATE_NODE', id, patch })}
+          onDeselectNode={() => set({ activeNodeId: null })}
           onPinDrag={handlePinDrag}
           onViaDrag={handleViaDrag}
           onViaAdd={handleViaAdd}
