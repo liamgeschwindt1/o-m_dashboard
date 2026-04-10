@@ -105,6 +105,7 @@
   var pinMarkers = {};
   var viaMarkers = [];
   var clickDots = [];
+  var lastRouteHash = '';
 
   function clearLayers() {
     if (routeLayer) { routeLayer.remove(); routeLayer = null; }
@@ -164,11 +165,6 @@
         tileOpts = { subdomains: 'abcd' };
       }
       tileLayer = L.tileLayer(tileUrl, Object.assign({ attribution: tileAttr, maxZoom: 20 }, tileOpts)).addTo(map);
-    } else {
-      /* Only re-center if the map isn't already showing the area */
-      if (!map.getBounds().contains([centerLat, centerLng])) {
-        map.setView([centerLat, centerLng], zoom);
-      }
     }
 
     /* ── Update layers ── */
@@ -203,9 +199,12 @@
           setComponentValue({ type: 'route_click', lat: e.latlng.lat, lng: e.latlng.lng, nearestIdx: best, ts: Date.now() });
         });
       }
-      if (mode === 'review' || mode === 'calibrate' || mode === 'refine') {
+      /* Only auto-fit when the route itself changes, not on every rerender */
+      var rHash = routePath.length + ':' + (routePath[0] || [0,0]).join(',') + ':' + (routePath[routePath.length-1] || [0,0]).join(',');
+      if ((mode === 'review' || mode === 'calibrate' || mode === 'refine') && rHash !== lastRouteHash) {
         map.fitBounds(L.latLngBounds(routePath), { padding: [48, 48] });
       }
+      lastRouteHash = rHash;
     }
 
     /* ── Step-node circles ── */
