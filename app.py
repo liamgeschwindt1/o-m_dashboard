@@ -473,6 +473,16 @@ with left_col:
     # ── Step 3: Refinement ──────────────────────────────────────────────────────
     elif step == 3:
         st.markdown('<div class="t-section">Tactical Refinement</div>', unsafe_allow_html=True)
+
+        # Navigation at the top
+        c1, c2 = st.columns(2)
+        if c1.button("Continue to Submit →", key="s3_next", use_container_width=True, type="primary"):
+            st.session_state.step = 4
+            st.rerun()
+        if c2.button("← Back", key="s3_back", use_container_width=True):
+            st.session_state.step = 2
+            st.rerun()
+
         st.markdown(
             '<div class="t-hint">Select a step to edit its instruction. '
             'Click the route line on the map to inject a new node.</div>',
@@ -526,14 +536,6 @@ with left_col:
                     f'<div class="t-node-text">{node["instruction"]}</div>',
                     unsafe_allow_html=True,
                 )
-
-        c1, c2 = st.columns(2)
-        if c1.button("Continue to Submit →", key="s3_next", use_container_width=True, type="primary"):
-            st.session_state.step = 4
-            st.rerun()
-        if c2.button("← Back", key="s3_back", use_container_width=True):
-            st.session_state.step = 2
-            st.rerun()
 
     # ── Step 4: Uplink ──────────────────────────────────────────────────────────
     elif step == 4:
