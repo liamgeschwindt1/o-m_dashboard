@@ -210,7 +210,9 @@ function App() {
             activeNodeId={state.activeNodeId}
             status={state.status}
             onSelectNode={(id) => set({ activeNodeId: id })}
+            onDeselectNode={() => set({ activeNodeId: null })}
             onUpdateNode={(id, patch) => dispatch({ type: 'UPDATE_NODE', id, patch })}
+            onDeleteNode={(id) => dispatch({ type: 'DELETE_NODE', id })}
             onNext={() => set({ step: 4 })}
             onBack={() => set({ step: 2 })}
           />

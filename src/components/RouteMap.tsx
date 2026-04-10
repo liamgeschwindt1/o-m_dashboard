@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import L from 'leaflet'
 import {
   MapContainer,
   Marker,
   Polyline,
-  Popup,
   TileLayer,
+  Tooltip,
   useMap,
   useMapEvents,
 } from 'react-leaflet'
@@ -265,7 +265,7 @@ export default function RouteMap({
       {endCoords && (
         <Marker
           position={endCoords}
-          icon={pinIcon('end', waypointLabel(viaPoints.length + 1))}
+          icon={pinIcon('end', 'B')}
           draggable={mode === 'calibrate'}
           zIndexOffset={600}
           eventHandlers={{
@@ -288,21 +288,18 @@ export default function RouteMap({
             click: () => onNodeClick(n.id),
           }}
         >
-          {n.id === activeNodeId && mode === 'refine' && (
-            <NodePopup node={n} onSave={(patch) => { onUpdateNode(n.id, patch); onDeselectNode() }} />
-          )}
-          {mode === 'review' && (
-            <Popup className="node-popup" autoPan={false}>
-              <div style={{ fontSize: 11, lineHeight: '1.5', maxWidth: 200 }}>
-                <strong style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}>
-                  Step {n.index + 1}
-                </strong>
-                <p style={{ margin: '4px 0 0', color: '#555' }}>
-                  {n.instruction || 'No instruction.'}
+          <Tooltip direction="top" offset={[0, -12]} opacity={0.95}>
+            <div style={{ fontSize: 11, lineHeight: '1.4', maxWidth: 200, fontFamily: "'JetBrains Mono', monospace" }}>
+              <strong style={{ fontSize: 10 }}>
+                Step {n.index + 1} — {n.type.toUpperCase()}
+              </strong>
+              {n.instruction && (
+                <p style={{ margin: '3px 0 0', color: '#555', fontFamily: 'inherit' }}>
+                  {n.instruction}
                 </p>
-              </div>
-            </Popup>
-          )}
+              )}
+            </div>
+          </Tooltip>
         </Marker>
       ))}
     </MapContainer>
@@ -406,64 +403,4 @@ function DraggableRoute({
   }, [map, positions, onDragEnd])
 
   return null
-}
-
-/* ── Editable popup for refine mode ── */
-function NodePopup({ node, onSave }: { node: RouteNode; onSave: (patch: Partial<RouteNode>) => void }) {
-  const [draft, setDraft] = useState(node.instruction)
-
-  return (
-    <Popup className="node-popup" autoPan closeButton={false}>
-      <div style={{ minWidth: 220, maxWidth: 260 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", marginBottom: 6, color: '#111' }}>
-          Step {node.index + 1} — {node.type}
-        </div>
-        <textarea
-          rows={3}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onClick={(e) => e.stopPropagation()}
-          onDoubleClick={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-          style={{
-            width: '100%',
-            padding: '6px 8px',
-            fontSize: 11,
-            fontFamily: 'inherit',
-            border: '1px solid #ddd',
-            borderRadius: 4,
-            resize: 'none',
-            outline: 'none',
-            color: '#111',
-            lineHeight: '1.5',
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = '#111'
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = '#ddd'
-          }}
-        />
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onSave({ instruction: draft })
-          }}
-          style={{
-            marginTop: 6,
-            padding: '4px 14px',
-            fontSize: 11,
-            fontWeight: 600,
-            background: '#111',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer',
-          }}
-        >
-          Save ✓
-        </button>
-      </div>
-    </Popup>
-  )
 }

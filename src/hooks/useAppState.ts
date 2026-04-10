@@ -68,6 +68,7 @@ type Action =
   | { type: 'SET_METADATA'; payload: Partial<Metadata> }
   | { type: 'UPDATE_NODE'; id: string; patch: Partial<RouteNode> }
   | { type: 'INSERT_NODE'; index: number; node: RouteNode }
+  | { type: 'DELETE_NODE'; id: string }
   | { type: 'REINDEX_NODES' }
 
 function reducer(state: AppState, action: Action): AppState {
@@ -88,6 +89,12 @@ function reducer(state: AppState, action: Action): AppState {
       nodes.splice(action.index, 0, action.node)
       return { ...state, nodes: nodes.map((n, i) => ({ ...n, index: i })) }
     }
+    case 'DELETE_NODE':
+      return {
+        ...state,
+        nodes: state.nodes.filter((n) => n.id !== action.id).map((n, i) => ({ ...n, index: i })),
+        activeNodeId: state.activeNodeId === action.id ? null : state.activeNodeId,
+      }
     case 'REINDEX_NODES':
       return { ...state, nodes: state.nodes.map((n, i) => ({ ...n, index: i })) }
     default:
