@@ -210,8 +210,76 @@ def build_leaflet_map_html(
   // ── Set iframe to fill viewport ───────────────────────────────────────────
   try {{
     const fr = window.frameElement;
-    if (fr) {{ fr.style.height = window.parent.innerHeight + 'px'; fr.height = window.parent.innerHeight; }}
+    if (fr) {{ fr.style.height = '100%'; fr.style.width = '100%'; }}
   }} catch(e) {{}}
+
+  // ── Sidebar resize handle ────────────────────────────────────────────────
+  (function() {{
+    try {{
+      const pd = window.parent.document;
+      const old = pd.getElementById('t-resize-handle');
+      if (old) old.remove();
+      if (pd._trMM) pd.removeEventListener('mousemove', pd._trMM);
+      if (pd._trMU) pd.removeEventListener('mouseup', pd._trMU);
+
+      const sb = pd.querySelector(
+        '[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child'
+      );
+      if (!sb) return;
+
+      const h = pd.createElement('div');
+      h.id = 't-resize-handle';
+      h.style.cssText = 'position:fixed;top:0;width:5px;height:100vh;'
+        + 'cursor:col-resize;z-index:10001;background:transparent;'
+        + 'transition:background .15s;';
+      h.style.left = sb.getBoundingClientRect().right + 'px';
+      pd.body.appendChild(h);
+
+      let drag = false, sx = 0, sw = 0;
+
+      h.addEventListener('mousedown', function(e) {{
+        e.preventDefault();
+        drag = true; sx = e.clientX;
+        sw = sb.getBoundingClientRect().width;
+        h.style.background = 'rgba(0,0,0,0.15)';
+        pd.body.style.userSelect = 'none';
+      }});
+
+      pd._trMM = function(e) {{
+        if (!drag) return;
+        e.preventDefault();
+        const nw = Math.min(600, Math.max(180, sw + e.clientX - sx));
+        sb.style.setProperty('width', nw + 'px', 'important');
+        sb.style.setProperty('min-width', nw + 'px', 'important');
+        sb.style.setProperty('max-width', nw + 'px', 'important');
+        sb.style.setProperty('flex-basis', nw + 'px', 'important');
+        h.style.left = nw + 'px';
+      }};
+      pd.addEventListener('mousemove', pd._trMM);
+
+      pd._trMU = function() {{
+        if (!drag) return;
+        drag = false;
+        h.style.background = 'transparent';
+        pd.body.style.userSelect = '';
+        setTimeout(function() {{
+          try {{
+            pd.querySelectorAll('iframe').forEach(function(ifr) {{
+              try {{ ifr.contentWindow.dispatchEvent(new Event('resize')); }} catch(x) {{}}
+            }});
+          }} catch(ex) {{}}
+        }}, 50);
+      }};
+      pd.addEventListener('mouseup', pd._trMU);
+
+      h.addEventListener('mouseenter', function() {{
+        if (!drag) h.style.background = 'rgba(0,0,0,0.08)';
+      }});
+      h.addEventListener('mouseleave', function() {{
+        if (!drag) h.style.background = 'transparent';
+      }});
+    }} catch(e) {{}}
+  }})();
 
   // ── Map ───────────────────────────────────────────────────────────────────
   const map = L.map('map', {{ center: CENTER, zoom: ZOOM, zoomControl: true }});
