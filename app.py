@@ -263,9 +263,15 @@ left_col, right_col = st.columns([1, 5], gap="small")
 # SIDEBAR
 # ══════════════════════════════════════════════════════════════════════════════════
 with left_col:
+    st.markdown('<div class="t-brand-block">', unsafe_allow_html=True)
+    st.image(
+        "assets/Copy of wordmark white v2.0 (1).png",
+        use_container_width=False,
+        width=180,
+    )
     st.markdown(
-        '<div class="t-brand"><div class="t-brand-name">O&amp;M Studio</div>'
-        '<div class="t-brand-sub">powered by Touchpulse</div></div>',
+        '<div class="t-brand-subtitle">O&amp;M Studio</div>'
+        '</div>',
         unsafe_allow_html=True,
     )
 

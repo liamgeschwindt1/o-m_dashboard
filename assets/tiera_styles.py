@@ -206,24 +206,21 @@ header[data-testid="stHeader"],
 /* ================================================================
    Brand
    ================================================================ */
-.t-brand {
-  padding: 1.8rem 1.5rem 1.4rem;
-  border-bottom: 1px solid var(--border);
+/* Brand area: logo + subtitle */
+.main [data-testid="stColumn"]:first-child [data-testid="stImage"] {
+  padding: 1.2rem 1.5rem 0 !important;
 }
-.t-brand-name {
+.main [data-testid="stColumn"]:first-child [data-testid="stImage"] img {
+  max-width: 180px !important;
+}
+.t-brand-subtitle {
   font-family: var(--font);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--text);
-  line-height: 1.1;
-}
-.t-brand-sub {
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
   color: var(--text-dim);
-  margin-top: 5px;
-  letter-spacing: 0.06em;
-  font-weight: 300;
+  padding: 2px 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .t-divider {
