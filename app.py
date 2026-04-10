@@ -259,47 +259,6 @@ st.set_page_config(
 )
 st.markdown(f"<style>{TIERA_STYLES}</style>", unsafe_allow_html=True)
 
-# Bridge listener: <script> tags don't execute via innerHTML,
-# so we use <img onerror> which fires reliably.
-_PARENT_JS = (
-    "if(!window._tb){"
-    "window._tb=1;"
-    "window.addEventListener('message',function(e){"
-    "if(!e.data||!e.data._tiera)return;"
-    "var el=document.querySelector('input[placeholder=__tiera_bridge__]');"
-    "if(!el)return;"
-    "var d=JSON.stringify(e.data);"
-    "var s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;"
-    "s.call(el,d);"
-    "el.dispatchEvent(new Event('input',{bubbles:true}));"
-    "el.dispatchEvent(new Event('change',{bubbles:true}));"
-    "});"
-    "function _ir(){"
-    "if(document.getElementById('t-resize-handle'))return;"
-    "var sb=document.querySelector('[data-testid=stHorizontalBlock]>[data-testid=stColumn]');"
-    "if(!sb)return;"
-    "var h=document.createElement('div');"
-    "h.id='t-resize-handle';"
-    "h.style.cssText='position:fixed;top:0;width:5px;height:100vh;cursor:col-resize;z-index:10001;background:transparent;transition:background .15s';"
-    "h.style.left=sb.getBoundingClientRect().right+'px';"
-    "document.body.appendChild(h);"
-    "var dr=false,sx=0,sw=0;"
-    "h.addEventListener('mousedown',function(v){v.preventDefault();dr=true;sx=v.clientX;sw=sb.getBoundingClientRect().width;h.style.background='rgba(0,0,0,.15)';document.body.style.userSelect='none'});"
-    "document.addEventListener('mousemove',function(v){if(!dr)return;v.preventDefault();var nw=Math.min(600,Math.max(180,sw+v.clientX-sx));sb.style.setProperty('width',nw+'px','important');sb.style.setProperty('min-width',nw+'px','important');sb.style.setProperty('max-width',nw+'px','important');sb.style.setProperty('flex-basis',nw+'px','important');h.style.left=nw+'px'});"
-    "document.addEventListener('mouseup',function(){if(!dr)return;dr=false;h.style.background='transparent';document.body.style.userSelect=''});"
-    "h.addEventListener('mouseenter',function(){if(!dr)h.style.background='rgba(0,0,0,.08)'});"
-    "h.addEventListener('mouseleave',function(){if(!dr)h.style.background='transparent'})"
-    "};"
-    "setTimeout(_ir,500);"
-    "setTimeout(_ir,1500)"
-    "}"
-)
-st.markdown(
-    '<img src="x" onerror="' + _PARENT_JS + '" '
-    'style="position:absolute;width:0;height:0;opacity:0">',
-    unsafe_allow_html=True,
-)
-
 init()
 apply_bridge()
 
@@ -316,6 +275,92 @@ except Exception:
 # Hidden bridge input
 st.text_input("tiera-bridge", key="tiera_bridge", label_visibility="collapsed", placeholder="__tiera_bridge__")
 
+# Bridge relay: a tiny invisible iframe that listens for postMessage
+# from the map iframe and writes to the hidden input in the parent doc.
+# components.html() iframes CAN run JS (unlike st.markdown which uses innerHTML).
+_BRIDGE_RELAY_HTML = """<!DOCTYPE html>
+<html><head><style>*{margin:0;padding:0;}</style></head>
+<body>
+<script>
+(function(){
+  var pw = window.parent;
+  if (!pw) return;
+
+  // Listen for messages from sibling iframes (the map)
+  pw.addEventListener('message', function(e) {
+    if (!e.data || !e.data._tiera) return;
+    try {
+      var el = pw.document.querySelector('input[placeholder="__tiera_bridge__"]');
+      if (!el) {
+        // Fallback: search all inputs
+        var inputs = pw.document.querySelectorAll('input[type="text"]');
+        for (var i = 0; i < inputs.length; i++) {
+          if (inputs[i].getAttribute('aria-label') === 'tiera-bridge') {
+            el = inputs[i]; break;
+          }
+        }
+      }
+      if (!el) return;
+      var data = JSON.stringify(e.data);
+      var setter = Object.getOwnPropertyDescriptor(
+        pw.HTMLInputElement.prototype, 'value'
+      ).set;
+      setter.call(el, data);
+      el.dispatchEvent(new Event('input', {bubbles: true}));
+      el.dispatchEvent(new Event('change', {bubbles: true}));
+    } catch(err) {
+      // silent
+    }
+  });
+
+  // Sidebar resize handle
+  function initResize() {
+    if (pw.document.getElementById('t-resize-handle')) return;
+    var sb = pw.document.querySelector(
+      '[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child'
+    );
+    if (!sb) return;
+    var h = pw.document.createElement('div');
+    h.id = 't-resize-handle';
+    h.style.cssText = 'position:fixed;top:0;width:5px;height:100vh;'
+      + 'cursor:col-resize;z-index:10001;background:transparent;'
+      + 'transition:background .15s';
+    h.style.left = sb.getBoundingClientRect().right + 'px';
+    pw.document.body.appendChild(h);
+    var drag = false, sx = 0, swidth = 0;
+    h.addEventListener('mousedown', function(ev) {
+      ev.preventDefault(); drag = true; sx = ev.clientX;
+      swidth = sb.getBoundingClientRect().width;
+      h.style.background = 'rgba(0,0,0,.15)';
+      pw.document.body.style.userSelect = 'none';
+    });
+    pw.document.addEventListener('mousemove', function(ev) {
+      if (!drag) return; ev.preventDefault();
+      var nw = Math.min(600, Math.max(180, swidth + ev.clientX - sx));
+      sb.style.setProperty('width', nw+'px', 'important');
+      sb.style.setProperty('min-width', nw+'px', 'important');
+      sb.style.setProperty('max-width', nw+'px', 'important');
+      sb.style.setProperty('flex-basis', nw+'px', 'important');
+      h.style.left = nw + 'px';
+    });
+    pw.document.addEventListener('mouseup', function() {
+      if (!drag) return; drag = false;
+      h.style.background = 'transparent';
+      pw.document.body.style.userSelect = '';
+    });
+    h.addEventListener('mouseenter', function() {
+      if (!drag) h.style.background = 'rgba(0,0,0,.08)';
+    });
+    h.addEventListener('mouseleave', function() {
+      if (!drag) h.style.background = 'transparent';
+    });
+  }
+  setTimeout(initResize, 500);
+  setTimeout(initResize, 1500);
+})();
+</script>
+</body></html>"""
+components.html(_BRIDGE_RELAY_HTML, height=0)
 step = st.session_state.step
 
 # ── Two-column layout ───────────────────────────────────────────────────────────
