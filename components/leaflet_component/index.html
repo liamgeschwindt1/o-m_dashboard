@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body, #map { width: 100%; height: 100vh; background: #fff; }
+    .leaflet-container { background: #f8f8f8; font-family: "Inter", sans-serif; }
+    .leaflet-bar a {
+      background: #fff !important; color: #111 !important;
+      border-color: #ddd !important; font-size: 16px !important;
+    }
+    .leaflet-bar a:hover { background: #f0f0f0 !important; }
+    .leaflet-control-attribution {
+      background: rgba(255,255,255,0.85) !important;
+      color: #999; font-size: 10px !important;
+    }
+    .leaflet-popup-content-wrapper {
+      background: #fff; border: 1px solid #ddd;
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      color: #111;
+    }
+    .leaflet-popup-tip { background: #fff; }
+    .leaflet-popup-content { margin: 0; }
+    .pop { padding: 0.6rem 0.75rem; min-width: 200px; }
+    .pop-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: #111; color: #fff;
+      font-size: 10px; font-weight: 700; margin-right: 6px;
+      font-family: "JetBrains Mono", monospace;
+    }
+    .pop-type {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #666;
+    }
+    .pop-text { margin-top: 4px; font-size: 12px; line-height: 1.5; color: #333; }
+    .pop-dist { margin-top: 3px; font-size: 10px; color: #999; font-family: "JetBrains Mono", monospace; }
+    .step-circle {
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700; cursor: pointer;
+      transition: transform 0.12s;
+      background: #fff; border: 2px solid #111; color: #111;
+    }
+    .step-circle:hover { transform: scale(1.15); }
+    .step-circle.active {
+      background: #111; color: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.28);
+    }
+    .pin {
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; cursor: grab;
+      font-size: 11px; font-weight: 700;
+      font-family: "JetBrains Mono", monospace;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: transform 0.12s;
+    }
+    .pin:hover { transform: scale(1.12); }
+    .pin-start { background: #111; color: #fff; border: 2px solid #111; }
+    .pin-end   { background: #fff; color: #111; border: 2px solid #111; }
+    .via-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #666; border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      cursor: grab;
+    }
+    .click-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #111; border: none;
+    }
+    .leaflet-container.mode-plan    { cursor: crosshair; }
+    .leaflet-container.mode-calibrate { cursor: crosshair; }
+    .leaflet-container.mode-refine    { cursor: crosshair; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+  /* ── Streamlit Component Protocol ── */
+  function sendToStreamlit(type, data) {
+    window.parent.postMessage(Object.assign({isStreamlitMessage: true, type: type}, data || {}), "*");
+  }
+  function setComponentValue(value) {
+    sendToStreamlit("streamlit:setComponentValue", {value: value});
+  }
+  function setFrameHeight(h) {
+    sendToStreamlit("streamlit:setFrameHeight", {height: h});
+  }
+
+  function esc(v) {
+    return String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ── Map state ── */
+  var map = null;
+  var tileLayer = null;
+  var routeLayer = null;
+  var nodeMarkers = [];
+  var pinMarkers = {};
+  var viaMarkers = [];
+  var clickDots = [];
+
+  function clearLayers() {
+    if (routeLayer) { routeLayer.remove(); routeLayer = null; }
+    nodeMarkers.forEach(function(m) { m.remove(); });
+    nodeMarkers = [];
+    Object.keys(pinMarkers).forEach(function(k) { pinMarkers[k].remove(); });
+    pinMarkers = {};
+    viaMarkers.forEach(function(m) { m.remove(); });
+    viaMarkers = [];
+    clickDots.forEach(function(m) { m.remove(); });
+    clickDots = [];
+    if (map) map.off('click');
+  }
+
+  function makePinIcon(cls, label) {
+    return L.divIcon({
+      className: '',
+      html: '<div class="pin ' + cls + '" style="width:28px;height:28px">' + label + '</div>',
+      iconSize: [28, 28], iconAnchor: [14, 14], popupAnchor: [0, -18]
+    });
+  }
+
+  function makeCircleIcon(n, isActive) {
+    var sz = isActive ? 24 : 20;
+    var cls = isActive ? 'step-circle active' : 'step-circle';
+    return L.divIcon({
+      className: '',
+      html: '<div class="' + cls + '" style="width:' + sz + 'px;height:' + sz + 'px;font-size:' + (isActive ? 10 : 9) + 'px">' + (n.index + 1) + '</div>',
+      iconSize: [sz, sz], iconAnchor: [sz/2, sz/2], popupAnchor: [0, -(sz/2 + 6)]
+    });
+  }
+
+  function onRender(args) {
+    var mode = args.mode || 'idle';
+    var nodes = args.nodes || [];
+    var routePath = args.route_path || [];
+    var startCoords = args.start_coords || null;
+    var endCoords = args.end_coords || null;
+    var viaPoints = args.via_points || [];
+    var activeNodeId = args.active_node_id || null;
+    var centerLat = args.center_lat || 51.5099;
+    var centerLng = args.center_lng || -0.1181;
+    var zoom = args.zoom || 13;
+    var maptilerKey = args.maptiler_key || '';
+
+    /* ── Create map once ── */
+    if (!map) {
+      map = L.map('map', { center: [centerLat, centerLng], zoom: zoom, zoomControl: true });
+      var tileUrl, tileAttr, tileOpts;
+      if (maptilerKey) {
+        tileUrl = 'https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=' + maptilerKey;
+        tileAttr = '&copy; <a href="https://www.maptiler.com/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+        tileOpts = {};
+      } else {
+        tileUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+        tileAttr = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>';
+        tileOpts = { subdomains: 'abcd' };
+      }
+      tileLayer = L.tileLayer(tileUrl, Object.assign({ attribution: tileAttr, maxZoom: 20 }, tileOpts)).addTo(map);
+    } else {
+      /* Only re-center if the map isn't already showing the area */
+      if (!map.getBounds().contains([centerLat, centerLng])) {
+        map.setView([centerLat, centerLng], zoom);
+      }
+    }
+
+    /* ── Update layers ── */
+    clearLayers();
+
+    /* Mode class for cursor */
+    map.getContainer().className = map.getContainer().className.replace(/mode-\w+/g, '');
+    map.getContainer().classList.add('mode-' + mode);
+
+    /* ── Route polyline ── */
+    if (routePath.length) {
+      routeLayer = L.polyline(routePath, {
+        color: '#111', weight: 3, opacity: 0.85,
+        lineJoin: 'round', lineCap: 'round',
+        interactive: (mode === 'calibrate' || mode === 'refine')
+      }).addTo(map);
+
+      if (mode === 'calibrate') {
+        routeLayer.on('click', function(e) {
+          L.DomEvent.stopPropagation(e);
+          setComponentValue({ type: 'via_add', lat: e.latlng.lat, lng: e.latlng.lng, ts: Date.now() });
+        });
+      }
+      if (mode === 'refine') {
+        routeLayer.on('click', function(e) {
+          L.DomEvent.stopPropagation(e);
+          var best = nodes.length, bestD = Infinity;
+          nodes.forEach(function(n, i) {
+            var d = Math.hypot(n.lat - e.latlng.lat, n.lng - e.latlng.lng);
+            if (d < bestD) { bestD = d; best = i + 1; }
+          });
+          setComponentValue({ type: 'route_click', lat: e.latlng.lat, lng: e.latlng.lng, nearestIdx: best, ts: Date.now() });
+        });
+      }
+      if (mode === 'review' || mode === 'calibrate' || mode === 'refine') {
+        map.fitBounds(L.latLngBounds(routePath), { padding: [48, 48] });
+      }
+    }
+
+    /* ── Step-node circles ── */
+    if (mode === 'refine' || mode === 'review') {
+      nodes.forEach(function(n) {
+        var isActive = (n.id === activeNodeId);
+        var m = L.marker([n.lat, n.lng], {
+          icon: makeCircleIcon(n, isActive),
+          zIndexOffset: isActive ? 400 : 0
+        });
+        var dist = n.distance_m ? '<div class="pop-dist">' + n.distance_m + ' m</div>' : '';
+        var popHtml = '<div class="pop"><div style="display:flex;align-items:center;margin-bottom:3px">'
+          + '<span class="pop-num">' + (n.index+1) + '</span>'
+          + '<span class="pop-type">' + esc(n.type) + '</span></div>'
+          + '<div class="pop-text">' + esc(n.instruction || 'No instruction.') + '</div>'
+          + dist + '</div>';
+        m.bindPopup(popHtml, { maxWidth: 280 });
+        m.on('click', function(e) {
+          L.DomEvent.stopPropagation(e);
+          setComponentValue({ type: 'node_click', nodeId: n.id, ts: Date.now() });
+          this.openPopup();
+        });
+        m.addTo(map);
+        nodeMarkers.push(m);
+      });
+    }
+
+    /* ── Start / End pins ── */
+    if (startCoords) {
+      var sm = L.marker(startCoords, {
+        icon: makePinIcon('pin-start', 'S'),
+        draggable: (mode === 'calibrate'),
+        zIndexOffset: 600
+      }).addTo(map);
+      if (mode === 'calibrate') {
+        sm.on('dragend', function() {
+          var ll = this.getLatLng();
+          setComponentValue({ type: 'pin_drag_end', role: 'start', lat: ll.lat, lng: ll.lng, ts: Date.now() });
+        });
+      }
+      pinMarkers.start = sm;
+    }
+    if (endCoords) {
+      var em = L.marker(endCoords, {
+        icon: makePinIcon('pin-end', 'E'),
+        draggable: (mode === 'calibrate'),
+        zIndexOffset: 600
+      }).addTo(map);
+      if (mode === 'calibrate') {
+        em.on('dragend', function() {
+          var ll = this.getLatLng();
+          setComponentValue({ type: 'pin_drag_end', role: 'end', lat: ll.lat, lng: ll.lng, ts: Date.now() });
+        });
+      }
+      pinMarkers.end = em;
+    }
+
+    /* ── Via-point markers ── */
+    if (mode === 'calibrate') {
+      viaPoints.forEach(function(v) {
+        var vm = L.marker([v.lat, v.lng], {
+          icon: L.divIcon({
+            className: '',
+            html: '<div class="via-dot"></div>',
+            iconSize: [12, 12], iconAnchor: [6, 6]
+          }),
+          draggable: true,
+          zIndexOffset: 500
+        }).addTo(map);
+        vm.on('dragend', function() {
+          var ll = this.getLatLng();
+          setComponentValue({ type: 'via_drag_end', id: v.id, lat: ll.lat, lng: ll.lng, ts: Date.now() });
+        });
+        viaMarkers.push(vm);
+      });
+    }
+
+    /* ── Map click (step 1: plan) ── */
+    if (mode === 'plan') {
+      map.on('click', function(e) {
+        /* Instant visual feedback: small black dot */
+        var dot = L.marker([e.latlng.lat, e.latlng.lng], {
+          icon: L.divIcon({
+            className: '',
+            html: '<div class="click-dot"></div>',
+            iconSize: [6, 6], iconAnchor: [3, 3]
+          }),
+          interactive: false
+        }).addTo(map);
+        clickDots.push(dot);
+        setComponentValue({ type: 'map_click', lat: e.latlng.lat, lng: e.latlng.lng, ts: Date.now() });
+      });
+    }
+  }
+
+  /* ── Listen for Streamlit render events ── */
+  window.addEventListener("message", function(event) {
+    if (event.data && event.data.type === "streamlit:render") {
+      onRender(event.data.args);
+    }
+  });
+
+  /* ── Signal component ready ── */
+  sendToStreamlit("streamlit:componentReady", {apiVersion: 1});
+  setFrameHeight(900);
+</script>
+</body>
+</html>

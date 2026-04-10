@@ -9,10 +9,9 @@ from typing import Any
 
 import requests
 import streamlit as st
-# st.iframe replaces the deprecated st.components.v1.html
 
 from assets.tiera_styles import TIERA_STYLES
-from components.leaflet_map_bridge import build_leaflet_map_html
+from components.leaflet_component import leaflet_map
 
 # ── ORS ────────────────────────────────────────────────────────────────────────
 ORS_DIRECTIONS_URL = (
@@ -127,31 +126,25 @@ def init():
         "submitted":        False,
         "route_status":     "",
         "pin_mode":         None,
-        "tiera_bridge":     "",
-        "_last_bridge_ts":  0,
+        "_last_event_ts":   0,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
             st.session_state[k] = v
 
 
-def apply_bridge() -> bool:
-    raw = st.session_state.get("tiera_bridge", "")
-    if not raw:
+def _handle_map_event(event: dict) -> bool:
+    """Process an event dict from the Leaflet component. Returns True if handled."""
+    ts = event.get("ts", 0)
+    if ts <= st.session_state.get("_last_event_ts", 0):
         return False
-    try:
-        p = json.loads(raw)
-    except json.JSONDecodeError:
-        return False
-    ts = p.get("ts", 0)
-    if ts <= st.session_state._last_bridge_ts:
-        return False
-    st.session_state._last_bridge_ts = ts
-    ev = p.get("type")
+    st.session_state._last_event_ts = ts
+    ev = event.get("type")
+    step = st.session_state.step
 
-    if ev == "map_click" and st.session_state.step == 1:
-        lat = round(float(p["lat"]), 6)
-        lng = round(float(p["lng"]), 6)
+    if ev == "map_click" and step == 1:
+        lat = round(float(event["lat"]), 6)
+        lng = round(float(event["lng"]), 6)
         pm = st.session_state.get("pin_mode")
         if pm == "start":
             st.session_state.start_coords = (lat, lng)
@@ -173,10 +166,10 @@ def apply_bridge() -> bool:
             st.session_state.route_status = "End pinned — press Generate Route."
         return True
 
-    if ev == "pin_drag_end" and st.session_state.step == 2:
-        role = p.get("role")
-        lat  = round(float(p["lat"]), 6)
-        lng  = round(float(p["lng"]), 6)
+    if ev == "pin_drag_end" and step == 2:
+        role = event.get("role")
+        lat  = round(float(event["lat"]), 6)
+        lng  = round(float(event["lng"]), 6)
         if role == "start":
             st.session_state.start_coords = (lat, lng)
         else:
@@ -185,9 +178,9 @@ def apply_bridge() -> bool:
         st.session_state.route_status = msg
         return True
 
-    if ev == "via_add" and st.session_state.step == 2:
-        lat = round(float(p["lat"]), 6)
-        lng = round(float(p["lng"]), 6)
+    if ev == "via_add" and step == 2:
+        lat = round(float(event["lat"]), 6)
+        lng = round(float(event["lng"]), 6)
         st.session_state.via_points.append(
             {"id": f"via-{uuid.uuid4().hex[:6]}", "lat": lat, "lng": lng}
         )
@@ -195,10 +188,10 @@ def apply_bridge() -> bool:
         st.session_state.route_status = msg
         return True
 
-    if ev == "via_drag_end" and st.session_state.step == 2:
-        vid = p["id"]
-        lat = round(float(p["lat"]), 6)
-        lng = round(float(p["lng"]), 6)
+    if ev == "via_drag_end" and step == 2:
+        vid = event["id"]
+        lat = round(float(event["lat"]), 6)
+        lng = round(float(event["lng"]), 6)
         st.session_state.via_points = [
             ({**v, "lat": lat, "lng": lng} if v["id"] == vid else v)
             for v in st.session_state.via_points
@@ -207,14 +200,14 @@ def apply_bridge() -> bool:
         st.session_state.route_status = msg
         return True
 
-    if ev == "node_click" and st.session_state.step == 3:
-        st.session_state.active_node_id = p.get("nodeId")
+    if ev == "node_click" and step == 3:
+        st.session_state.active_node_id = event.get("nodeId")
         return True
 
-    if ev == "route_click" and st.session_state.step == 3:
-        lat = round(float(p["lat"]), 6)
-        lng = round(float(p["lng"]), 6)
-        ins_idx = int(p.get("nearestIdx", len(st.session_state.nodes)))
+    if ev == "route_click" and step == 3:
+        lat = round(float(event["lat"]), 6)
+        lng = round(float(event["lng"]), 6)
+        ins_idx = int(event.get("nearestIdx", len(st.session_state.nodes)))
         new_n = {
             "id":          f"node-{uuid.uuid4().hex[:8]}",
             "index":       ins_idx,
@@ -260,7 +253,6 @@ st.set_page_config(
 st.markdown(f"<style>{TIERA_STYLES}</style>", unsafe_allow_html=True)
 
 init()
-apply_bridge()
 
 try:
     ors_key: str = st.secrets["ORS_API_KEY"]
@@ -271,39 +263,6 @@ try:
     maptiler_key: str = st.secrets["MAPTILER_API_KEY"]
 except Exception:
     maptiler_key = ""
-
-# Hidden bridge input
-st.text_input("tiera-bridge", key="tiera_bridge", label_visibility="collapsed", placeholder="__tiera_bridge__")
-
-# Bridge listener: st.html with unsafe_allow_javascript=True runs directly
-# in the parent document (NOT iframed), so it CAN access the DOM.
-st.html("""
-<script>
-if (!window._tieraBridge) {
-  window._tieraBridge = true;
-  window.addEventListener('message', function(e) {
-    if (!e.data || !e.data._tiera) return;
-    var el = document.querySelector('input[placeholder="__tiera_bridge__"]');
-    if (!el) {
-      var inputs = document.querySelectorAll('input');
-      for (var i = 0; i < inputs.length; i++) {
-        if (inputs[i].getAttribute('aria-label') === 'tiera-bridge') {
-          el = inputs[i]; break;
-        }
-      }
-    }
-    if (!el) return;
-    var data = JSON.stringify(e.data);
-    var setter = Object.getOwnPropertyDescriptor(
-      window.HTMLInputElement.prototype, 'value'
-    ).set;
-    setter.call(el, data);
-    el.dispatchEvent(new Event('input', {bubbles: true}));
-    el.dispatchEvent(new Event('change', {bubbles: true}));
-  });
-}
-</script>
-""", unsafe_allow_javascript=True)
 
 step = st.session_state.step
 
@@ -627,7 +586,7 @@ with right_col:
     else:
         clat, clng, czoom = 51.5099, -0.1181, 13
 
-    map_html = build_leaflet_map_html(
+    event = leaflet_map(
         mode=mode,
         nodes=st.session_state.nodes,
         route_path=st.session_state.route_path,
@@ -639,5 +598,10 @@ with right_col:
         center_lng=clng,
         zoom=czoom,
         maptiler_key=maptiler_key,
+        key="tiera_map",
     )
-    st.iframe(map_html, height=900)
+
+    # Process map events (clicks, drags, etc.)
+    if event and isinstance(event, dict):
+        if _handle_map_event(event):
+            st.rerun()
