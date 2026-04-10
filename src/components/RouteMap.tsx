@@ -74,17 +74,23 @@ function nodeIcon(index: number, active: boolean) {
   })
 }
 
-function viaIcon() {
+function viaIcon(label: string) {
   return L.divIcon({
     className: '',
     html: `<div style="
-      width:12px;height:12px;border-radius:50%;
-      background:#666;border:2px solid #fff;
+      display:flex;align-items:center;justify-content:center;
+      width:24px;height:24px;border-radius:50%;
+      font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;
+      background:#666;color:#fff;border:2px solid #fff;
       box-shadow:0 1px 4px rgba(0,0,0,0.3);cursor:grab;
-    "></div>`,
-    iconSize: [12, 12],
-    iconAnchor: [6, 6],
+    ">${label}</div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
   })
+}
+
+function waypointLabel(index: number): string {
+  return String.fromCharCode(65 + index) // 0→A, 1→B, 2→C…
 }
 
 /* ── Cursor manager ── */
@@ -226,7 +232,7 @@ export default function RouteMap({
       {startCoords && (
         <Marker
           position={startCoords}
-          icon={pinIcon('start', 'S')}
+          icon={pinIcon('start', 'A')}
           draggable={mode === 'calibrate'}
           zIndexOffset={600}
           eventHandlers={{
@@ -238,28 +244,12 @@ export default function RouteMap({
         />
       )}
 
-      {/* End pin */}
-      {endCoords && (
-        <Marker
-          position={endCoords}
-          icon={pinIcon('end', 'E')}
-          draggable={mode === 'calibrate'}
-          zIndexOffset={600}
-          eventHandlers={{
-            dragend: (e) => {
-              const { lat, lng } = (e.target as L.Marker).getLatLng()
-              onPinDrag('end', lat, lng)
-            },
-          }}
-        />
-      )}
-
       {/* Via points */}
-      {mode === 'calibrate' && viaPoints.map((v) => (
+      {mode === 'calibrate' && viaPoints.map((v, i) => (
         <Marker
           key={v.id}
           position={[v.lat, v.lng]}
-          icon={viaIcon()}
+          icon={viaIcon(waypointLabel(i + 1))}
           draggable
           zIndexOffset={500}
           eventHandlers={{
@@ -270,6 +260,22 @@ export default function RouteMap({
           }}
         />
       ))}
+
+      {/* End pin */}
+      {endCoords && (
+        <Marker
+          position={endCoords}
+          icon={pinIcon('end', waypointLabel(viaPoints.length + 1))}
+          draggable={mode === 'calibrate'}
+          zIndexOffset={600}
+          eventHandlers={{
+            dragend: (e) => {
+              const { lat, lng } = (e.target as L.Marker).getLatLng()
+              onPinDrag('end', lat, lng)
+            },
+          }}
+        />
+      )}
 
       {/* Step nodes */}
       {(mode === 'refine' || mode === 'review') && nodes.map((n) => (

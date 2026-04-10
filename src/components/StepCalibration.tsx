@@ -39,12 +39,12 @@ export default function StepCalibration({
       {viaPoints.length > 0 && (
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-semibold tracking-wider uppercase text-neutral-500">
-            Via Points
+            Waypoints
           </span>
           {viaPoints.map((v, i) => (
             <div key={v.id} className="flex items-center justify-between">
               <span className="text-[11px] font-mono text-neutral-700">
-                V{i + 1} · {v.lat.toFixed(4)}, {v.lng.toFixed(4)}
+                {String.fromCharCode(66 + i)} · {v.lat.toFixed(4)}, {v.lng.toFixed(4)}
               </span>
               <button
                 onClick={() => onDeleteVia(v.id)}
