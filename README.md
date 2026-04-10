@@ -1,32 +1,59 @@
-# O&M Route Builder
+# Tiera O&M Training Studio
 
-A React + Leaflet prototype for Orientation & Mobility trainers to create accessible walking routes.
+A trainer-first O&M dashboard with a tactical HUD, Google Maps route editing, sidebar instruction sync, and JSON export.
 
-## Current MVP
+## Streamlit cockpit
 
-- Drag numbered instruction dots to update the route and JSON coordinates
-- Click the route line to splice in a new editable landmark
-- Keep the map and sidebar synced through a shared `Instruction[]` state model
-- Export clean JSON objects with `id`, `lat`, `lng`, `text`, and `type`
-- Use OSRM foot routing when available, with a straight-line fallback preview
+### Features
 
-## Local development
+- Fixed `100vh` dashboard layout with a scrolling instruction rail
+- Google Maps walking directions rendered with `DirectionsRenderer({ draggable: true })`
+- Clickable tactical step dots that sync back to the active sidebar instruction
+- Manual instruction injection by clicking the route corridor
+- Structured export payload:
+
+```json
+{
+  "route_id": "tiera-demo-001",
+  "metadata": { "trainer": "", "client": "" },
+  "waypoints": [
+    { "lat": 0, "lng": 0, "instruction": "...", "type": "cue" }
+  ]
+}
+```
+
+### Run locally
+
+1. Install Python dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Add your Google Maps key:
+
+   ```bash
+   cp .streamlit/secrets.toml.example .streamlit/secrets.toml
+   ```
+
+3. Start the dashboard:
+
+   ```bash
+   streamlit run app.py
+   ```
+
+## Legacy React prototype
+
+The original Vite route-builder prototype is still available:
 
 ```bash
 npm install
 npm run dev -- --host 0.0.0.0
 ```
 
-## Production check
+## Build check
 
 ```bash
 npm run build
 ```
-
-## Suggested next enhancements
-
-1. Add geocoded start/destination search
-2. Integrate full draggable route handles with `leaflet-routing-machine`
-3. Add saved route sessions and import support
-4. Expand accessibility testing for keyboard and screen reader flows
 
