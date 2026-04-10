@@ -437,16 +437,30 @@ with left_col:
     elif step == 3:
         st.markdown('<div class="t-section">Tactical Refinement</div>', unsafe_allow_html=True)
         st.markdown(
-            '<div class="t-hint">Click a circle to select and edit. Click the route line to add a node.</div>',
+            '<div class="t-hint">Select a step to edit its instruction. '
+            'Click the route line on the map to inject a new node.</div>',
             unsafe_allow_html=True,
         )
 
+        # Auto-select first node when entering step 3
+        nodes = st.session_state.nodes
         active_id = st.session_state.active_node_id
+        if nodes and (active_id is None or not any(n["id"] == active_id for n in nodes)):
+            st.session_state.active_node_id = nodes[0]["id"]
+            active_id = nodes[0]["id"]
 
         with st.container(height=420, border=False):
-            for i, node in enumerate(st.session_state.nodes):
+            if not nodes:
+                st.markdown(
+                    '<div class="t-hint" style="padding-top:2rem;text-align:center">'
+                    'No instruction nodes yet. Go back and generate a route first.</div>',
+                    unsafe_allow_html=True,
+                )
+            for i, node in enumerate(nodes):
                 is_active = node["id"] == active_id
                 ac = "t-node--active" if is_active else ""
+
+                # Header row with select button
                 r1, r2 = st.columns([0.85, 0.15])
                 r1.markdown(
                     f'<div class="t-node {ac}">'
@@ -455,16 +469,19 @@ with left_col:
                     f'</div>',
                     unsafe_allow_html=True,
                 )
-                if r2.button("▶", key=f"sel_{node['id']}", use_container_width=True):
+                if r2.button("▶" if not is_active else "●", key=f"sel_{i}", use_container_width=True):
                     st.session_state.active_node_id = node["id"]
                     st.rerun()
+
+                # Always show editable text area for the active node
                 if is_active:
                     new_txt = st.text_area(
                         "Instruction", value=node["instruction"],
-                        height=68, key=f"instr_{node['id']}",
+                        height=68, key=f"instr_{i}",
                         label_visibility="collapsed",
                     )
-                    st.session_state.nodes[i] = {**node, "instruction": new_txt}
+                    if new_txt != node["instruction"]:
+                        st.session_state.nodes[i] = {**node, "instruction": new_txt}
                 else:
                     st.markdown(
                         f'<div class="t-node-text">{node["instruction"]}</div>',
