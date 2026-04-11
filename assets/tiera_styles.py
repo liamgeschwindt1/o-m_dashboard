@@ -26,7 +26,16 @@ TIERA_STYLES = """
 }
 
 /* ── Global reset ── */
-html, body,
+html, body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: var(--font);
+  font-size: 13px;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
 [data-testid="stApp"],
 [data-testid="stAppViewContainer"],
 [data-testid="stAppViewContainer"] > .main,
@@ -38,7 +47,6 @@ html, body,
   font-size: 13px;
   margin: 0 !important;
   padding: 0 !important;
-  overflow: hidden !important;
 }
 
 /* Kill ALL Streamlit chrome */
@@ -208,7 +216,7 @@ header[data-testid="stHeader"],
    ================================================================ */
 /* Brand area: logo + subtitle */
 .main [data-testid="stColumn"]:first-child [data-testid="stImage"] {
-  padding: 24px 24px 0 24px !important;
+  padding: 24px 1.8rem 0 1.8rem !important;
   margin: 0 !important;
 }
 .main [data-testid="stColumn"]:first-child [data-testid="stImage"] img {
@@ -219,7 +227,7 @@ header[data-testid="stHeader"],
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--text);
-  padding: 0.6rem 24px 0;
+  padding: 0.6rem 1.8rem 0;
   letter-spacing: -0.01em;
   line-height: 1.2;
 }
@@ -228,7 +236,7 @@ header[data-testid="stHeader"],
   font-size: 0.9rem;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.35);
-  padding: 0.25rem 24px 1rem;
+  padding: 0.25rem 1.8rem 1rem;
   line-height: 1.5;
   border-bottom: 1px solid var(--border);
 }
@@ -646,5 +654,13 @@ div[data-testid="stExpander"] {
    ================================================================ */
 .onboarding-hide .main [data-testid="stHorizontalBlock"]:first-of-type {
   display: none !important;
+}
+
+/* ================================================================
+   Onboarding iframe — fill full viewport so the component is visible
+   before the two-column studio layout renders.
+   ================================================================ */
+[data-testid="stCustomComponentV1"] iframe {
+  min-height: 100vh;
 }
 """

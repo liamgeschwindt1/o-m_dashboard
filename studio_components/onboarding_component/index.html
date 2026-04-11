@@ -296,7 +296,7 @@
       img.style.display = 'block';
     }
 
-    setFrameHeight(window.innerHeight);
+    setFrameHeight(window.screen.availHeight || 900);
 
     /* Start the sequence */
     setTimeout(function() {
@@ -313,7 +313,7 @@
 
   /* ── Signal component ready ── */
   sendToStreamlit("streamlit:componentReady", {apiVersion: 1});
-  setFrameHeight(window.innerHeight);
+  setFrameHeight(window.screen.availHeight || 900);
 </script>
 </body>
 </html>

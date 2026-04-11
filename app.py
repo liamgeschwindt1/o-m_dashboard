@@ -343,11 +343,10 @@ with left_col:
 
         # START
         st.markdown('<div class="t-field-label">START</div>', unsafe_allow_html=True)
-        s1, s2 = st.columns([0.85, 0.15])
         start_display = st.session_state.start_label or st.session_state.start_address
-        sq = s1.text_input("S", value=start_display,
+        sq = st.text_input("S", value=start_display,
                            placeholder="Type address or click map", label_visibility="collapsed", key="sq")
-        if s2.button("↵", key="s_srch", use_container_width=True, disabled=not ors_key):
+        if sq and sq != start_display and ors_key:
             st.session_state.start_cands   = search_candidates(sq, ors_key)
             st.session_state.start_address = sq
 
@@ -377,11 +376,10 @@ with left_col:
 
         # END
         st.markdown('<div class="t-field-label">END</div>', unsafe_allow_html=True)
-        e1, e2 = st.columns([0.85, 0.15])
         end_display = st.session_state.end_label or st.session_state.end_address
-        eq = e1.text_input("E", value=end_display,
+        eq = st.text_input("E", value=end_display,
                            placeholder="Type address or click map", label_visibility="collapsed", key="eq")
-        if e2.button("↵", key="e_srch", use_container_width=True, disabled=not ors_key):
+        if eq and eq != end_display and ors_key:
             st.session_state.end_cands   = search_candidates(eq, ors_key)
             st.session_state.end_address = eq
 
