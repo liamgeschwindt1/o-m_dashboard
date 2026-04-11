@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png";
 
@@ -93,8 +93,36 @@ export default function SubmitSheet({ identity, route, nodes, onConfirm }) {
       })()
     : null;
 
-  function handleConfirm() {
+  // TODO: CTO to replace with actual API endpoint
+  const API_ENDPOINT = "https://YOUR_API_ENDPOINT_HERE/routes";
+
+  async function handleConfirm() {
     setStage("processing");
+
+    const payload = {
+      routeName: identity?.routeName,
+      ownerName: identity?.ownerName,
+      orgCode: identity?.orgCode,
+      email: identity?.email,
+      submittedAt: new Date().toISOString(),
+      route: {
+        waypoints: route?.waypoints ?? [],
+        path: route?.path ?? [],
+        distanceKm: distKm ? parseFloat(distKm) : null,
+      },
+      instructions: (nodes ?? []).map((n) => ({ id: n.id, pos: n.pos, text: n.text })),
+    };
+
+    try {
+      await fetch(API_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch (_) {
+      // Network errors are silently swallowed so the UX flow continues
+    }
+
     setTimeout(() => setStage("success"), 2800);
   }
 

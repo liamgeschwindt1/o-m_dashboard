@@ -1,51 +1,73 @@
-# O&M Studio
+# Touchpulse Instructor Studio
 
-A route-builder dashboard for O&M training. Built with Streamlit and Leaflet.
+A web app for O&M instructors to build, calibrate, and submit custom Tiera walking routes for the Touchpulse community.
 
-## Features
+## Tech Stack
 
-- **5-step wizard**: Identity → Destination → Calibration → Refinement → Uplink
-- Interactive Leaflet map with click-to-place start/end points
-- ORS-powered walking route generation
-- Draggable A/B pins and via-point calibration
-- Click-to-edit instruction nodes with hover tooltips
-- JSON export of completed routes
+| Layer | Technology |
+|---|---|
+| UI Framework | React 19 + Vite 8 |
+| Animations | Framer Motion 12 |
+| Maps | React Leaflet 5 + CartoDB DarkMatter tiles |
+| Routing API | GraphHopper (pedestrian) |
+| Styling | Inline styles + Inter / JetBrains Mono fonts |
+| Deployment | Railway (Docker) |
 
-## Setup
+## User Flow
 
-1. Install dependencies:
+1. **Welcome** — Branded landing screen
+2. **Info** — 4-question typewriter onboarding (route name, org code, creator name, email)
+3. **Build Route** — Click map to place A/B endpoints
+4. **Add Stops** — GraphHopper auto-routes; drag markers or add via-points
+5. **Edit Instructions** — Click polyline nodes to edit turn instructions
+6. **Submit** — Route summary sheet flies off screen → processing spinner → confirmation
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Getting Started
 
-2. Configure API keys:
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm run build      # production bundle → dist/
+npm run preview    # serve dist/ locally
+```
 
-   ```bash
-   cp .streamlit/secrets.toml.example .streamlit/secrets.toml
-   # Add your ORS_API_KEY and MAPTILER_API_KEY
-   ```
+## Environment / Configuration
 
-3. Run:
+### API Keys
 
-   ```bash
-   streamlit run app.py
-   ```
+| Key | Location | Description |
+|---|---|---|
+| GraphHopper API | `src/CalibrationStep.jsx` → `GH_KEY` | Pedestrian routing |
+| Submit endpoint | `src/SubmitSheet.jsx` → `API_ENDPOINT` | **Placeholder — CTO to fill in** |
+
+> **Note for CTO:** Replace `https://YOUR_API_ENDPOINT_HERE/routes` in `src/SubmitSheet.jsx` with the actual POST endpoint. The full route payload (waypoints, path, instructions, creator info) is already serialised and sent on submit.
 
 ## Project Structure
 
 ```
-app.py                              # Main Streamlit application
+src/
+  App.jsx                  # Root: phase state machine (welcome → onboarding → studio → submit)
+  WelcomeScreen.jsx        # Branded landing with aurora gradient
+  OnboardingTypewriter.jsx # 4-step typewriter Q&A
+  StudioSidebar.jsx        # Floating frosted-glass control panel with step timeline
+  PlanningStep.jsx         # Step 1 — place A/B map pins
+  CalibrationStep.jsx      # Step 2 — GraphHopper route + via-points
+  RefinementStep.jsx       # Step 3 — click-to-edit turn instruction nodes
+  SubmitSheet.jsx          # Step 4 — summary sheet + POST submit + confirmation
 assets/
-  tiera_styles.py                   # CSS theme
-  touchpulse-logo.png               # Brand logo
-components/
-  leaflet_component/
-    __init__.py                     # Streamlit custom component wrapper
-    index.html                      # Leaflet map with full interactivity
-requirements.txt                    # Python dependencies
-.streamlit/
-  secrets.toml                      # API keys (not committed)
-  secrets.toml.example              # Template for secrets
+  logo.png                 # Touchpulse wordmark
+public/
+  ...                      # Static assets served at /
 ```
+
+## Deployment
+
+The project includes a `Dockerfile`. Railway auto-builds on push to `main`.
+
+```bash
+# Build image locally
+docker build -t touchpulse-studio .
+docker run -p 5173:5173 touchpulse-studio
+```
+
 

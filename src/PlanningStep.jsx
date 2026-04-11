@@ -144,7 +144,7 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
           center={[37.7749, -122.4194]}
           zoom={13}
           style={{ height: "100%", width: "100%" }}
-          zoomControl={true}
+          zoomControl={false}
         >
           <TileLayer
             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"

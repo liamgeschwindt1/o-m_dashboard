@@ -253,6 +253,7 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
           center={pins.start}
           zoom={14}
           style={{ height: "100%", width: "100%" }}
+          zoomControl={false}
         >
           <TileLayer
             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
