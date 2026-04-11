@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import StudioSidebar from "./StudioSidebar";
+import logo from "../assets/logo.png";
+
+const GRAIN_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
 const questions = [
   { label: "Trip Name?", key: "routeName" },
@@ -59,46 +59,88 @@ export function OnboardingTypewriter({ onComplete }) {
   const isTyping = typed.length < (questions[step]?.label.length ?? 0);
 
   return (
-    <div style={{ display: "flex", width: "100vw", height: "100vh" }}>
-      <StudioSidebar currentStep={0}>
+    <div
+      style={{
+        width: "100vw",
+        height: "100vh",
+        position: "relative",
+        overflow: "hidden",
+        fontFamily: "Inter, sans-serif",
+        backgroundColor: "#031119",
+        background: [
+          "radial-gradient(ellipse at 20% 50%, rgba(1,180,175,0.55) 0%, transparent 60%)",
+          "radial-gradient(ellipse at 80% 30%, rgba(255,177,0,0.40) 0%, transparent 55%)",
+          "radial-gradient(ellipse at 50% 90%, rgba(27,53,79,0.60) 0%, transparent 70%)",
+        ].join(", "),
+      }}
+    >
+      {/* Grain overlay */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        backgroundImage: GRAIN_SVG,
+        backgroundRepeat: "repeat",
+        backgroundSize: "256px 256px",
+        opacity: 0.05,
+        pointerEvents: "none",
+        zIndex: 1,
+      }} />
+      <div style={{ position: "absolute", inset: 0, backgroundColor: "#031119", zIndex: -1 }} />
 
-        {/* Step counter */}
-        <div style={{ fontSize: 10, letterSpacing: "0.10em", color: "rgba(247,247,247,0.30)", textTransform: "uppercase", marginBottom: 20 }}>
-          {step + 1} / {questions.length}
-        </div>
+      {/* Top-left logo */}
+      <div style={{ position: "absolute", top: 28, left: 32, zIndex: 2 }}>
+        <img src={logo} alt="Touchpulse" style={{ height: 32, display: "block" }} />
+      </div>
 
+      {/* Centered content */}
+      <div style={{
+        position: "relative",
+        zIndex: 2,
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+      }}>
         <motion.div
           key={step}
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 }}
-          style={{ display: "flex", flexDirection: "column" }}
+          transition={{ duration: 0.45 }}
+          style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 400 }}
         >
+          {/* Step indicator */}
+          <div style={{ fontSize: 11, letterSpacing: "0.1em", color: "rgba(247,247,247,0.35)", textTransform: "uppercase", marginBottom: 32 }}>
+            {step + 1} / {questions.length}
+          </div>
+
           {/* Typewriter question */}
           <div style={{
-            fontSize: 18,
+            fontSize: 28,
             fontWeight: 500,
             color: "#F7F7F7",
             letterSpacing: "-0.02em",
-            lineHeight: 1.3,
+            lineHeight: 1.2,
+            textAlign: "center",
             minHeight: "2.8em",
-            marginBottom: 24,
+            marginBottom: 40,
           }}>
             {typed}
             {!done && (
               <span style={{
                 display: "inline-block",
-                width: 1.5,
-                height: "0.85em",
-                background: "rgba(1,180,175,0.85)",
-                marginLeft: 2,
+                width: 2,
+                height: "0.9em",
+                background: "rgba(1,180,175,0.8)",
+                marginLeft: 3,
                 verticalAlign: "middle",
                 animation: isTyping ? "none" : "blink 1s step-end infinite",
               }} />
             )}
           </div>
 
-          {/* Input */}
+          {/* Answer input */}
           {!done && (
             <>
               <input
@@ -107,37 +149,36 @@ export function OnboardingTypewriter({ onComplete }) {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={isTyping}
-                placeholder={isTyping ? "" : "type here…"}
+                placeholder={isTyping ? "" : "Type your answer…"}
                 style={{
                   width: "100%",
                   border: "none",
-                  borderBottom: "0.5px solid rgba(255,255,255,0.18)",
+                  borderBottom: "0.5px solid rgba(255,255,255,0.20)",
                   outline: "none",
-                  fontSize: 13,
+                  fontSize: 16,
                   fontFamily: "Inter, sans-serif",
-                  padding: "8px 0",
+                  padding: "12px 0",
                   background: "transparent",
                   color: "#F7F7F7",
+                  textAlign: "center",
                   caretColor: "rgba(1,180,175,0.9)",
                   transition: "border-color 150ms ease",
-                  boxSizing: "border-box",
                 }}
-                onFocus={(e) => (e.target.style.borderBottomColor = "rgba(255,255,255,0.50)")}
-                onBlur={(e) => (e.target.style.borderBottomColor = "rgba(255,255,255,0.18)")}
+                onFocus={(e) => (e.target.style.borderBottomColor = "rgba(255,255,255,0.55)")}
+                onBlur={(e) => (e.target.style.borderBottomColor = "rgba(255,255,255,0.20)")}
               />
-
-              <div style={{ marginTop: 20, display: "flex", gap: 8, alignItems: "center" }}>
+              <div style={{ marginTop: 28, display: "flex", gap: 12, alignItems: "center" }}>
                 <button
                   onClick={advance}
                   disabled={isTyping}
                   style={{
-                    padding: "9px 20px",
+                    padding: "10px 28px",
                     background: "transparent",
-                    color: isTyping ? "rgba(247,247,247,0.25)" : "#F7F7F7",
-                    border: `0.5px solid ${isTyping ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.45)"}`,
+                    color: isTyping ? "rgba(247,247,247,0.3)" : "#F7F7F7",
+                    border: `0.5px solid ${isTyping ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.55)"}`,
                     borderRadius: 6,
                     fontWeight: 500,
-                    fontSize: 12,
+                    fontSize: 13,
                     fontFamily: "Inter, sans-serif",
                     cursor: isTyping ? "default" : "pointer",
                     letterSpacing: "0.04em",
@@ -153,12 +194,12 @@ export function OnboardingTypewriter({ onComplete }) {
                   style={{
                     background: "none",
                     border: "none",
-                    color: "rgba(247,247,247,0.25)",
-                    fontSize: 11,
+                    color: "rgba(247,247,247,0.30)",
+                    fontSize: 12,
                     fontFamily: "Inter, sans-serif",
                     cursor: "pointer",
                     letterSpacing: "0.04em",
-                    padding: "9px 0",
+                    padding: "10px 0",
                   }}
                 >
                   skip
@@ -166,47 +207,19 @@ export function OnboardingTypewriter({ onComplete }) {
               </div>
             </>
           )}
+
+          {/* Previous answers */}
+          {Object.keys(answers).length > 0 && (
+            <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 6, width: "100%" }}>
+              {Object.entries(answers).map(([k, v]) => (
+                <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "rgba(247,247,247,0.35)", borderBottom: "0.5px solid rgba(255,255,255,0.06)", paddingBottom: 6 }}>
+                  <span style={{ textTransform: "capitalize" }}>{questions.find((q) => q.key === k)?.label.replace("?", "")}</span>
+                  <span style={{ color: "rgba(247,247,247,0.6)" }}>{v || "—"}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </motion.div>
-
-        {/* Push answered questions to bottom */}
-        <div style={{ flex: 1 }} />
-
-        {Object.keys(answers).length > 0 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-            {Object.entries(answers).map(([k, v]) => (
-              <div key={k} style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: 10,
-                color: "rgba(247,247,247,0.30)",
-                borderBottom: "0.5px solid rgba(255,255,255,0.05)",
-                paddingBottom: 5,
-                fontFamily: "Inter, sans-serif",
-              }}>
-                <span style={{ textTransform: "capitalize" }}>{questions.find((q) => q.key === k)?.label.replace("?", "")}</span>
-                <span style={{ color: "rgba(247,247,247,0.55)" }}>{v || "—"}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </StudioSidebar>
-
-      {/* Map — decorative, full-bleed */}
-      <div style={{ flex: 1, height: "100vh" }}>
-        <MapContainer
-          center={[37.7749, -122.4194]}
-          zoom={12}
-          style={{ height: "100%", width: "100%" }}
-          zoomControl={false}
-          attributionControl={false}
-          dragging={false}
-          scrollWheelZoom={false}
-          doubleClickZoom={false}
-          touchZoom={false}
-          keyboard={false}
-        >
-          <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-        </MapContainer>
       </div>
 
       <style>{`
