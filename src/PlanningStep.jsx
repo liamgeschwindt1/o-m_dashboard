@@ -51,7 +51,7 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
   const canGenerate = start && end;
 
   return (
-    <div style={{ display: "flex", width: "100vw", height: "100vh" }}>
+    <div style={{ position: "relative", width: "100vw", height: "100vh", cursor: placing ? "crosshair" : "default" }}>
       <StudioSidebar currentStep={currentStep}>
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 6, color: "#F7F7F7" }}>
@@ -141,7 +141,7 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
         </div>
       </StudioSidebar>
 
-      <div style={{ flex: 1, height: "100vh", cursor: placing ? "crosshair" : "default" }}>
+      <div style={{ position: "absolute", inset: 0 }}>
         <MapContainer
           center={[37.7749, -122.4194]}
           zoom={13}

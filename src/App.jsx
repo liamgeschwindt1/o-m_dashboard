@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import WelcomeScreen from "./WelcomeScreen";
 import { OnboardingTypewriter } from "./OnboardingTypewriter";
 import PlanningStep from "./PlanningStep";
@@ -7,14 +7,14 @@ import CalibrationStep from "./CalibrationStep";
 import RefinementStep from "./RefinementStep";
 import UplinkStep from "./UplinkStep";
 
-// Teal 1px sweep line — slides top→bottom over the map area once on studio reveal
+// Teal 1px sweep line — slides top→bottom over the full viewport on studio reveal
 function SweepLine({ active }) {
   if (!active) return null;
   return (
     <motion.div
       style={{
         position: "absolute",
-        left: 280,
+        left: 0,
         right: 0,
         height: 1,
         background: "#01B4AF",
@@ -31,16 +31,21 @@ function SweepLine({ active }) {
 }
 
 export default function App() {
-  // phase: 'welcome' | 'ascending' | 'studio'
+  // phase: 'welcome' | 'onboarding' | 'ascending' | 'studio'
   const [phase, setPhase] = useState("welcome");
   const [swept, setSwept] = useState(false);
 
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(1);
   const [identity, setIdentity] = useState(null);
   const [pins, setPins] = useState(null);
   const [route, setRoute] = useState(null);
 
-  const handleAscend = () => {
+  // Welcome → Onboarding: direct fade, no slide
+  const handleWelcomeContinue = () => setPhase("onboarding");
+
+  // Onboarding complete → spatial ascent to studio
+  const handleOnboardingComplete = (data) => {
+    setIdentity(data);
     setPhase("ascending");
     setSwept(true);
     setTimeout(() => setPhase("studio"), 950);
@@ -49,8 +54,8 @@ export default function App() {
   return (
     <div style={{ width: "100vw", height: "100vh", overflow: "hidden", fontFamily: "Inter, sans-serif", position: "relative", background: "#031119" }}>
 
-      {/* ── Studio layer — slides up from below when ascending ── */}
-      {phase !== "welcome" && (
+      {/* ── Studio layer — slides up from below ── */}
+      {phase === "ascending" || phase === "studio" ? (
         <motion.div
           style={{ position: "absolute", inset: 0, zIndex: 1 }}
           initial={{ y: "100%" }}
@@ -58,14 +63,10 @@ export default function App() {
           transition={{ duration: 0.75, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           <SweepLine active={swept} />
-
-          {step === 0 && (
-            <OnboardingTypewriter onComplete={(data) => { setIdentity(data); setStep(1); }} />
-          )}
           {step === 1 && (
             <PlanningStep
               currentStep={1}
-              onBack={() => setStep(0)}
+              onBack={() => { setPhase("onboarding"); }}
               onNext={(data) => { setPins(data); setStep(2); }}
             />
           )}
@@ -89,22 +90,49 @@ export default function App() {
             <UplinkStep
               identity={identity}
               onRestart={() => {
-                setStep(0);
+                setStep(1);
                 setIdentity(null);
                 setPins(null);
                 setRoute(null);
+                setPhase("welcome");
               }}
             />
           )}
         </motion.div>
-      )}
+      ) : null}
 
-      {/* ── Welcome screen — sits on top, unmounts after transition ── */}
-      {phase !== "studio" && (
-        <div style={{ position: "absolute", inset: 0, zIndex: 2 }}>
-          <WelcomeScreen onContinue={handleAscend} exiting={phase === "ascending"} />
-        </div>
-      )}
+      {/* ── Onboarding — fades in directly after welcome ── */}
+      <AnimatePresence>
+        {phase === "onboarding" && (
+          <motion.div
+            key="onboarding"
+            style={{ position: "absolute", inset: 0, zIndex: 2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <OnboardingTypewriter onComplete={handleOnboardingComplete} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Welcome screen — fades out when leaving ── */}
+      <AnimatePresence>
+        {phase === "welcome" && (
+          <motion.div
+            key="welcome"
+            style={{ position: "absolute", inset: 0, zIndex: 3 }}
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.35 }}
+          >
+            <WelcomeScreen onContinue={handleWelcomeContinue} exiting={false} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+
+// Teal 1px sweep line — slides top→bottom over the map area once on studio reveal

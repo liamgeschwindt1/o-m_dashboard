@@ -71,7 +71,7 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
   const mapCenter = path[Math.floor(path.length / 2)] || [37.7749, -122.4194];
 
   return (
-    <div style={{ display: "flex", width: "100vw", height: "100vh" }}>
+    <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
       <StudioSidebar currentStep={currentStep}>
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 6, color: "#F7F7F7" }}>
@@ -195,7 +195,7 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
         </div>
       </StudioSidebar>
 
-      <div style={{ flex: 1, height: "100vh" }}>
+      <div style={{ position: "absolute", inset: 0 }}>
         <MapContainer
           center={mapCenter}
           zoom={15}

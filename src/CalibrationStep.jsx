@@ -116,7 +116,7 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
   const viaCount = waypoints.length - 2;
 
   return (
-    <div style={{ display: "flex", width: "100vw", height: "100vh" }}>
+    <div style={{ position: "relative", width: "100vw", height: "100vh", cursor: addMode ? "crosshair" : "default" }}>
       <StudioSidebar currentStep={currentStep}>
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 6, color: "#F7F7F7" }}>
@@ -250,7 +250,7 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
         </div>
       </StudioSidebar>
 
-      <div style={{ flex: 1, height: "100vh", cursor: addMode ? "crosshair" : "default" }}>
+      <div style={{ position: "absolute", inset: 0 }}>
         <MapContainer
           center={pins.start}
           zoom={14}
