@@ -5,7 +5,6 @@ import { OnboardingTypewriter } from "./OnboardingTypewriter";
 import PlanningStep from "./PlanningStep";
 import CalibrationStep from "./CalibrationStep";
 import RefinementStep from "./RefinementStep";
-import UplinkStep from "./UplinkStep";
 import CompleteScreen from "./CompleteScreen";
 
 // Teal 1px sweep line — slides top→bottom over the full viewport on studio reveal
@@ -110,13 +109,7 @@ export default function App() {
                 currentStep={3}
                 route={route}
                 onBack={() => setStep(2)}
-                onNext={() => setStep(4)}
-              />
-            )}
-            {step === 4 && (
-              <UplinkStep
-                identity={identity}
-                onComplete={handleSubmitComplete}
+                onNext={handleSubmitComplete}
               />
             )}
           </motion.div>
