@@ -11,8 +11,8 @@ import requests
 import streamlit as st
 
 from assets.tiera_styles import TIERA_STYLES
-from components.leaflet_component import leaflet_map
-from components.onboarding_component import onboarding_sequence
+from studio_components.leaflet_component import leaflet_map
+from studio_components.onboarding_component import onboarding_sequence
 
 # ── ORS ────────────────────────────────────────────────────────────────────────
 ORS_DIRECTIONS_URL = (
