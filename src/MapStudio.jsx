@@ -19,8 +19,8 @@ export function MapStudio() {
         className="z-0"
       >
         <TileLayer
-          url={`https://graphhopper.com/api/1/map?key=${apiKey}`}
-          attribution="&copy; GraphHopper & contributors"
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          attribution="&copy; <a href='https://carto.com/attributions'>CARTO</a>"
         />
       </MapContainer>
     </motion.div>
