@@ -85,10 +85,10 @@ header[data-testid="stHeader"],
 /* ── Sidebar column (floating glassmorphic blade) ── */
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child {
-  flex: 0 0 400px !important;
-  max-width: 400px !important;
-  min-width: 400px !important;
-  width: 400px !important;
+  flex: 0 0 25vw !important;
+  max-width: 25vw !important;
+  min-width: 320px !important;
+  width: 25vw !important;
   height: 100vh !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
@@ -208,7 +208,7 @@ header[data-testid="stHeader"],
    ================================================================ */
 /* Brand area: logo + subtitle */
 .main [data-testid="stColumn"]:first-child [data-testid="stImage"] {
-  padding: 1rem 1.5rem 0 !important;
+  padding: 1rem 1.8rem 0 !important;
   margin: 0 !important;
 }
 .main [data-testid="stColumn"]:first-child [data-testid="stImage"] img {
@@ -220,7 +220,7 @@ header[data-testid="stHeader"],
   font-weight: 400;
   letter-spacing: 0.1em;
   color: var(--text-dim);
-  padding: 0.15rem 1.5rem 0.8rem;
+  padding: 0.15rem 1.8rem 0.8rem;
   border-bottom: 1px solid var(--border);
 }
 
@@ -239,7 +239,7 @@ header[data-testid="stHeader"],
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-mid);
-  padding: 0.6rem 1.5rem 0.5rem;
+  padding: 0.6rem 1.8rem 0.5rem;
 }
 .t-field-label {
   font-size: 10px;
@@ -247,12 +247,12 @@ header[data-testid="stHeader"],
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-dim);
-  padding: 0.15rem 1.5rem 0.2rem;
+  padding: 0.15rem 1.8rem 0.2rem;
 }
 .t-hint {
   font-size: 11px;
   color: var(--text-dim);
-  padding: 0.2rem 1.5rem;
+  padding: 0.2rem 1.8rem;
   line-height: 1.6;
 }
 .t-gap { height: 0.5rem; }
@@ -266,28 +266,28 @@ header[data-testid="stHeader"],
 .t-status {
   font-size: 11px;
   color: var(--text-dim);
-  padding: 0.2rem 1.5rem 0.3rem;
+  padding: 0.2rem 1.8rem 0.3rem;
   line-height: 1.5;
 }
 .t-via {
   font-size: 11px;
   font-family: var(--mono);
   color: var(--text-mid);
-  padding: 0.15rem 1.5rem;
+  padding: 0.15rem 1.8rem;
 }
 .t-warn {
   font-size: 11px;
   color: var(--alert);
-  padding: 0.2rem 1.5rem;
+  padding: 0.2rem 1.8rem;
 }
 .t-success {
-  padding: 1.5rem 1.5rem;
+  padding: 1.5rem 1.8rem;
   font-size: 13px;
   line-height: 1.7;
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  margin: 0.8rem 1.5rem;
+  margin: 0.8rem 1.8rem;
   background: rgba(52, 211, 153, 0.06);
 }
 
@@ -382,7 +382,7 @@ header[data-testid="stHeader"],
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0.5rem 1.5rem;
+  padding: 0.5rem 1.8rem;
   cursor: pointer;
   border-left: 2px solid transparent;
   transition: all var(--transition);
@@ -423,7 +423,7 @@ header[data-testid="stHeader"],
 .t-node-text {
   font-size: 11px;
   color: var(--text-dim);
-  padding: 0.15rem 1.5rem 0.3rem 3.5rem;
+  padding: 0.15rem 1.8rem 0.3rem 3.5rem;
   line-height: 1.5;
 }
 
@@ -562,8 +562,8 @@ div[data-testid="stExpander"] {
   > [data-testid="stColumn"]:first-child [data-testid="stDownloadButton"],
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child [data-baseweb="select"] {
-  padding-left: 1.5rem !important;
-  padding-right: 1.5rem !important;
+  padding-left: 1.8rem !important;
+  padding-right: 1.8rem !important;
 }
 
 /* ================================================================
@@ -597,13 +597,13 @@ div[data-testid="stExpander"] {
    AI log / streaming card
    ================================================================ */
 .t-ai-log {
-  padding: 0.8rem 1.5rem;
+  padding: 0.8rem 1.8rem;
   font-size: 11px;
   line-height: 1.7;
   color: var(--text-dim);
   font-family: var(--mono);
   border-left: 2px solid var(--text-dim);
-  margin: 0.4rem 1.5rem;
+  margin: 0.4rem 1.8rem;
   background: rgba(52, 211, 153, 0.04);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }

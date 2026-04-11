@@ -257,7 +257,7 @@ except Exception:
 step = st.session_state.step
 
 # ── Two-column layout ───────────────────────────────────────────────────────────
-left_col, right_col = st.columns([1, 5], gap="small")
+left_col, right_col = st.columns([1, 3], gap="small")
 
 # ══════════════════════════════════════════════════════════════════════════════════
 # SIDEBAR
