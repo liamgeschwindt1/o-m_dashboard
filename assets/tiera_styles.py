@@ -636,15 +636,17 @@ label, [data-testid="stWidgetLabel"] {
   background: var(--surface) !important;
 }
 
-/* ── Sidebar widget inset (force all children) ── */
+/* ── Sidebar widget inset (force all children to 20px) ── */
 .main [data-testid="stHorizontalBlock"]:first-of-type > [data-testid="stColumn"]:first-child * {
-  padding-left: 24px !important;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
   box-sizing: border-box !important;
 }
 
-/* For stepper row, override to remove extra left padding */
+/* For stepper row, override to remove extra left/right padding */
 .main [data-testid="stHorizontalBlock"]:first-of-type > [data-testid="stColumn"]:first-child [data-testid="stHorizontalBlock"] {
   padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 /* ================================================================
