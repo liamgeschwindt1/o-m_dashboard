@@ -25,7 +25,7 @@ export default function StudioSidebar({ currentStep, children }) {
       WebkitBackdropFilter: "blur(18px)",
       border: "0.5px solid rgba(255,255,255,0.08)",
       borderRadius: 10,
-      zIndex: 10,
+      zIndex: 1000,
       overflow: "hidden",
       fontFamily: "Inter, sans-serif",
     }}>

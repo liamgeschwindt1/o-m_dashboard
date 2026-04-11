@@ -250,7 +250,7 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
         </div>
       </StudioSidebar>
 
-      <div style={{ position: "absolute", inset: 0 }}>
+      <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
         <MapContainer
           center={pins.start}
           zoom={14}
