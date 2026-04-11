@@ -4,54 +4,28 @@ import logo from "../assets/logo.png";
 
 const GRAIN_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
-// Individual floating blob
-function Blob({ color, size, initialX, initialY, animX, animY, duration }) {
-  return (
-    <motion.div
-      style={{
-        position: "absolute",
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background: color,
-        filter: "blur(90px)",
-        left: initialX,
-        top: initialY,
-        pointerEvents: "none",
-      }}
-      animate={{ x: animX, y: animY }}
-      transition={{ duration, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
-    />
-  );
-}
-
 export default function WelcomeScreen({ onContinue, exiting }) {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden", fontFamily: "Inter, sans-serif", backgroundColor: "#031119" }}>
+    <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden", fontFamily: "Inter, sans-serif" }}>
 
-      {/* ── Moving gradient blobs ── */}
-      <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
-        <Blob
-          color="rgba(1,180,175,0.45)"
-          size="55vw" initialX="-10%" initialY="15%"
-          animX={[0, 60, 20, -30, 0]} animY={[0, -40, 30, 10, 0]}
-          duration={18}
-        />
-        <Blob
-          color="rgba(255,177,0,0.28)"
-          size="45vw" initialX="55%" initialY="-5%"
-          animX={[0, -50, 10, 40, 0]} animY={[0, 50, 20, -30, 0]}
-          duration={22}
-        />
-        <Blob
-          color="rgba(27,53,79,0.55)"
-          size="50vw" initialX="20%" initialY="50%"
-          animX={[0, 40, -20, -10, 0]} animY={[0, -20, 40, 10, 0]}
-          duration={26}
-        />
-      </div>
+      {/* Aurora background */}
+      <motion.div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 0,
+          backgroundColor: "#031119",
+          background: [
+            "radial-gradient(ellipse at 20% 50%, rgba(1,180,175,0.55) 0%, transparent 60%)",
+            "radial-gradient(ellipse at 80% 30%, rgba(255,177,0,0.40) 0%, transparent 55%)",
+            "radial-gradient(ellipse at 50% 90%, rgba(27,53,79,0.60) 0%, transparent 70%)",
+          ].join(", "),
+        }}
+        animate={exiting ? { y: "-105%" } : { y: 0 }}
+        transition={{ duration: 0.85, ease: [0.25, 0.46, 0.45, 0.94] }}
+      />
 
       {/* Grain */}
       <div style={{
