@@ -1,7 +1,7 @@
 import { useState } from "react";
-import OnboardingTypewriter from "./OnboardingTypewriter";
-import MapStudio from "./MapStudio";
-import Uplink from "./Uplink";
+import { OnboardingTypewriter } from "./OnboardingTypewriter";
+import { MapStudio } from "./MapStudio";
+import { Uplink } from "./Uplink";
 
 const steps = ["Onboarding", "Planning", "Calibration", "Refinement", "Submission"];
 
