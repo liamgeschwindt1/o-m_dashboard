@@ -104,7 +104,7 @@ header[data-testid="stHeader"],
   backdrop-filter: var(--blur) !important;
   -webkit-backdrop-filter: var(--blur) !important;
   border-right: 1px solid var(--border) !important;
-  padding: 0 !important;
+  padding: 0 1.8rem !important;
   margin: 0 !important;
   z-index: 10 !important;
 }
@@ -142,19 +142,7 @@ header[data-testid="stHeader"],
   flex: 0 0 auto !important;
 }
 
-/* Sidebar vertical-block spacing */
-.main [data-testid="stHorizontalBlock"]:first-of-type
-  > [data-testid="stColumn"]:first-child
-  [data-testid="stVerticalBlock"] {
-  gap: 0.25rem !important;
-  padding: 0 !important;
-  padding-bottom: 2rem !important;
-  height: auto !important;
-  min-height: 0 !important;
-  max-height: none !important;
-  overflow: visible !important;
-  flex: 0 0 auto !important;
-}
+/* Sidebar vertical-block spacing — handled by sidebar widget inset rule below */
 
 /* Nested horizontal blocks inside sidebar stay row-flex */
 .main [data-testid="stHorizontalBlock"]:first-of-type
@@ -216,7 +204,7 @@ header[data-testid="stHeader"],
    ================================================================ */
 /* Brand area: logo + subtitle */
 .main [data-testid="stColumn"]:first-child [data-testid="stImage"] {
-  padding: 24px 1.8rem 0 1.8rem !important;
+  padding: 24px 0 0 0 !important;
   margin: 0 !important;
 }
 .main [data-testid="stColumn"]:first-child [data-testid="stImage"] img {
@@ -227,7 +215,7 @@ header[data-testid="stHeader"],
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--text);
-  padding: 0.6rem 1.8rem 0;
+  padding: 0.6rem 0 0;
   letter-spacing: -0.01em;
   line-height: 1.2;
 }
@@ -236,7 +224,7 @@ header[data-testid="stHeader"],
   font-size: 0.9rem;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.35);
-  padding: 0.25rem 1.8rem 1rem;
+  padding: 0.25rem 0 1rem;
   line-height: 1.5;
   border-bottom: 1px solid var(--border);
 }
@@ -256,7 +244,7 @@ header[data-testid="stHeader"],
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-mid);
-  padding: 0.6rem 1.8rem 0.5rem;
+  padding: 0.6rem 0 0.5rem;
 }
 .t-field-label {
   font-size: 10px;
@@ -264,12 +252,12 @@ header[data-testid="stHeader"],
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-dim);
-  padding: 0.15rem 1.8rem 0.2rem;
+  padding: 0.15rem 0 0.2rem;
 }
 .t-hint {
   font-size: 11px;
   color: var(--text-dim);
-  padding: 0.2rem 1.8rem;
+  padding: 0.2rem 0;
   line-height: 1.6;
 }
 .t-gap { height: 0.5rem; }
@@ -283,28 +271,28 @@ header[data-testid="stHeader"],
 .t-status {
   font-size: 11px;
   color: var(--text-dim);
-  padding: 0.2rem 1.8rem 0.3rem;
+  padding: 0.2rem 0 0.3rem;
   line-height: 1.5;
 }
 .t-via {
   font-size: 11px;
   font-family: var(--mono);
   color: var(--text-mid);
-  padding: 0.15rem 1.8rem;
+  padding: 0.15rem 0;
 }
 .t-warn {
   font-size: 11px;
   color: var(--alert);
-  padding: 0.2rem 1.8rem;
+  padding: 0.2rem 0;
 }
 .t-success {
-  padding: 1.5rem 1.8rem;
+  padding: 1.5rem 0;
   font-size: 13px;
   line-height: 1.7;
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  margin: 0.8rem 1.8rem;
+  margin: 0.8rem 0;
   background: rgba(52, 211, 153, 0.06);
 }
 
@@ -399,7 +387,7 @@ header[data-testid="stHeader"],
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0.5rem 1.8rem;
+  padding: 0.5rem 0;
   cursor: pointer;
   border-left: 2px solid transparent;
   transition: all var(--transition);
@@ -440,7 +428,7 @@ header[data-testid="stHeader"],
 .t-node-text {
   font-size: 11px;
   color: var(--text-dim);
-  padding: 0.15rem 1.8rem 0.3rem 3.5rem;
+  padding: 0.15rem 0 0.3rem 2rem;
   line-height: 1.5;
 }
 
@@ -581,19 +569,17 @@ div[data-testid="stExpander"] {
   background: transparent !important;
 }
 
-/* ── Sidebar widget inset ── */
+/* ── Sidebar widget vertical spacing ── */
 .main [data-testid="stHorizontalBlock"]:first-of-type
-  > [data-testid="stColumn"]:first-child [data-testid="stTextInput"],
-.main [data-testid="stHorizontalBlock"]:first-of-type
-  > [data-testid="stColumn"]:first-child [data-testid="stTextArea"],
-.main [data-testid="stHorizontalBlock"]:first-of-type
-  > [data-testid="stColumn"]:first-child [data-testid="stButton"],
-.main [data-testid="stHorizontalBlock"]:first-of-type
-  > [data-testid="stColumn"]:first-child [data-testid="stDownloadButton"],
-.main [data-testid="stHorizontalBlock"]:first-of-type
-  > [data-testid="stColumn"]:first-child [data-baseweb="select"] {
-  padding-left: 1.8rem !important;
-  padding-right: 1.8rem !important;
+  > [data-testid="stColumn"]:first-child
+  [data-testid="stVerticalBlock"] {
+  gap: 0.25rem !important;
+  padding-bottom: 2rem !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
 }
 
 /* ================================================================
@@ -627,13 +613,13 @@ div[data-testid="stExpander"] {
    AI log / streaming card
    ================================================================ */
 .t-ai-log {
-  padding: 0.8rem 1.8rem;
+  padding: 0.8rem;
   font-size: 11px;
   line-height: 1.7;
   color: var(--text-dim);
   font-family: var(--mono);
   border-left: 2px solid var(--text-dim);
-  margin: 0.4rem 1.8rem;
+  margin: 0.4rem 0;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
