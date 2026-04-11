@@ -180,8 +180,8 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
               flex: 1,
               padding: "10px 0",
               background: "transparent",
-              color: "#01B4AF",
-              border: "0.5px solid rgba(1,180,175,0.5)",
+              color: "#FFB100",
+              border: "0.5px solid rgba(255,177,0,0.55)",
               borderRadius: 6,
               fontWeight: 500,
               cursor: "pointer",
@@ -207,7 +207,7 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
           />
           <Polyline
             positions={path}
-            pathOptions={{ color: "#01B4AF", weight: 1.5, opacity: 1 }}
+            pathOptions={{ color: "#FF7230", weight: 1.5, opacity: 1 }}
             eventHandlers={{ click: injectNodeOnPolyline }}
           />
           {nodes.map((node, i) => (

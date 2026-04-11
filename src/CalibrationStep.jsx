@@ -6,26 +6,24 @@ import StudioSidebar from "./StudioSidebar";
 
 const GH_KEY = "1e8939e3-07a3-4b03-83e2-8698c3b12586";
 
-const startIcon = L.divIcon({
-  html: '<div style="width:14px;height:14px;border-radius:50%;background:#01B4AF;cursor:move;"></div>',
-  className: "",
-  iconSize: [14, 14],
-  iconAnchor: [7, 7],
-});
-
-const endIcon = L.divIcon({
-  html: '<div style="width:14px;height:14px;border-radius:50%;background:#F7F7F7;border:2px solid #01B4AF;box-sizing:border-box;cursor:move;"></div>',
-  className: "",
-  iconSize: [14, 14],
-  iconAnchor: [7, 7],
-});
-
-function viaIcon(active) {
+function letterIcon(letter) {
   return L.divIcon({
-    html: `<div style="width:11px;height:11px;border-radius:50%;background:${active ? "#01B4AF" : "#aaa"};border:2px solid #fff;box-shadow:0 0 0 1.5px rgba(1,180,175,0.5);cursor:move;box-sizing:border-box;"></div>`,
+    html: `<div style="width:22px;height:22px;border-radius:50%;background:#01B4AF;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px rgba(1,180,175,0.3);"><span style="color:#031119;font-size:10px;font-weight:700;font-family:Inter,sans-serif;line-height:1;">${letter}</span></div>`,
     className: "",
-    iconSize: [11, 11],
-    iconAnchor: [5.5, 5.5],
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+  });
+}
+
+const startIcon = letterIcon("A");
+const endIcon = letterIcon("B");
+
+function viaIcon(letter) {
+  return L.divIcon({
+    html: `<div style="width:18px;height:18px;border-radius:50%;background:#1B354F;border:1.5px solid #01B4AF;display:flex;align-items:center;justify-content:center;"><span style="color:#01B4AF;font-size:9px;font-weight:700;font-family:Inter,sans-serif;line-height:1;">${letter}</span></div>`,
+    className: "",
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
   });
 }
 
@@ -235,8 +233,8 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
               flex: 1,
               padding: "10px 0",
               background: "transparent",
-              color: routePath && !loading ? "#01B4AF" : "rgba(247,247,247,0.2)",
-              border: routePath && !loading ? "0.5px solid rgba(1,180,175,0.5)" : "0.5px solid rgba(255,255,255,0.1)",
+              color: routePath && !loading ? "#FFB100" : "rgba(247,247,247,0.2)",
+              border: routePath && !loading ? "0.5px solid rgba(255,177,0,0.55)" : "0.5px solid rgba(255,255,255,0.1)",
               borderRadius: 6,
               fontWeight: 500,
               cursor: routePath && !loading ? "pointer" : "default",
@@ -265,7 +263,7 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
           {routePath && (
             <Polyline
               positions={routePath}
-              pathOptions={{ color: "#01B4AF", weight: 1.5, opacity: 1 }}
+              pathOptions={{ color: "#FF7230", weight: 1.5, opacity: 1 }}
             />
           )}
           {/* Start marker */}
@@ -280,7 +278,7 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
             <Marker
               key={`via-${i}`}
               position={wp}
-              icon={viaIcon(false)}
+              icon={viaIcon(String.fromCharCode(67 + i))}
               draggable={true}
               eventHandlers={{ dragend: (e) => handleDragEnd(i + 1, e) }}
             />

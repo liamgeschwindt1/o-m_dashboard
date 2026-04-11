@@ -4,19 +4,17 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import StudioSidebar from "./StudioSidebar";
 
-const startIcon = L.divIcon({
-  html: '<div style="width:14px;height:14px;border-radius:50%;background:#01B4AF;"></div>',
-  className: "",
-  iconSize: [14, 14],
-  iconAnchor: [7, 7],
-});
+function letterIcon(letter) {
+  return L.divIcon({
+    html: `<div style="width:22px;height:22px;border-radius:50%;background:#01B4AF;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px rgba(1,180,175,0.3);"><span style="color:#031119;font-size:10px;font-weight:700;font-family:Inter,sans-serif;line-height:1;">${letter}</span></div>`,
+    className: "",
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+  });
+}
 
-const endIcon = L.divIcon({
-  html: '<div style="width:14px;height:14px;border-radius:50%;background:#F7F7F7;border:2px solid #01B4AF;box-sizing:border-box;"></div>',
-  className: "",
-  iconSize: [14, 14],
-  iconAnchor: [7, 7],
-});
+const startIcon = letterIcon("A");
+const endIcon = letterIcon("B");
 
 function MapClicker({ active, onPlace }) {
   useMapEvents({
@@ -126,8 +124,8 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
               flex: 1,
               padding: "10px 0",
               background: "transparent",
-              color: canGenerate ? "#01B4AF" : "rgba(247,247,247,0.2)",
-              border: canGenerate ? "0.5px solid rgba(1,180,175,0.5)" : "0.5px solid rgba(255,255,255,0.1)",
+              color: canGenerate ? "#FFB100" : "rgba(247,247,247,0.2)",
+              border: canGenerate ? "0.5px solid rgba(255,177,0,0.55)" : "0.5px solid rgba(255,255,255,0.1)",
               borderRadius: 6,
               fontWeight: 500,
               cursor: canGenerate ? "pointer" : "default",
