@@ -645,8 +645,8 @@ label, [data-testid="stWidgetLabel"] {
 
 /* For stepper row, override to remove extra left/right padding */
 .main [data-testid="stHorizontalBlock"]:first-of-type > [data-testid="stColumn"]:first-child [data-testid="stHorizontalBlock"] {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+  padding-left: 20 !important;
+  padding-right: 20px !important;
 }
 
 /* ================================================================
