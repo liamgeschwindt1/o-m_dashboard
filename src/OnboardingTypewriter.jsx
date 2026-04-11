@@ -5,9 +5,9 @@ import logo from "../assets/logo.png";
 const GRAIN_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
 const questions = [
-  { label: "Trip Name?", key: "routeName" },
-  { label: "Organization?", key: "orgCode" },
-  { label: "Trainer Name?", key: "ownerName" },
+  { label: "let's give this route a name.", key: "routeName", placeholder: "e.g. Downtown Loop" },
+  { label: "which email should we update you on?", key: "email", placeholder: "your@email.com" },
+  { label: "and who's creating this route?", key: "ownerName", placeholder: "Your name" },
 ];
 
 export function OnboardingTypewriter({ onComplete }) {
@@ -149,7 +149,7 @@ export function OnboardingTypewriter({ onComplete }) {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={isTyping}
-                placeholder={isTyping ? "" : "Type your answer…"}
+                placeholder={isTyping ? "" : (questions[step].placeholder || "Type your answer…")}
                 style={{
                   width: "100%",
                   border: "none",

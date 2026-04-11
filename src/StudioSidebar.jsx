@@ -1,11 +1,10 @@
 import logo from "../assets/logo.png";
 
 const STEPS = [
-  { id: 0, label: "Identity" },
-  { id: 1, label: "Destination" },
-  { id: 2, label: "Calibration" },
-  { id: 3, label: "Refinement" },
-  { id: 4, label: "Uplink" },
+  { id: 1, label: "Build Route" },
+  { id: 2, label: "Add Stops" },
+  { id: 3, label: "Edit Instructions" },
+  { id: 4, label: "Submit" },
 ];
 
 const LINE_X = 20;

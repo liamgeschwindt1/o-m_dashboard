@@ -5,6 +5,7 @@ import { OnboardingTypewriter } from "./OnboardingTypewriter";
 import PlanningStep from "./PlanningStep";
 import CalibrationStep from "./CalibrationStep";
 import RefinementStep from "./RefinementStep";
+import SubmitSheet from "./SubmitSheet";
 import CompleteScreen from "./CompleteScreen";
 
 // Teal 1px sweep line — slides top→bottom over the full viewport on studio reveal
@@ -39,6 +40,7 @@ export default function App() {
   const [identity, setIdentity] = useState(null);
   const [pins, setPins] = useState(null);
   const [route, setRoute] = useState(null);
+  const [nodes, setNodes] = useState(null);
 
   const handleWelcomeContinue = () => setPhase("onboarding");
 
@@ -56,6 +58,7 @@ export default function App() {
     setIdentity(null);
     setPins(null);
     setRoute(null);
+    setNodes(null);
     setPhase("welcome");
   };
 
@@ -109,7 +112,15 @@ export default function App() {
                 currentStep={3}
                 route={route}
                 onBack={() => setStep(2)}
-                onNext={handleSubmitComplete}
+                onNext={(refinedNodes) => { setNodes(refinedNodes); setStep(4); }}
+              />
+            )}
+            {step === 4 && (
+              <SubmitSheet
+                identity={identity}
+                route={route}
+                nodes={nodes}
+                onConfirm={handleSubmitComplete}
               />
             )}
           </motion.div>
