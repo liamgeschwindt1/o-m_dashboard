@@ -7,7 +7,7 @@ const questions = [
   { label: "Trainer Name?", key: "trainerName" },
 ];
 
-export function OnboardingTypewriter({ onComplete }) {
+export function OnboardingTypewriter({ onComplete, onSkip }) {
   const [step, setStep] = useState(0);
   const [typed, setTyped] = useState("");
   const [input, setInput] = useState("");
@@ -70,6 +70,13 @@ export function OnboardingTypewriter({ onComplete }) {
             <div key={k}>{questions.find(q => q.key === k)?.label} <span className="text-black">{v}</span></div>
           ))}
         </div>
+        <button
+          className="mt-10 px-6 py-2 rounded bg-black text-white font-semibold text-base hover:bg-[#222] transition"
+          style={{ fontFamily: 'Inter', letterSpacing: 1 }}
+          onClick={() => onSkip?.()}
+        >
+          Skip Onboarding
+        </button>
       </motion.div>
     </div>
   );
