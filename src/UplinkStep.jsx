@@ -18,6 +18,7 @@ const inputStyle = {
 export default function UplinkStep({ identity, onRestart }) {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [btnHovered, setBtnHovered] = useState(false);
 
   return (
     <div style={{
@@ -95,22 +96,24 @@ export default function UplinkStep({ identity, onRestart }) {
           <button
             onClick={() => email && setSubmitted(true)}
             disabled={!email}
+            onMouseEnter={() => setBtnHovered(true)}
+            onMouseLeave={() => setBtnHovered(false)}
             style={{
               width: "100%",
               padding: "13px 0",
-              background: "transparent",
+              background: email && btnHovered ? "rgba(255,177,0,0.12)" : "transparent",
               color: email ? "#FFB100" : "rgba(247,247,247,0.2)",
-              border: email ? "0.5px solid rgba(255,177,0,0.45)" : "0.5px solid rgba(255,255,255,0.1)",
+              border: email ? "1px solid #FFB100" : "1px solid rgba(255,255,255,0.1)",
               borderRadius: 6,
               fontWeight: 500,
               fontSize: 13,
               fontFamily: "Inter, sans-serif",
               cursor: email ? "pointer" : "default",
               letterSpacing: 0.3,
-              transition: "border-color 200ms ease, color 200ms ease",
+              transition: "background 150ms ease, border-color 150ms ease, color 150ms ease",
             }}
           >
-            Submit custom route →
+            Submit custom route ↗
           </button>
         </div>
       ) : (

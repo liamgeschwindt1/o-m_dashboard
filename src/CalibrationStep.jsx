@@ -250,8 +250,7 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
         </div>
       </StudioSidebar>
 
-      <div style={{ flex: 1, height: "100vh", cursor: addMode ? "crosshair" : "default", background: "#031119", padding: "12px 12px 12px 0" }}>
-        <div style={{ height: "100%", borderRadius: 12, overflow: "hidden" }}>
+      <div style={{ flex: 1, height: "100vh", cursor: addMode ? "crosshair" : "default" }}>
         <MapContainer
           center={pins.start}
           zoom={14}
@@ -266,7 +265,7 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
           {routePath && (
             <Polyline
               positions={routePath}
-              pathOptions={{ color: "#01B4AF", weight: 2.5, opacity: 0.9 }}
+              pathOptions={{ color: "#01B4AF", weight: 1.5, opacity: 1 }}
             />
           )}
           {/* Start marker */}
@@ -294,7 +293,6 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
             eventHandlers={{ dragend: (e) => handleDragEnd(waypoints.length - 1, e) }}
           />
         </MapContainer>
-        </div>
       </div>
     </div>
   );

@@ -4,14 +4,20 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import StudioSidebar from "./StudioSidebar";
 
-function makeNodeIcon(num, active) {
-  const bg = active ? "#01B4AF" : "#F7F7F7";
-  const fg = active ? "#031119" : "#031119";
+function makeNodeIcon(active) {
+  if (active) {
+    return L.divIcon({
+      html: `<div style="width:10px;height:10px;border-radius:50%;background:#F7F7F7;box-shadow:0 0 0 2.5px #FFB100, 0 0 0 4px rgba(255,177,0,0.25);"></div>`,
+      className: "",
+      iconSize: [10, 10],
+      iconAnchor: [5, 5],
+    });
+  }
   return L.divIcon({
-    html: `<div style="width:22px;height:22px;border-radius:50%;background:${bg};border:2px solid ${active ? "#01B4AF" : "rgba(3,17,25,0.8)"};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:${fg};font-family:Inter,sans-serif;box-sizing:border-box;">${num}</div>`,
+    html: `<div style="width:6px;height:6px;border-radius:50%;background:#F7F7F7;opacity:0.75;"></div>`,
     className: "",
-    iconSize: [22, 22],
-    iconAnchor: [11, 11],
+    iconSize: [6, 6],
+    iconAnchor: [3, 3],
   });
 }
 
@@ -51,6 +57,17 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
     setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, text } : n)));
   }
 
+  function injectNodeOnPolyline(e) {
+    const pos = [e.latlng.lat, e.latlng.lng];
+    const newNode = {
+      id: Date.now(),
+      pos,
+      text: "Custom instruction",
+    };
+    setNodes((ns) => [...ns, newNode]);
+    setActiveNode(newNode.id);
+  }
+
   const mapCenter = path[Math.floor(path.length / 2)] || [37.7749, -122.4194];
 
   return (
@@ -85,33 +102,25 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
                 style={{
                   marginBottom: 8,
                   padding: "10px 12px",
-                  borderRadius: 6,
-                  border: isActive ? "0.5px solid #01B4AF" : "0.5px solid rgba(255,255,255,0.08)",
-                  background: isActive ? "rgba(1,180,175,0.08)" : "rgba(27,53,79,0.30)",
+                  borderRadius: 4,
+                  border: isActive ? "1px solid rgba(255,177,0,0.45)" : "1px solid rgba(255,255,255,0.10)",
+                  background: isActive ? "rgba(255,177,0,0.05)" : "#1B354F",
                   cursor: "pointer",
+                  boxShadow: "none",
                   transition: "border-color 150ms ease, background 150ms ease",
                 }}
               >
                 {/* Node number + label row */}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                   <div style={{
-                    width: 18,
-                    height: 18,
+                    width: 6,
+                    height: 6,
                     borderRadius: "50%",
-                    background: isActive ? "#01B4AF" : "transparent",
-                    border: isActive ? "2px solid #01B4AF" : "2px solid rgba(247,247,247,0.3)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 8,
-                    fontWeight: 700,
-                    color: isActive ? "#031119" : "rgba(247,247,247,0.5)",
+                    background: isActive ? "#FFB100" : "rgba(247,247,247,0.4)",
                     flexShrink: 0,
                     boxSizing: "border-box",
-                  }}>
-                    {i + 1}
-                  </div>
-                  <div style={{ fontSize: 10, color: isActive ? "#01B4AF" : "rgba(247,247,247,0.35)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                  }} />
+                  <div style={{ fontSize: 10, color: isActive ? "#FFB100" : "rgba(247,247,247,0.35)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                     Node {i + 1}
                   </div>
                 </div>
@@ -186,8 +195,7 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
         </div>
       </StudioSidebar>
 
-      <div style={{ flex: 1, height: "100vh", background: "#031119", padding: "12px 12px 12px 0" }}>
-        <div style={{ height: "100%", borderRadius: 12, overflow: "hidden" }}>
+      <div style={{ flex: 1, height: "100vh" }}>
         <MapContainer
           center={mapCenter}
           zoom={15}
@@ -199,17 +207,19 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
           />
           <Polyline
             positions={path}
-            pathOptions={{ color: "#01B4AF", weight: 2.5, opacity: 0.9 }}
+            pathOptions={{ color: "#01B4AF", weight: 1.5, opacity: 1 }}
+            eventHandlers={{ click: injectNodeOnPolyline }}
           />
           {nodes.map((node, i) => (
             <Marker
               key={node.id}
               position={node.pos}
-              icon={makeNodeIcon(i + 1, activeNode === node.id)}
+              icon={makeNodeIcon(activeNode === node.id)}
               eventHandlers={{ click: () => selectNode(node.id) }}
             />
           ))}
-        </MapContainer>        </div>      </div>
+        </MapContainer>
+      </div>
     </div>
   );
 }

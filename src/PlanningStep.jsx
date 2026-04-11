@@ -141,8 +141,7 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
         </div>
       </StudioSidebar>
 
-      <div style={{ flex: 1, height: "100vh", cursor: placing ? "crosshair" : "default", background: "#031119", padding: "12px 12px 12px 0" }}>
-        <div style={{ height: "100%", borderRadius: 12, overflow: "hidden" }}>
+      <div style={{ flex: 1, height: "100vh", cursor: placing ? "crosshair" : "default" }}>
         <MapContainer
           center={[37.7749, -122.4194]}
           zoom={13}
@@ -157,7 +156,6 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
           {start && <Marker position={start} icon={startIcon} />}
           {end && <Marker position={end} icon={endIcon} />}
         </MapContainer>
-        </div>
       </div>
     </div>
   );
