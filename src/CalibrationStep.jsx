@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Polyline, useMap } from "react-leaflet";
+import { useState, useEffect, useRef } from "react";
+import { MapContainer, TileLayer, Marker, Polyline, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import StudioSidebar from "./StudioSidebar";
@@ -20,6 +20,15 @@ const endIcon = L.divIcon({
   iconAnchor: [7, 7],
 });
 
+function viaIcon(active) {
+  return L.divIcon({
+    html: `<div style="width:11px;height:11px;border-radius:50%;background:${active ? "#555" : "#888"};border:2px solid #fff;box-shadow:0 0 0 1.5px #555;cursor:move;box-sizing:border-box;"></div>`,
+    className: "",
+    iconSize: [11, 11],
+    iconAnchor: [5.5, 5.5],
+  });
+}
+
 async function fetchGHRoute(waypoints) {
   const params = waypoints.map((p) => `point=${p[0]},${p[1]}`).join("&");
   const url = `https://graphhopper.com/api/1/route?${params}&vehicle=foot&points_encoded=false&instructions=true&type=json&key=${GH_KEY}`;
@@ -28,23 +37,37 @@ async function fetchGHRoute(waypoints) {
   return res.json();
 }
 
-function FitBounds({ path }) {
+function FitBounds({ path, trigger }) {
   const map = useMap();
+  const didFit = useRef(false);
   useEffect(() => {
-    if (path && path.length > 1) {
+    if (!didFit.current && path && path.length > 1) {
       const bounds = L.latLngBounds(path);
       map.fitBounds(bounds, { padding: [48, 48] });
+      didFit.current = true;
     }
-  }, [map, path]);
+  }, [map, path, trigger]);
+  return null;
+}
+
+// Listens for map clicks when addMode is active
+function MapClickListener({ addMode, onMapClick }) {
+  useMapEvents({
+    click(e) {
+      if (addMode) onMapClick([e.latlng.lat, e.latlng.lng]);
+    },
+  });
   return null;
 }
 
 export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
+  // waypoints = [start, ...vias, end]
   const [waypoints, setWaypoints] = useState([pins.start, pins.end]);
   const [routePath, setRoutePath] = useState(null);
   const [instructions, setInstructions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [addMode, setAddMode] = useState(false);
 
   async function loadRoute(wps) {
     setLoading(true);
@@ -76,6 +99,22 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
     loadRoute(newWps);
   }
 
+  function handleMapClick(latlng) {
+    // Insert new via-point before the last point (end)
+    const newWps = [...waypoints.slice(0, -1), latlng, waypoints[waypoints.length - 1]];
+    setWaypoints(newWps);
+    setAddMode(false);
+    loadRoute(newWps);
+  }
+
+  function removeVia(idx) {
+    const newWps = waypoints.filter((_, i) => i !== idx);
+    setWaypoints(newWps);
+    loadRoute(newWps);
+  }
+
+  const viaCount = waypoints.length - 2;
+
   return (
     <div style={{ display: "flex", width: "100vw", height: "100vh" }}>
       <StudioSidebar currentStep={currentStep}>
@@ -84,10 +123,73 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
             Path Calibration
           </div>
           <div style={{ fontSize: 12, color: "#999", lineHeight: 1.6 }}>
-            Drag the Start ● or End ○ marker to adjust the path.
-            The route snaps to pedestrian-friendly streets.
+            {addMode
+              ? "Click anywhere on the map to insert a via-point."
+              : "Drag any marker to adjust the path, or add a via-point."}
           </div>
         </div>
+
+        {/* Add via-point button */}
+        <button
+          onClick={() => setAddMode((v) => !v)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "8px 12px",
+            border: addMode ? "1px solid #1c1c1e" : "1px solid #EDEDED",
+            borderRadius: 7,
+            background: addMode ? "#1c1c1e" : "#fff",
+            color: addMode ? "#fff" : "#1c1c1e",
+            fontSize: 12,
+            fontWeight: 600,
+            fontFamily: "Inter, sans-serif",
+            cursor: "pointer",
+            marginBottom: 16,
+            width: "100%",
+            justifyContent: "center",
+          }}
+        >
+          <span style={{ fontSize: 16, lineHeight: 1 }}>+</span>
+          {addMode ? "Click map to place…" : "Add via-point"}
+        </button>
+
+        {/* Via-point list */}
+        {viaCount > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 11, color: "#aaa", letterSpacing: 0.5, marginBottom: 6 }}>
+              VIA POINTS ({viaCount})
+            </div>
+            {waypoints.slice(1, -1).map((wp, i) => (
+              <div key={i} style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "5px 0",
+                borderBottom: "1px solid #f2f2f2",
+                fontSize: 11,
+                color: "#666",
+                fontFamily: "Inter, sans-serif",
+              }}>
+                <span>Via {i + 1} — {wp[0].toFixed(4)}, {wp[1].toFixed(4)}</span>
+                <button
+                  onClick={() => removeVia(i + 1)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#bbb",
+                    fontSize: 14,
+                    lineHeight: 1,
+                    padding: "0 2px",
+                    fontFamily: "Inter, sans-serif",
+                  }}
+                  title="Remove"
+                >×</button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {loading && (
           <div style={{ fontSize: 12, color: "#aaa", marginBottom: 12 }}>Calculating route…</div>
@@ -100,9 +202,6 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
             <div style={{ fontSize: 11, color: "#aaa", letterSpacing: 0.5, marginBottom: 4 }}>ROUTE READY</div>
             <div style={{ fontSize: 13, fontWeight: 500, color: "#1c1c1e" }}>
               {instructions.length} turn instructions
-            </div>
-            <div style={{ fontSize: 11, color: "#aaa", marginTop: 4 }}>
-              Drag endpoints to recalibrate
             </div>
           </div>
         )}
@@ -148,7 +247,7 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
         </div>
       </StudioSidebar>
 
-      <div style={{ flex: 1, height: "100vh" }}>
+      <div style={{ flex: 1, height: "100vh", cursor: addMode ? "crosshair" : "default" }}>
         <MapContainer
           center={pins.start}
           zoom={14}
@@ -158,22 +257,38 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
             url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
             attribution="&copy; CARTO"
           />
-          {routePath && <FitBounds path={routePath} />}
+          <MapClickListener addMode={addMode} onMapClick={handleMapClick} />
+          {routePath && <FitBounds path={routePath} trigger={pins} />}
           {routePath && (
             <Polyline
               positions={routePath}
               pathOptions={{ color: "#333", weight: 2, opacity: 0.9 }}
             />
           )}
-          {waypoints.map((wp, idx) => (
+          {/* Start marker */}
+          <Marker
+            position={waypoints[0]}
+            icon={startIcon}
+            draggable={true}
+            eventHandlers={{ dragend: (e) => handleDragEnd(0, e) }}
+          />
+          {/* Via markers */}
+          {waypoints.slice(1, -1).map((wp, i) => (
             <Marker
-              key={idx}
+              key={`via-${i}`}
               position={wp}
-              icon={idx === 0 ? startIcon : endIcon}
+              icon={viaIcon(false)}
               draggable={true}
-              eventHandlers={{ dragend: (e) => handleDragEnd(idx, e) }}
+              eventHandlers={{ dragend: (e) => handleDragEnd(i + 1, e) }}
             />
           ))}
+          {/* End marker */}
+          <Marker
+            position={waypoints[waypoints.length - 1]}
+            icon={endIcon}
+            draggable={true}
+            eventHandlers={{ dragend: (e) => handleDragEnd(waypoints.length - 1, e) }}
+          />
         </MapContainer>
       </div>
     </div>
