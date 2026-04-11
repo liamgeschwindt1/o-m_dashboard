@@ -1,73 +1,158 @@
 import { useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import StudioSidebar from "./StudioSidebar";
 
-const blackDot = new L.Icon({
-  iconUrl: "data:image/svg+xml,%3Csvg width='16' height='16' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='8' cy='8' r='6' fill='black'/%3E%3C/svg%3E",
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
-});
-const whiteDot = new L.Icon({
-  iconUrl: "data:image/svg+xml,%3Csvg width='16' height='16' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='8' cy='8' r='6' fill='white' stroke='black' stroke-width='2'/%3E%3C/svg%3E",
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
+const startIcon = L.divIcon({
+  html: '<div style="width:14px;height:14px;border-radius:50%;background:#1c1c1e;"></div>',
+  className: "",
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
 });
 
-export default function PlanningStep({ onNext, onBack }) {
+const endIcon = L.divIcon({
+  html: '<div style="width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid #1c1c1e;box-sizing:border-box;"></div>',
+  className: "",
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
+});
+
+function MapClicker({ active, onPlace }) {
+  useMapEvents({
+    click(e) {
+      if (active) onPlace([e.latlng.lat, e.latlng.lng]);
+    },
+  });
+  return null;
+}
+
+export default function PlanningStep({ currentStep, onBack, onNext }) {
   const [start, setStart] = useState(null);
   const [end, setEnd] = useState(null);
-  const [placing, setPlacing] = useState("start");
+  const [placing, setPlacing] = useState("start"); // "start" | "end" | null
 
-  function MapClicker() {
-    useMapEvents({
-      click(e) {
-        if (placing === "start") {
-          setStart([e.latlng.lat, e.latlng.lng]);
-          setPlacing("end");
-        } else if (placing === "end") {
-          setEnd([e.latlng.lat, e.latlng.lng]);
-          setPlacing(null);
-        }
-      },
-    });
-    return null;
+  function handlePlace(latlng) {
+    if (placing === "start") {
+      setStart(latlng);
+      setPlacing("end");
+    } else if (placing === "end") {
+      setEnd(latlng);
+      setPlacing(null);
+    }
   }
 
+  function reset() {
+    setStart(null);
+    setEnd(null);
+    setPlacing("start");
+  }
+
+  const canGenerate = start && end;
+
   return (
-    <div className="flex w-full h-full">
-      <div className="flex flex-col gap-6 p-8 w-[340px] bg-white/80 z-10 h-full justify-center border-r border-[#EDEDED]">
-        <div className="text-xl font-semibold mb-2">Set Route Destination</div>
-        <div className="text-xs text-gray-500 mb-4">Click the map to drop a Start (black) and End (white) point.</div>
-        <div className="flex flex-col gap-2">
-          <div className="text-xs text-gray-600">Start (A): {start ? `${start[0].toFixed(5)}, ${start[1].toFixed(5)}` : "Not set"}</div>
-          <div className="text-xs text-gray-600">End (B): {end ? `${end[0].toFixed(5)}, ${end[1].toFixed(5)}` : "Not set"}</div>
+    <div style={{ display: "flex", width: "100vw", height: "100vh" }}>
+      <StudioSidebar currentStep={currentStep}>
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6, color: "#1c1c1e" }}>
+            Set Route Endpoints
+          </div>
+          <div style={{ fontSize: 12, color: "#999", lineHeight: 1.6 }}>
+            {placing === "start" && "Click the map to drop a Start point ●"}
+            {placing === "end" && "Now click to drop an End point ○"}
+            {placing === null && "Both endpoints set. Ready to generate."}
+          </div>
         </div>
-        <div className="flex gap-2 mt-6">
+
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 3, letterSpacing: 0.5 }}>START (A)</div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: start ? "#1c1c1e" : "#ccc" }}>
+            {start ? `${start[0].toFixed(5)},  ${start[1].toFixed(5)}` : "not set"}
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 3, letterSpacing: 0.5 }}>END (B)</div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: end ? "#1c1c1e" : "#ccc" }}>
+            {end ? `${end[0].toFixed(5)},  ${end[1].toFixed(5)}` : "not set"}
+          </div>
+        </div>
+
+        {(start || end) && (
           <button
-            className="px-4 py-2 rounded border border-[#EDEDED] bg-white text-black font-semibold"
+            onClick={reset}
+            style={{
+              fontSize: 11,
+              color: "#aaa",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+              marginBottom: 20,
+              textDecoration: "underline",
+              fontFamily: "Inter, sans-serif",
+            }}
+          >
+            Reset points
+          </button>
+        )}
+
+        {/* Push buttons to bottom */}
+        <div style={{ flex: 1 }} />
+
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
             onClick={onBack}
-          >Back</button>
+            style={{
+              flex: 1,
+              padding: "11px 0",
+              border: "1px solid #EDEDED",
+              background: "#fff",
+              borderRadius: 7,
+              fontWeight: 600,
+              cursor: "pointer",
+              fontSize: 13,
+              fontFamily: "Inter, sans-serif",
+              color: "#1c1c1e",
+            }}
+          >
+            Back
+          </button>
           <button
-            className="px-4 py-2 rounded bg-black text-white font-semibold"
-            disabled={!(start && end)}
-            onClick={() => onNext({ start, end })}
-          >Generate Route</button>
+            onClick={() => canGenerate && onNext({ start, end })}
+            disabled={!canGenerate}
+            style={{
+              flex: 1,
+              padding: "11px 0",
+              background: canGenerate ? "#1c1c1e" : "#e8e8e8",
+              color: canGenerate ? "#fff" : "#aaa",
+              border: "none",
+              borderRadius: 7,
+              fontWeight: 700,
+              cursor: canGenerate ? "pointer" : "default",
+              fontSize: 13,
+              fontFamily: "Inter, sans-serif",
+            }}
+          >
+            Generate Route
+          </button>
         </div>
-      </div>
-      <div className="flex-1 h-full w-full cursor-crosshair">
+      </StudioSidebar>
+
+      <div style={{ flex: 1, height: "100vh", cursor: placing ? "crosshair" : "default" }}>
         <MapContainer
           center={[37.7749, -122.4194]}
-          zoom={12}
+          zoom={13}
           style={{ height: "100%", width: "100%" }}
-          className="z-0"
+          zoomControl={true}
         >
           <TileLayer
             url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            attribution="&copy; <a href='https://carto.com/attributions'>CARTO</a>"
+            attribution="&copy; CARTO"
           />
-          <MapClicker />
-          {start && <Marker position={start} icon={blackDot} />}
-          {end && <Marker position={end} icon={whiteDot} />}
+          <MapClicker active={!!placing} onPlace={handlePlace} />
+          {start && <Marker position={start} icon={startIcon} />}
+          {end && <Marker position={end} icon={endIcon} />}
         </MapContainer>
       </div>
     </div>
