@@ -3,13 +3,13 @@ import { useState } from "react";
 const inputStyle = {
   width: "100%",
   border: "none",
-  borderBottom: "1px solid #EDEDED",
+  borderBottom: "0.5px solid rgba(255,255,255,0.15)",
   outline: "none",
   fontSize: 16,
   fontFamily: "Inter, sans-serif",
-  padding: "10px 0",
+  padding: "12px 0",
   background: "transparent",
-  color: "#1c1c1e",
+  color: "#F7F7F7",
 };
 
 export default function UplinkStep({ identity, onRestart }) {
@@ -20,7 +20,7 @@ export default function UplinkStep({ identity, onRestart }) {
     <div style={{
       width: "100vw",
       height: "100vh",
-      background: "#fff",
+      background: "#031119",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -29,8 +29,8 @@ export default function UplinkStep({ identity, onRestart }) {
     }}>
       {/* Top-left logo */}
       <div style={{ position: "absolute", top: 24, left: 24 }}>
-        <div style={{ fontWeight: 700, fontSize: 26, letterSpacing: 3, color: "#1c1c1e" }}>TIERA</div>
-        <div style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>powered by Touchpulse</div>
+        <div style={{ fontWeight: 500, fontSize: 18, letterSpacing: 1, color: "#F7F7F7" }}>TOUCHPULSE</div>
+        <div style={{ fontSize: 11, color: "rgba(247,247,247,0.35)", marginTop: 3 }}>O&amp;M Training Studio</div>
       </div>
 
       {/* Step indicator top-right */}
@@ -39,25 +39,25 @@ export default function UplinkStep({ identity, onRestart }) {
         top: 28,
         right: 32,
         fontSize: 11,
-        color: "#ccc",
-        letterSpacing: 2,
+        color: "rgba(247,247,247,0.35)",
+        letterSpacing: "0.08em",
         textTransform: "uppercase",
       }}>
         Uplink
       </div>
 
       {!submitted ? (
-        <div style={{ width: 340, display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <div style={{ fontSize: 11, letterSpacing: 3, color: "#aaa", textTransform: "uppercase", marginBottom: 12 }}>
+        <div style={{ width: 360, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div style={{ fontSize: 11, letterSpacing: "0.08em", color: "rgba(247,247,247,0.45)", textTransform: "uppercase", marginBottom: 12 }}>
             End of Workflow
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: "#1c1c1e", marginBottom: 10, textAlign: "center", lineHeight: 1.2 }}>
+          <div style={{ fontSize: 32, fontWeight: 500, color: "#F7F7F7", marginBottom: 10, textAlign: "center", lineHeight: 1.1, letterSpacing: "-0.02em" }}>
             Submit Your Route
           </div>
-          <div style={{ fontSize: 14, color: "#aaa", textAlign: "center", lineHeight: 1.7, marginBottom: 48 }}>
+          <div style={{ fontSize: 14, color: "rgba(247,247,247,0.55)", textAlign: "center", lineHeight: 1.7, marginBottom: 48, maxWidth: 320 }}>
             {identity?.routeName
-              ? <>Your route <strong style={{ color: "#1c1c1e" }}>{identity.routeName}</strong> is ready for the Tiera community.</>
-              : "Your custom O&M training route is ready to be submitted to the Tiera community."
+              ? <>Your route <strong style={{ color: "#F7F7F7" }}>{identity.routeName}</strong> is ready for the Touchpulse community.</>
+              : "Your custom O&M training route is ready to be submitted to the Touchpulse community."
             }
           </div>
 
@@ -76,43 +76,45 @@ export default function UplinkStep({ identity, onRestart }) {
             disabled={!email}
             style={{
               width: "100%",
-              padding: "14px 0",
-              background: email ? "#1c1c1e" : "#e8e8e8",
-              color: email ? "#fff" : "#aaa",
-              border: "none",
-              borderRadius: 8,
-              fontWeight: 700,
-              fontSize: 15,
+              padding: "13px 0",
+              background: "transparent",
+              color: email ? "#FFB100" : "rgba(247,247,247,0.2)",
+              border: email ? "0.5px solid rgba(255,177,0,0.45)" : "0.5px solid rgba(255,255,255,0.1)",
+              borderRadius: 6,
+              fontWeight: 500,
+              fontSize: 13,
               fontFamily: "Inter, sans-serif",
               cursor: email ? "pointer" : "default",
-              letterSpacing: 0.5,
+              letterSpacing: 0.3,
+              transition: "border-color 200ms ease, color 200ms ease",
             }}
           >
-            Submit custom route
+            Submit custom route →
           </button>
         </div>
       ) : (
         <div style={{ width: 380, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-          {/* Checkmark */}
+          {/* Checkmark — teal circle */}
           <div style={{
-            width: 56,
-            height: 56,
+            width: 52,
+            height: 52,
             borderRadius: "50%",
-            background: "#1c1c1e",
+            background: "rgba(1,180,175,0.15)",
+            border: "0.5px solid rgba(1,180,175,0.5)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             marginBottom: 28,
           }}>
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <path d="M4 11.5L9 16.5L18 6" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+              <path d="M4 11.5L9 16.5L18 6" stroke="#01B4AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
 
-          <div style={{ fontSize: 24, fontWeight: 700, color: "#1c1c1e", marginBottom: 16 }}>
-            Route Submitted
+          <div style={{ fontSize: 28, fontWeight: 500, color: "#F7F7F7", marginBottom: 16, letterSpacing: "-0.02em" }}>
+            Route submitted.
           </div>
-          <div style={{ fontSize: 14, color: "#777", lineHeight: 1.8, marginBottom: 48 }}>
+          <div style={{ fontSize: 14, color: "rgba(247,247,247,0.55)", lineHeight: 1.8, marginBottom: 48, maxWidth: 340 }}>
             Your custom route has been submitted successfully and will be reviewed.
             You will receive a confirmation once this is available in the app.
           </div>
@@ -121,21 +123,25 @@ export default function UplinkStep({ identity, onRestart }) {
             onClick={onRestart}
             style={{
               padding: "12px 32px",
-              background: "#1c1c1e",
-              color: "#fff",
-              border: "none",
-              borderRadius: 8,
-              fontWeight: 600,
-              fontSize: 14,
+              background: "transparent",
+              color: "rgba(247,247,247,0.7)",
+              border: "0.5px solid rgba(255,255,255,0.2)",
+              borderRadius: 6,
+              fontWeight: 500,
+              fontSize: 13,
               fontFamily: "Inter, sans-serif",
               cursor: "pointer",
               letterSpacing: 0.3,
+              transition: "background 150ms ease",
             }}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
           >
-            Create Another Route
+            Create another route →
           </button>
         </div>
       )}
     </div>
   );
 }
+

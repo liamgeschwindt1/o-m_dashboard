@@ -119,10 +119,10 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
     <div style={{ display: "flex", width: "100vw", height: "100vh" }}>
       <StudioSidebar currentStep={currentStep}>
         <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6, color: "#1c1c1e" }}>
+          <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 6, color: "#F7F7F7" }}>
             Path Calibration
           </div>
-          <div style={{ fontSize: 12, color: "#999", lineHeight: 1.6 }}>
+          <div style={{ fontSize: 12, color: "rgba(247,247,247,0.55)", lineHeight: 1.6 }}>
             {addMode
               ? "Click anywhere on the map to insert a via-point."
               : "Drag any marker to adjust the path, or add a via-point."}
@@ -137,17 +137,18 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
             alignItems: "center",
             gap: 6,
             padding: "8px 12px",
-            border: addMode ? "1px solid #1c1c1e" : "1px solid #EDEDED",
-            borderRadius: 7,
-            background: addMode ? "#1c1c1e" : "#fff",
-            color: addMode ? "#fff" : "#1c1c1e",
+            border: addMode ? "0.5px solid #01B4AF" : "0.5px solid rgba(255,255,255,0.15)",
+            borderRadius: 6,
+            background: addMode ? "rgba(1,180,175,0.12)" : "transparent",
+            color: addMode ? "#01B4AF" : "rgba(247,247,247,0.7)",
             fontSize: 12,
-            fontWeight: 600,
+            fontWeight: 500,
             fontFamily: "Inter, sans-serif",
             cursor: "pointer",
             marginBottom: 16,
             width: "100%",
             justifyContent: "center",
+            transition: "all 150ms ease",
           }}
         >
           <span style={{ fontSize: 16, lineHeight: 1 }}>+</span>
@@ -157,8 +158,8 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
         {/* Via-point list */}
         {viaCount > 0 && (
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, color: "#aaa", letterSpacing: 0.5, marginBottom: 6 }}>
-              VIA POINTS ({viaCount})
+            <div style={{ fontSize: 11, color: "rgba(247,247,247,0.35)", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 6 }}>
+              Via points ({viaCount})
             </div>
             {waypoints.slice(1, -1).map((wp, i) => (
               <div key={i} style={{
@@ -166,10 +167,10 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
                 alignItems: "center",
                 justifyContent: "space-between",
                 padding: "5px 0",
-                borderBottom: "1px solid #f2f2f2",
+                borderBottom: "0.5px solid rgba(255,255,255,0.08)",
                 fontSize: 11,
-                color: "#666",
-                fontFamily: "Inter, sans-serif",
+                color: "rgba(247,247,247,0.55)",
+                fontFamily: "JetBrains Mono, monospace",
               }}>
                 <span>Via {i + 1} — {wp[0].toFixed(4)}, {wp[1].toFixed(4)}</span>
                 <button
@@ -178,7 +179,7 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
                     background: "none",
                     border: "none",
                     cursor: "pointer",
-                    color: "#bbb",
+                    color: "rgba(247,247,247,0.3)",
                     fontSize: 14,
                     lineHeight: 1,
                     padding: "0 2px",
@@ -192,15 +193,15 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
         )}
 
         {loading && (
-          <div style={{ fontSize: 12, color: "#aaa", marginBottom: 12 }}>Calculating route…</div>
+          <div style={{ fontSize: 12, color: "rgba(247,247,247,0.35)", marginBottom: 12 }}>Calculating route…</div>
         )}
         {error && (
-          <div style={{ fontSize: 12, color: "#c00", marginBottom: 12 }}>{error}</div>
+          <div style={{ fontSize: 12, color: "#DC2626", marginBottom: 12 }}>{error}</div>
         )}
         {routePath && !loading && (
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, color: "#aaa", letterSpacing: 0.5, marginBottom: 4 }}>ROUTE READY</div>
-            <div style={{ fontSize: 13, fontWeight: 500, color: "#1c1c1e" }}>
+            <div style={{ fontSize: 11, color: "rgba(247,247,247,0.35)", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 4 }}>Route ready</div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: "#01B4AF" }}>
               {instructions.length} turn instructions
             </div>
           </div>
@@ -213,15 +214,16 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
             onClick={onBack}
             style={{
               flex: 1,
-              padding: "11px 0",
-              border: "1px solid #EDEDED",
-              background: "#fff",
-              borderRadius: 7,
-              fontWeight: 600,
+              padding: "10px 0",
+              border: "0.5px solid rgba(255,255,255,0.15)",
+              background: "transparent",
+              borderRadius: 6,
+              fontWeight: 500,
               cursor: "pointer",
               fontSize: 13,
               fontFamily: "Inter, sans-serif",
-              color: "#1c1c1e",
+              color: "rgba(247,247,247,0.7)",
+              transition: "background 150ms ease",
             }}
           >
             Back
@@ -231,15 +233,16 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
             disabled={!routePath || loading}
             style={{
               flex: 1,
-              padding: "11px 0",
-              background: routePath && !loading ? "#1c1c1e" : "#e8e8e8",
-              color: routePath && !loading ? "#fff" : "#aaa",
-              border: "none",
-              borderRadius: 7,
-              fontWeight: 700,
+              padding: "10px 0",
+              background: "transparent",
+              color: routePath && !loading ? "#01B4AF" : "rgba(247,247,247,0.2)",
+              border: routePath && !loading ? "0.5px solid rgba(1,180,175,0.5)" : "0.5px solid rgba(255,255,255,0.1)",
+              borderRadius: 6,
+              fontWeight: 500,
               cursor: routePath && !loading ? "pointer" : "default",
               fontSize: 13,
               fontFamily: "Inter, sans-serif",
+              transition: "border-color 200ms ease, color 200ms ease",
             }}
           >
             Confirm Calibration

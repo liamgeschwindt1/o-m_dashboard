@@ -54,10 +54,10 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
     <div style={{ display: "flex", width: "100vw", height: "100vh" }}>
       <StudioSidebar currentStep={currentStep}>
         <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6, color: "#1c1c1e" }}>
+          <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 6, color: "#F7F7F7" }}>
             Set Route Endpoints
           </div>
-          <div style={{ fontSize: 12, color: "#999", lineHeight: 1.6 }}>
+          <div style={{ fontSize: 12, color: "rgba(247,247,247,0.55)", lineHeight: 1.6 }}>
             {placing === "start" && "Click the map to drop a Start point ●"}
             {placing === "end" && "Now click to drop an End point ○"}
             {placing === null && "Both endpoints set. Ready to generate."}
@@ -65,15 +65,15 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
         </div>
 
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 3, letterSpacing: 0.5 }}>START (A)</div>
-          <div style={{ fontSize: 13, fontWeight: 500, color: start ? "#1c1c1e" : "#ccc" }}>
+          <div style={{ fontSize: 11, color: "rgba(247,247,247,0.35)", marginBottom: 3, letterSpacing: "0.05em", textTransform: "uppercase" }}>Start (A)</div>
+          <div style={{ fontSize: 12, fontWeight: 500, color: start ? "#01B4AF" : "rgba(247,247,247,0.25)", fontFamily: "JetBrains Mono, monospace" }}>
             {start ? `${start[0].toFixed(5)},  ${start[1].toFixed(5)}` : "not set"}
           </div>
         </div>
 
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 11, color: "#aaa", marginBottom: 3, letterSpacing: 0.5 }}>END (B)</div>
-          <div style={{ fontSize: 13, fontWeight: 500, color: end ? "#1c1c1e" : "#ccc" }}>
+          <div style={{ fontSize: 11, color: "rgba(247,247,247,0.35)", marginBottom: 3, letterSpacing: "0.05em", textTransform: "uppercase" }}>End (B)</div>
+          <div style={{ fontSize: 12, fontWeight: 500, color: end ? "#01B4AF" : "rgba(247,247,247,0.25)", fontFamily: "JetBrains Mono, monospace" }}>
             {end ? `${end[0].toFixed(5)},  ${end[1].toFixed(5)}` : "not set"}
           </div>
         </div>
@@ -83,7 +83,7 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
             onClick={reset}
             style={{
               fontSize: 11,
-              color: "#aaa",
+              color: "rgba(247,247,247,0.35)",
               background: "none",
               border: "none",
               cursor: "pointer",
@@ -105,15 +105,16 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
             onClick={onBack}
             style={{
               flex: 1,
-              padding: "11px 0",
-              border: "1px solid #EDEDED",
-              background: "#fff",
-              borderRadius: 7,
-              fontWeight: 600,
+              padding: "10px 0",
+              border: "0.5px solid rgba(255,255,255,0.15)",
+              background: "transparent",
+              borderRadius: 6,
+              fontWeight: 500,
               cursor: "pointer",
               fontSize: 13,
               fontFamily: "Inter, sans-serif",
-              color: "#1c1c1e",
+              color: "rgba(247,247,247,0.7)",
+              transition: "background 150ms ease",
             }}
           >
             Back
@@ -123,18 +124,19 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
             disabled={!canGenerate}
             style={{
               flex: 1,
-              padding: "11px 0",
-              background: canGenerate ? "#1c1c1e" : "#e8e8e8",
-              color: canGenerate ? "#fff" : "#aaa",
-              border: "none",
-              borderRadius: 7,
-              fontWeight: 700,
+              padding: "10px 0",
+              background: "transparent",
+              color: canGenerate ? "#01B4AF" : "rgba(247,247,247,0.2)",
+              border: canGenerate ? "0.5px solid rgba(1,180,175,0.5)" : "0.5px solid rgba(255,255,255,0.1)",
+              borderRadius: 6,
+              fontWeight: 500,
               cursor: canGenerate ? "pointer" : "default",
               fontSize: 13,
               fontFamily: "Inter, sans-serif",
+              transition: "border-color 200ms ease, color 200ms ease",
             }}
           >
-            Generate Route
+            Generate Route →
           </button>
         </div>
       </StudioSidebar>

@@ -57,10 +57,10 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
     <div style={{ display: "flex", width: "100vw", height: "100vh" }}>
       <StudioSidebar currentStep={currentStep}>
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6, color: "#1c1c1e" }}>
+          <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 6, color: "#F7F7F7" }}>
             Instruction Refinement
           </div>
-          <div style={{ fontSize: 12, color: "#999", lineHeight: 1.6 }}>
+          <div style={{ fontSize: 12, color: "rgba(247,247,247,0.55)", lineHeight: 1.6 }}>
             Click a numbered node on the map to select and edit its instruction below.
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
           style={{ flex: 1, overflowY: "auto", marginBottom: 16, paddingRight: 4 }}
         >
           {nodes.length === 0 && (
-            <div style={{ fontSize: 12, color: "#ccc" }}>
+            <div style={{ fontSize: 12, color: "rgba(247,247,247,0.35)" }}>
               No turn instructions were returned for this route segment.
             </div>
           )}
@@ -83,13 +83,13 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
                 key={node.id}
                 onClick={() => selectNode(node.id)}
                 style={{
-                  marginBottom: 10,
+                  marginBottom: 8,
                   padding: "10px 12px",
                   borderRadius: 6,
-                  border: isActive ? "1px solid #1c1c1e" : "1px solid #EDEDED",
-                  background: isActive ? "#fafafa" : "#fff",
+                  border: isActive ? "0.5px solid #01B4AF" : "0.5px solid rgba(255,255,255,0.08)",
+                  background: isActive ? "rgba(1,180,175,0.08)" : "rgba(27,53,79,0.30)",
                   cursor: "pointer",
-                  transition: "border-color 0.15s",
+                  transition: "border-color 150ms ease, background 150ms ease",
                 }}
               >
                 {/* Node number + label row */}
@@ -98,21 +98,21 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
                     width: 18,
                     height: 18,
                     borderRadius: "50%",
-                    background: isActive ? "#1c1c1e" : "#fff",
-                    border: "2px solid #1c1c1e",
+                    background: isActive ? "#01B4AF" : "transparent",
+                    border: isActive ? "2px solid #01B4AF" : "2px solid rgba(247,247,247,0.3)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: 8,
                     fontWeight: 700,
-                    color: isActive ? "#fff" : "#1c1c1e",
+                    color: isActive ? "#031119" : "rgba(247,247,247,0.5)",
                     flexShrink: 0,
                     boxSizing: "border-box",
                   }}>
                     {i + 1}
                   </div>
-                  <div style={{ fontSize: 10, color: "#aaa", letterSpacing: 0.5 }}>
-                    NODE {i + 1}
+                  <div style={{ fontSize: 10, color: isActive ? "#01B4AF" : "rgba(247,247,247,0.35)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    Node {i + 1}
                   </div>
                 </div>
 
@@ -130,14 +130,14 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
                       outline: "none",
                       resize: "none",
                       background: "transparent",
-                      lineHeight: 1.6,
+                      lineHeight: 1.65,
                       minHeight: 52,
-                      color: "#1c1c1e",
+                      color: "#F7F7F7",
                     }}
                     autoFocus
                   />
                 ) : (
-                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
+                  <div style={{ fontSize: 12, color: "rgba(247,247,247,0.65)", lineHeight: 1.65 }}>
                     {node.text}
                   </div>
                 )}
@@ -151,15 +151,16 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
             onClick={onBack}
             style={{
               flex: 1,
-              padding: "11px 0",
-              border: "1px solid #EDEDED",
-              background: "#fff",
-              borderRadius: 7,
-              fontWeight: 600,
+              padding: "10px 0",
+              border: "0.5px solid rgba(255,255,255,0.15)",
+              background: "transparent",
+              borderRadius: 6,
+              fontWeight: 500,
               cursor: "pointer",
               fontSize: 13,
               fontFamily: "Inter, sans-serif",
-              color: "#1c1c1e",
+              color: "rgba(247,247,247,0.7)",
+              transition: "background 150ms ease",
             }}
           >
             Back
@@ -168,18 +169,19 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
             onClick={() => onNext(nodes)}
             style={{
               flex: 1,
-              padding: "11px 0",
-              background: "#1c1c1e",
-              color: "#fff",
-              border: "none",
-              borderRadius: 7,
-              fontWeight: 700,
+              padding: "10px 0",
+              background: "transparent",
+              color: "#01B4AF",
+              border: "0.5px solid rgba(1,180,175,0.5)",
+              borderRadius: 6,
+              fontWeight: 500,
               cursor: "pointer",
               fontSize: 13,
               fontFamily: "Inter, sans-serif",
+              transition: "border-color 200ms ease",
             }}
           >
-            Continue
+            Continue →
           </button>
         </div>
       </StudioSidebar>
