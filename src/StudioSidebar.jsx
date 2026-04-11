@@ -1,3 +1,5 @@
+import logo from "../assets/logo.png";
+
 const STEPS = [
   { id: 0, label: "Identity" },
   { id: 1, label: "Destination" },
@@ -20,18 +22,7 @@ export default function StudioSidebar({ currentStep, children }) {
     }}>
       {/* Logo */}
       <div style={{ padding: 24, paddingBottom: 0 }}>
-        <div style={{
-          fontWeight: 500,
-          fontSize: 18,
-          letterSpacing: 1,
-          fontFamily: "Inter, sans-serif",
-          color: "#F7F7F7",
-        }}>
-          TOUCHPULSE
-        </div>
-        <div style={{ fontSize: 11, color: "rgba(247,247,247,0.35)", marginTop: 3, fontFamily: "Inter, sans-serif" }}>
-          O&amp;M Training Studio
-        </div>
+        <img src={logo} alt="Touchpulse" style={{ height: 32, display: "block" }} />
       </div>
 
       {/* Step indicator */}

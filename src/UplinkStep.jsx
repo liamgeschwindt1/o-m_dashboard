@@ -1,4 +1,7 @@
 import { useState } from "react";
+import logo from "../assets/logo.png";
+
+const GRAIN_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
 const inputStyle = {
   width: "100%",
@@ -20,17 +23,35 @@ export default function UplinkStep({ identity, onRestart }) {
     <div style={{
       width: "100vw",
       height: "100vh",
-      background: "#031119",
+      position: "relative",
+      overflow: "hidden",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      position: "relative",
       fontFamily: "Inter, sans-serif",
+      backgroundColor: "#031119",
+      background: [
+        "radial-gradient(ellipse at 20% 50%, rgba(1,180,175,0.55) 0%, transparent 60%)",
+        "radial-gradient(ellipse at 80% 30%, rgba(255,177,0,0.40) 0%, transparent 55%)",
+        "radial-gradient(ellipse at 50% 90%, rgba(27,53,79,0.60) 0%, transparent 70%)",
+      ].join(", "),
     }}>
+      {/* Grain overlay */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        backgroundImage: GRAIN_SVG,
+        backgroundRepeat: "repeat",
+        backgroundSize: "256px 256px",
+        opacity: 0.05,
+        pointerEvents: "none",
+        zIndex: 1,
+      }} />
+      {/* Base dark layer */}
+      <div style={{ position: "absolute", inset: 0, backgroundColor: "#031119", zIndex: -1 }} />
       {/* Top-left logo */}
-      <div style={{ position: "absolute", top: 24, left: 24 }}>
-        <div style={{ fontWeight: 500, fontSize: 18, letterSpacing: 1, color: "#F7F7F7" }}>TOUCHPULSE</div>
-        <div style={{ fontSize: 11, color: "rgba(247,247,247,0.35)", marginTop: 3 }}>O&amp;M Training Studio</div>
+      <div style={{ position: "absolute", top: 28, left: 32, zIndex: 2 }}>
+        <img src={logo} alt="Touchpulse" style={{ height: 32, display: "block" }} />
       </div>
 
       {/* Step indicator top-right */}
@@ -47,7 +68,7 @@ export default function UplinkStep({ identity, onRestart }) {
       </div>
 
       {!submitted ? (
-        <div style={{ width: 360, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div style={{ width: 360, display: "flex", flexDirection: "column", alignItems: "center", position: "relative", zIndex: 2 }}>
           <div style={{ fontSize: 11, letterSpacing: "0.08em", color: "rgba(247,247,247,0.45)", textTransform: "uppercase", marginBottom: 12 }}>
             End of Workflow
           </div>
@@ -93,7 +114,7 @@ export default function UplinkStep({ identity, onRestart }) {
           </button>
         </div>
       ) : (
-        <div style={{ width: 380, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+        <div style={{ width: 380, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", position: "relative", zIndex: 2 }}>
           {/* Checkmark — teal circle */}
           <div style={{
             width: 52,
