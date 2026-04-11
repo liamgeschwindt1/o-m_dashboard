@@ -1,6 +1,6 @@
 import { useState } from "react";
 import IdentityStep from "./IdentityStep";
-import { MapStudio } from "./MapStudio";
+import PlanningStep from "./PlanningStep";
 import { Uplink } from "./Uplink";
 
 const steps = ["Onboarding", "Planning", "Calibration", "Refinement", "Submission"];
@@ -75,11 +75,16 @@ export default function App() {
             <div className="animate-pulse text-2xl font-bold text-[#1c1c1e]">Loading studio environment…</div>
           </div>
         )}
-        {currentStep > 0 && currentStep < 4 && (
-          <MapStudio
-            step={currentStep}
-            onRouteComplete={handleRouteComplete}
-            onboardingData={onboardingData}
+        {currentStep === 1 && (
+          <PlanningStep
+            onNext={({ start, end }) => {
+              setRouteData({ start, end });
+              setCurrentStep(2);
+            }}
+            onBack={() => {
+              setCurrentStep(0);
+              setOnboardingData(null);
+            }}
           />
         )}
         {currentStep === 4 && !submitted && (
