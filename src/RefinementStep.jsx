@@ -5,10 +5,10 @@ import "leaflet/dist/leaflet.css";
 import StudioSidebar from "./StudioSidebar";
 
 function makeNodeIcon(num, active) {
-  const bg = active ? "#1c1c1e" : "#fff";
-  const fg = active ? "#fff" : "#1c1c1e";
+  const bg = active ? "#01B4AF" : "#F7F7F7";
+  const fg = active ? "#031119" : "#031119";
   return L.divIcon({
-    html: `<div style="width:22px;height:22px;border-radius:50%;background:${bg};border:2px solid #1c1c1e;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:${fg};font-family:Inter,sans-serif;box-sizing:border-box;">${num}</div>`,
+    html: `<div style="width:22px;height:22px;border-radius:50%;background:${bg};border:2px solid ${active ? "#01B4AF" : "rgba(3,17,25,0.8)"};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:${fg};font-family:Inter,sans-serif;box-sizing:border-box;">${num}</div>`,
     className: "",
     iconSize: [22, 22],
     iconAnchor: [11, 11],
@@ -186,19 +186,20 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
         </div>
       </StudioSidebar>
 
-      <div style={{ flex: 1, height: "100vh" }}>
+      <div style={{ flex: 1, height: "100vh", background: "#031119", padding: "12px 12px 12px 0" }}>
+        <div style={{ height: "100%", borderRadius: 12, overflow: "hidden" }}>
         <MapContainer
           center={mapCenter}
           zoom={15}
           style={{ height: "100%", width: "100%" }}
         >
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             attribution="&copy; CARTO"
           />
           <Polyline
             positions={path}
-            pathOptions={{ color: "#333", weight: 2, opacity: 0.9 }}
+            pathOptions={{ color: "#01B4AF", weight: 2.5, opacity: 0.9 }}
           />
           {nodes.map((node, i) => (
             <Marker
@@ -208,8 +209,7 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
               eventHandlers={{ click: () => selectNode(node.id) }}
             />
           ))}
-        </MapContainer>
-      </div>
+        </MapContainer>        </div>      </div>
     </div>
   );
 }

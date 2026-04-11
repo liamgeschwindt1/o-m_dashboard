@@ -5,14 +5,14 @@ import "leaflet/dist/leaflet.css";
 import StudioSidebar from "./StudioSidebar";
 
 const startIcon = L.divIcon({
-  html: '<div style="width:14px;height:14px;border-radius:50%;background:#1c1c1e;"></div>',
+  html: '<div style="width:14px;height:14px;border-radius:50%;background:#01B4AF;"></div>',
   className: "",
   iconSize: [14, 14],
   iconAnchor: [7, 7],
 });
 
 const endIcon = L.divIcon({
-  html: '<div style="width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid #1c1c1e;box-sizing:border-box;"></div>',
+  html: '<div style="width:14px;height:14px;border-radius:50%;background:#F7F7F7;border:2px solid #01B4AF;box-sizing:border-box;"></div>',
   className: "",
   iconSize: [14, 14],
   iconAnchor: [7, 7],
@@ -141,7 +141,8 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
         </div>
       </StudioSidebar>
 
-      <div style={{ flex: 1, height: "100vh", cursor: placing ? "crosshair" : "default" }}>
+      <div style={{ flex: 1, height: "100vh", cursor: placing ? "crosshair" : "default", background: "#031119", padding: "12px 12px 12px 0" }}>
+        <div style={{ height: "100%", borderRadius: 12, overflow: "hidden" }}>
         <MapContainer
           center={[37.7749, -122.4194]}
           zoom={13}
@@ -149,13 +150,14 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
           zoomControl={true}
         >
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             attribution="&copy; CARTO"
           />
           <MapClicker active={!!placing} onPlace={handlePlace} />
           {start && <Marker position={start} icon={startIcon} />}
           {end && <Marker position={end} icon={endIcon} />}
         </MapContainer>
+        </div>
       </div>
     </div>
   );

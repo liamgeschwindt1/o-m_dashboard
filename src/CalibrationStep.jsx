@@ -7,14 +7,14 @@ import StudioSidebar from "./StudioSidebar";
 const GH_KEY = "1e8939e3-07a3-4b03-83e2-8698c3b12586";
 
 const startIcon = L.divIcon({
-  html: '<div style="width:14px;height:14px;border-radius:50%;background:#1c1c1e;cursor:move;"></div>',
+  html: '<div style="width:14px;height:14px;border-radius:50%;background:#01B4AF;cursor:move;"></div>',
   className: "",
   iconSize: [14, 14],
   iconAnchor: [7, 7],
 });
 
 const endIcon = L.divIcon({
-  html: '<div style="width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid #1c1c1e;box-sizing:border-box;cursor:move;"></div>',
+  html: '<div style="width:14px;height:14px;border-radius:50%;background:#F7F7F7;border:2px solid #01B4AF;box-sizing:border-box;cursor:move;"></div>',
   className: "",
   iconSize: [14, 14],
   iconAnchor: [7, 7],
@@ -22,7 +22,7 @@ const endIcon = L.divIcon({
 
 function viaIcon(active) {
   return L.divIcon({
-    html: `<div style="width:11px;height:11px;border-radius:50%;background:${active ? "#555" : "#888"};border:2px solid #fff;box-shadow:0 0 0 1.5px #555;cursor:move;box-sizing:border-box;"></div>`,
+    html: `<div style="width:11px;height:11px;border-radius:50%;background:${active ? "#01B4AF" : "#aaa"};border:2px solid #fff;box-shadow:0 0 0 1.5px rgba(1,180,175,0.5);cursor:move;box-sizing:border-box;"></div>`,
     className: "",
     iconSize: [11, 11],
     iconAnchor: [5.5, 5.5],
@@ -250,14 +250,15 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
         </div>
       </StudioSidebar>
 
-      <div style={{ flex: 1, height: "100vh", cursor: addMode ? "crosshair" : "default" }}>
+      <div style={{ flex: 1, height: "100vh", cursor: addMode ? "crosshair" : "default", background: "#031119", padding: "12px 12px 12px 0" }}>
+        <div style={{ height: "100%", borderRadius: 12, overflow: "hidden" }}>
         <MapContainer
           center={pins.start}
           zoom={14}
           style={{ height: "100%", width: "100%" }}
         >
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             attribution="&copy; CARTO"
           />
           <MapClickListener addMode={addMode} onMapClick={handleMapClick} />
@@ -265,7 +266,7 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
           {routePath && (
             <Polyline
               positions={routePath}
-              pathOptions={{ color: "#333", weight: 2, opacity: 0.9 }}
+              pathOptions={{ color: "#01B4AF", weight: 2.5, opacity: 0.9 }}
             />
           )}
           {/* Start marker */}
@@ -293,6 +294,7 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
             eventHandlers={{ dragend: (e) => handleDragEnd(waypoints.length - 1, e) }}
           />
         </MapContainer>
+        </div>
       </div>
     </div>
   );

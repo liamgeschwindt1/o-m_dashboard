@@ -203,7 +203,7 @@ export function OnboardingTypewriter({ onComplete }) {
                   {step < questions.length - 1 ? "Next →" : "Finish →"}
                 </button>
                 <button
-                  onClick={() => advance()}
+                  onClick={() => onComplete(answers)}
                   style={{
                     background: "none",
                     border: "none",
@@ -215,7 +215,7 @@ export function OnboardingTypewriter({ onComplete }) {
                     padding: "10px 0",
                   }}
                 >
-                  skip
+                  skip onboarding
                 </button>
               </div>
             </>
