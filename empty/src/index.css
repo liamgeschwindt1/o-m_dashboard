@@ -1,0 +1,12 @@
+h2 {
+p {
+(empty)
+@import "@fontsource/inter/variable.css";
+@import "@fontsource/jetbrains-mono/variable.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-background text-text font-sans antialiased;
+}
