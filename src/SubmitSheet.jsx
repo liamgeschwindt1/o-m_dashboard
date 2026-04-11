@@ -167,15 +167,16 @@ export default function SubmitSheet({ identity, route, nodes, onConfirm }) {
         {stage === "sheet" ? "Submit" : stage === "processing" ? "Uploading" : "Confirmed"}
       </div>
 
-      {/* ── Stage 1: frosted sheet ── */}
-      <AnimatePresence>
+      {/* ── Stages ── */}
+      <AnimatePresence mode="wait">
+
         {stage === "sheet" && (
           <motion.div
             key="sheet"
             initial={{ y: 32, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: "-110vh", opacity: 0.5, rotate: -1.5 }}
-            transition={{ duration: 0.55, ease: stage === "sheet" ? [0.25, 0.46, 0.45, 0.94] : [0.55, 0, 0.8, 0.2] }}
+            exit={{ y: "-120vh", opacity: 0, rotate: -2, transition: { duration: 0.5, ease: [0.55, 0, 0.75, 0.15] } }}
+            transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
             style={{
               position: "relative", zIndex: 2,
               width: 400,
@@ -234,17 +235,14 @@ export default function SubmitSheet({ identity, route, nodes, onConfirm }) {
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
 
-      {/* ── Stage 2: processing ── */}
-      <AnimatePresence>
         {stage === "processing" && (
           <motion.div
             key="processing"
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.4 }}
+            exit={{ opacity: 0, y: -10, transition: { duration: 0.25 } }}
+            transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
             style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 28 }}
           >
             <SpinningArc />
@@ -268,16 +266,13 @@ export default function SubmitSheet({ identity, route, nodes, onConfirm }) {
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
 
-      {/* ── Stage 3: success ── */}
-      <AnimatePresence>
         {stage === "success" && (
           <motion.div
             key="success"
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45 }}
+            transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
             style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 28, textAlign: "center" }}
           >
             <CheckCircle />
@@ -317,6 +312,7 @@ export default function SubmitSheet({ identity, route, nodes, onConfirm }) {
             </button>
           </motion.div>
         )}
+
       </AnimatePresence>
     </div>
   );
