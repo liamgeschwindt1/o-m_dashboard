@@ -636,19 +636,15 @@ label, [data-testid="stWidgetLabel"] {
   background: var(--surface) !important;
 }
 
-/* ── Sidebar widget inset ── */
-.main [data-testid="stHorizontalBlock"]:first-of-type
-  > [data-testid="stColumn"]:first-child [data-testid="stTextInput"],
-.main [data-testid="stHorizontalBlock"]:first-of-type
-  > [data-testid="stColumn"]:first-child [data-testid="stTextArea"],
-.main [data-testid="stHorizontalBlock"]:first-of-type
-  > [data-testid="stColumn"]:first-child [data-testid="stButton"],
-.main [data-testid="stHorizontalBlock"]:first-of-type
-  > [data-testid="stColumn"]:first-child [data-testid="stDownloadButton"],
-.main [data-testid="stHorizontalBlock"]:first-of-type
-  > [data-testid="stColumn"]:first-child [data-baseweb="select"] {
-  padding-left: 20px !important;
-  padding-right: 20px !important;
+/* ── Sidebar widget inset (force all children) ── */
+.main [data-testid="stHorizontalBlock"]:first-of-type > [data-testid="stColumn"]:first-child * {
+  padding-left: 24px !important;
+  box-sizing: border-box !important;
+}
+
+/* For stepper row, override to remove extra left padding */
+.main [data-testid="stHorizontalBlock"]:first-of-type > [data-testid="stColumn"]:first-child [data-testid="stHorizontalBlock"] {
+  padding-left: 0 !important;
 }
 
 /* ================================================================
