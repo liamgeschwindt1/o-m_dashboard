@@ -91,6 +91,7 @@ header[data-testid="stHeader"],
 }
 
 /* ── Sidebar column (floating glassmorphic blade) ── */
+
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child {
   flex: 0 0 25vw !important;
@@ -104,7 +105,8 @@ header[data-testid="stHeader"],
   backdrop-filter: var(--blur) !important;
   -webkit-backdrop-filter: var(--blur) !important;
   border-right: 1px solid var(--border) !important;
-  padding: 0 1.8rem !important;
+  padding-left: 2.2rem !important;
+  padding-right: 1.2rem !important;
   margin: 0 !important;
   z-index: 10 !important;
 }
