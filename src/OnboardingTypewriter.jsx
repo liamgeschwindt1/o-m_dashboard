@@ -1,51 +1,76 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
-const messages = [
-  "Welcome to Tiera O&M Studio.",
-  "Your Apple-minimalist dashboard.",
-  "Let's get started!"
+const questions = [
+  { label: "Route Name?", key: "routeName" },
+  { label: "Organization?", key: "organization" },
+  { label: "Trainer Name?", key: "trainerName" },
 ];
 
 export function OnboardingTypewriter({ onComplete }) {
-  const [displayed, setDisplayed] = useState("");
-  const [msgIdx, setMsgIdx] = useState(0);
-  const [charIdx, setCharIdx] = useState(0);
+  const [step, setStep] = useState(0);
+  const [typed, setTyped] = useState("");
+  const [input, setInput] = useState("");
+  const [answers, setAnswers] = useState({});
   const interval = useRef();
 
+  // Typewriter effect for question
   useEffect(() => {
-    if (msgIdx >= messages.length) {
-      onComplete?.();
-      return;
-    }
+    setTyped("");
+    let i = 0;
+    const q = questions[step]?.label;
+    if (!q) return;
     interval.current = setInterval(() => {
-      setDisplayed((prev) =>
-        messages[msgIdx].slice(0, prev.length + 1)
-      );
-      setCharIdx((i) => i + 1);
-    }, 40);
+      setTyped(q.slice(0, i + 1));
+      i++;
+      if (i >= q.length) clearInterval(interval.current);
+    }, 32);
     return () => clearInterval(interval.current);
-  }, [msgIdx]);
+  }, [step]);
 
-  useEffect(() => {
-    if (displayed === messages[msgIdx]) {
-      setTimeout(() => {
-        setMsgIdx((i) => i + 1);
-        setDisplayed("");
-        setCharIdx(0);
-      }, 900);
+  // Handle Enter key
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && input.trim()) {
+      setAnswers((prev) => ({ ...prev, [questions[step].key]: input.trim() }));
+      setInput("");
+      if (step < questions.length - 1) {
+        setStep(step + 1);
+      } else {
+        setTimeout(() => {
+          onComplete({ ...answers, [questions[step].key]: input.trim() });
+        }, 400);
+      }
     }
-  }, [displayed, msgIdx]);
+  };
 
   return (
-    <motion.div
-      className="font-sans text-2xl text-text px-8 py-12 text-center"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-    >
-      <span>{displayed}</span>
-      <span className="animate-pulse">|</span>
-    </motion.div>
+    <div className="absolute inset-0 flex items-center justify-center bg-[#f8f9fa] z-20">
+      <motion.div
+        className="flex flex-col items-center justify-center w-full"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="font-sans text-2xl text-[#1c1c1e] mb-8 text-center min-h-[2.5em]">
+          <span>{typed}</span>
+          <span className="animate-pulse">|</span>
+        </div>
+        <input
+          className="border border-[#EDEDED] rounded px-4 py-2 w-80 text-lg text-center font-sans bg-white focus:outline-none"
+          style={{ fontFamily: 'Inter' }}
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          autoFocus
+          disabled={typed.length < questions[step]?.label.length}
+          placeholder={typed.length < questions[step]?.label.length ? "" : "Type your answer..."}
+        />
+        <div className="mt-8 text-gray-400 text-sm font-mono">
+          {Object.entries(answers).map(([k, v]) => (
+            <div key={k}>{questions.find(q => q.key === k)?.label} <span className="text-black">{v}</span></div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
   );
 }

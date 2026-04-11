@@ -41,31 +41,32 @@ export default function App() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
-      {/* Sidebar */}
-      <aside className="flex flex-col items-start border-r border-[#EDEDED] h-full" style={{width: 280, minWidth: 280, background: '#fff'}}>
-        <div style={{padding: 24, paddingBottom: 0}}>
-          <div style={{fontWeight: 700, fontSize: 28, letterSpacing: 2}}>TIERA</div>
-          <div style={{fontSize: 13, color: '#888', marginTop: 2}}>powered by Touchpulse</div>
-        </div>
-        {/* Step indicator */}
-        <div style={{marginTop: 40, width: '100%'}}>
-          {steps.map((label, i) => (
-            <div key={label} style={{
-              fontWeight: currentStep === i ? 700 : 400,
-              fontSize: 16,
-              padding: '10px 24px',
-              background: currentStep === i ? '#f8f9fa' : 'transparent',
-              color: currentStep === i ? '#1c1c1e' : '#888',
-              borderLeft: currentStep === i ? '3px solid #1c1c1e' : '3px solid transparent',
-              transition: 'all 0.2s',
-            }}>{i + 1}. {label}</div>
-          ))}
-        </div>
-        {/* Instructions or submission UI will be rendered here in later steps */}
-      </aside>
+      {/* Sidebar only after onboarding */}
+      {currentStep > 0 && onboardingData && !loading && (
+        <aside className="flex flex-col items-start border-r border-[#EDEDED] h-full" style={{width: 280, minWidth: 280, background: '#fff'}}>
+          <div style={{padding: 24, paddingBottom: 0}}>
+            <div style={{fontWeight: 700, fontSize: 28, letterSpacing: 2}}>TIERA</div>
+            <div style={{fontSize: 13, color: '#888', marginTop: 2}}>powered by Touchpulse</div>
+          </div>
+          {/* Step indicator */}
+          <div style={{marginTop: 40, width: '100%'}}>
+            {steps.map((label, i) => (
+              <div key={label} style={{
+                fontWeight: currentStep === i ? 700 : 400,
+                fontSize: 16,
+                padding: '10px 24px',
+                background: currentStep === i ? '#f8f9fa' : 'transparent',
+                color: currentStep === i ? '#1c1c1e' : '#888',
+                borderLeft: currentStep === i ? '3px solid #1c1c1e' : '3px solid transparent',
+                transition: 'all 0.2s',
+              }}>{i + 1}. {label}</div>
+            ))}
+          </div>
+        </aside>
+      )}
 
       {/* Main content */}
-      <main className="flex-1 relative h-full" style={{background: '#f8f9fa'}}>
+      <main className="flex-1 relative h-full flex items-center justify-center" style={{background: '#f8f9fa'}}>
         {currentStep === 0 && !onboardingData && (
           <OnboardingTypewriter onComplete={handleOnboardingComplete} />
         )}
