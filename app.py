@@ -265,7 +265,7 @@ left_col, right_col = st.columns([1, 5], gap="small")
 with left_col:
     st.markdown('<div class="t-brand-block">', unsafe_allow_html=True)
     st.image(
-        "assets/Copy of wordmark white v2.0 (1).png",
+        "assets/touchpulse-logo.png",
         use_container_width=False,
         width=180,
     )
