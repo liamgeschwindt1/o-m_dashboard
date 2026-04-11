@@ -85,10 +85,10 @@ header[data-testid="stHeader"],
 /* ── Sidebar column (floating glassmorphic blade) ── */
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child {
-  flex: 0 0 340px !important;
-  max-width: 340px !important;
-  min-width: 340px !important;
-  width: 340px !important;
+  flex: 0 0 400px !important;
+  max-width: 400px !important;
+  min-width: 400px !important;
+  width: 400px !important;
   height: 100vh !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
@@ -208,18 +208,19 @@ header[data-testid="stHeader"],
    ================================================================ */
 /* Brand area: logo + subtitle */
 .main [data-testid="stColumn"]:first-child [data-testid="stImage"] {
-  padding: 1.2rem 1.5rem 0 !important;
+  padding: 1rem 1.5rem 0 !important;
+  margin: 0 !important;
 }
 .main [data-testid="stColumn"]:first-child [data-testid="stImage"] img {
-  max-width: 180px !important;
+  max-width: 160px !important;
 }
 .t-brand-subtitle {
   font-family: var(--font);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 400;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--text-dim);
-  padding: 2px 1.5rem 1rem;
+  padding: 0.15rem 1.5rem 0.8rem;
   border-bottom: 1px solid var(--border);
 }
 
