@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { OnboardingTypewriter } from "./OnboardingTypewriter";
+import IdentityStep from "./IdentityStep";
 import { MapStudio } from "./MapStudio";
 import { Uplink } from "./Uplink";
 
@@ -68,17 +68,7 @@ export default function App() {
       {/* Main content */}
       <main className="flex-1 relative h-full flex items-center justify-center" style={{background: '#f8f9fa'}}>
         {currentStep === 0 && !onboardingData && (
-          <OnboardingTypewriter 
-            onComplete={handleOnboardingComplete}
-            onSkip={() => {
-              setOnboardingData({ skipped: true });
-              setLoading(true);
-              setTimeout(() => {
-                setLoading(false);
-                setCurrentStep(1);
-              }, 1200);
-            }}
-          />
+          <IdentityStep onComplete={handleOnboardingComplete} />
         )}
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
