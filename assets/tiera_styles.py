@@ -1,31 +1,77 @@
 TIERA_STYLES = """
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap');
+
+/* ================================================================
+   TIERA DESIGN SYSTEM — Brand Token Layer
+   ================================================================
+   Brand palette
+     Charcoal Black  #031119   bg, deepest surface
+     Ink Blue        #1B354F   panels, borders, structure
+     Golden Yellow   #FFB100   actions, active states, focus
+     Electric Teal   #01B4AF   success, live status, feedback
+     Soft White      #F7F7F7   primary text, legibility
+   ================================================================ */
 
 :root {
-  --bg:           #0A0A0A;
-  --panel:        rgba(18, 18, 18, 0.92);
-  --panel-solid:  #141414;
-  --border:       rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.18);
-  --text:         #F5F5F5;
-  --text-dim:     rgba(255, 255, 255, 0.40);
-  --text-mid:     rgba(255, 255, 255, 0.65);
-  --accent:       #FFFFFF;
-  --accent-hover: #E0E0E0;
-  --accent-dim:   rgba(255, 255, 255, 0.08);
-  --alert:        #FFFFFF;
-  --alert-dim:    rgba(255, 255, 255, 0.08);
-  --danger:       #FF4D4D;
-  --success:      #34D399;
-  --radius:       8px;
-  --radius-sm:    6px;
-  --transition:   0.2s ease-in-out;
-  --blur:         saturate(1.2) blur(24px);
-  --font:         'Inter', sans-serif;
-  --mono:         'JetBrains Mono', monospace;
+  /* ── Brand primitives ── */
+  --charcoal:       #031119;
+  --ink:            #1B354F;
+  --ink-light:      #224060;
+  --yellow:         #FFB100;
+  --yellow-dim:     rgba(255, 177, 0, 0.10);
+  --yellow-border:  rgba(255, 177, 0, 0.22);
+  --yellow-focus:   rgba(255, 177, 0, 0.45);
+  --teal:           #01B4AF;
+  --teal-dim:       rgba(1, 180, 175, 0.08);
+  --teal-border:    rgba(1, 180, 175, 0.22);
+  --soft-white:     #F7F7F7;
+
+  /* ── Surface stack ── */
+  --bg:             #031119;
+  --panel:          rgba(5, 18, 28, 0.97);
+  --panel-solid:    #071622;
+  --surface:        rgba(27, 53, 79, 0.30);
+  --surface-hover:  rgba(27, 53, 79, 0.50);
+  --surface-ink:    rgba(27, 53, 79, 0.60);
+
+  /* ── Borders ── */
+  --border:         rgba(247, 247, 247, 0.07);
+  --border-hover:   rgba(247, 247, 247, 0.14);
+  --border-focus:   rgba(255, 177, 0, 0.45);
+  --border-ink:     rgba(27, 53, 79, 0.70);
+
+  /* ── Text ── */
+  --text:           #F7F7F7;
+  --text-mid:       rgba(247, 247, 247, 0.52);
+  --text-dim:       rgba(247, 247, 247, 0.28);
+  --text-ghost:     rgba(247, 247, 247, 0.12);
+
+  /* ── Semantic (mapped to brand) ── */
+  --success:        #01B4AF;
+  --success-bg:     rgba(1, 180, 175, 0.08);
+  --success-border: rgba(1, 180, 175, 0.22);
+  --warning:        #FFB100;
+  --warning-bg:     rgba(255, 177, 0, 0.10);
+  --warning-border: rgba(255, 177, 0, 0.22);
+  --danger:         #FF5252;
+  --danger-bg:      rgba(255, 82, 82, 0.08);
+  --danger-border:  rgba(255, 82, 82, 0.22);
+  --info:           rgba(247, 247, 247, 0.55);
+  --info-bg:        rgba(247, 247, 247, 0.06);
+
+  /* ── Layout ── */
+  --radius:         7px;
+  --radius-sm:      5px;
+  --radius-lg:      10px;
+  --transition:     0.16s ease;
+  --blur:           saturate(1.6) blur(28px);
+  --font:           'DM Sans', sans-serif;
+  --mono:           'DM Mono', monospace;
 }
 
-/* ── Global reset ── */
+/* ================================================================
+   Global reset
+   ================================================================ */
 html, body {
   background: var(--bg) !important;
   color: var(--text) !important;
@@ -34,6 +80,7 @@ html, body {
   margin: 0 !important;
   padding: 0 !important;
   overflow: hidden !important;
+  -webkit-font-smoothing: antialiased;
 }
 
 [data-testid="stApp"],
@@ -49,7 +96,7 @@ html, body {
   padding: 0 !important;
 }
 
-/* Kill ALL Streamlit chrome */
+/* ── Kill Streamlit chrome ── */
 header[data-testid="stHeader"],
 [data-testid="stHeader"],
 #MainMenu, footer,
@@ -62,7 +109,7 @@ header[data-testid="stHeader"],
   padding: 0 !important;
 }
 
-/* Block-container */
+/* ── Block container ── */
 .main .block-container,
 [data-testid="stMainBlockContainer"],
 [data-testid="stMain"] > div {
@@ -74,7 +121,7 @@ header[data-testid="stHeader"],
 }
 
 /* ================================================================
-   Top-level two-column row: FIXED to viewport
+   Two-column fixed viewport layout
    ================================================================ */
 .main [data-testid="stHorizontalBlock"]:first-of-type {
   position: fixed !important;
@@ -90,13 +137,14 @@ header[data-testid="stHeader"],
   background: var(--bg) !important;
 }
 
-/* ── Sidebar column (floating glassmorphic blade) ── */
-
+/* ================================================================
+   Sidebar column — glassmorphic ink-blue blade
+   ================================================================ */
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child {
   flex: 0 0 25vw !important;
   max-width: 25vw !important;
-  min-width: 320px !important;
+  min-width: 300px !important;
   width: 25vw !important;
   height: 100vh !important;
   overflow-y: auto !important;
@@ -104,17 +152,17 @@ header[data-testid="stHeader"],
   background: var(--panel) !important;
   backdrop-filter: var(--blur) !important;
   -webkit-backdrop-filter: var(--blur) !important;
-  border-right: 1px solid var(--border) !important;
-  padding-left: 2.2rem !important;
-  padding-right: 1.2rem !important;
+  border-right: 1px solid var(--border-ink) !important;
+  padding: 0 !important;
   margin: 0 !important;
   z-index: 10 !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--surface-ink) transparent !important;
 }
 
-/* Scrollbar styling */
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
 }
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child::-webkit-scrollbar-track {
@@ -122,11 +170,11 @@ header[data-testid="stHeader"],
 }
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child::-webkit-scrollbar-thumb {
-  background: rgba(247, 247, 247, 0.12);
-  border-radius: 4px;
+  background: var(--surface-ink);
+  border-radius: 3px;
 }
 
-/* All wrapper divs inside sidebar: break flex-grow chain */
+/* ── Break flex-grow chain inside sidebar ── */
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child > div,
 .main [data-testid="stHorizontalBlock"]:first-of-type
@@ -144,9 +192,20 @@ header[data-testid="stHeader"],
   flex: 0 0 auto !important;
 }
 
-/* Sidebar vertical-block spacing — handled by sidebar widget inset rule below */
+.main [data-testid="stHorizontalBlock"]:first-of-type
+  > [data-testid="stColumn"]:first-child
+  [data-testid="stVerticalBlock"] {
+  gap: 0.25rem !important;
+  padding: 0 !important;
+  padding-bottom: 2rem !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
 
-/* Nested horizontal blocks inside sidebar stay row-flex */
+/* ── Nested horizontals inside sidebar stay row-flex ── */
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:first-child
   [data-testid="stHorizontalBlock"] {
@@ -160,7 +219,6 @@ header[data-testid="stHeader"],
   z-index: auto !important;
 }
 
-/* Nested columns inside sidebar stay flexible */
 [data-testid="stColumn"] [data-testid="stColumn"] {
   flex: unset !important;
   max-width: unset !important;
@@ -170,7 +228,9 @@ header[data-testid="stHeader"],
   overflow: visible !important;
 }
 
-/* ── Map column (full-screen canvas) ── */
+/* ================================================================
+   Map column — full-screen canvas
+   ================================================================ */
 .main [data-testid="stHorizontalBlock"]:first-of-type
   > [data-testid="stColumn"]:last-child {
   flex: 1 1 auto !important;
@@ -202,105 +262,168 @@ header[data-testid="stHeader"],
 }
 
 /* ================================================================
-   Brand
+   Brand area
    ================================================================ */
-/* Brand area: logo + subtitle */
 .main [data-testid="stColumn"]:first-child [data-testid="stImage"] {
-  padding: 24px 0 0 0 !important;
+  padding: 20px 20px 0 20px !important;
   margin: 0 !important;
 }
 .main [data-testid="stColumn"]:first-child [data-testid="stImage"] img {
-  max-width: 160px !important;
+  max-width: 148px !important;
 }
+
 .t-brand-title {
   font-family: var(--font);
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 600;
   color: var(--text);
-  padding: 0.6rem 0 0;
-  letter-spacing: -0.01em;
+  padding: 0.5rem 20px 0;
+  letter-spacing: -0.02em;
   line-height: 1.2;
 }
 .t-brand-subtitle {
   font-family: var(--font);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.35);
-  padding: 0.25rem 0 1rem;
+  color: var(--text-dim);
+  padding: 0.2rem 20px 0.9rem;
   line-height: 1.5;
-  border-bottom: 1px solid var(--border);
-}
-
-.t-divider {
-  height: 1px;
-  background: var(--border);
-  margin: 0.2rem 0 0.6rem;
+  border-bottom: 1px solid var(--border-ink);
 }
 
 /* ================================================================
-   Section & Typography
+   Dividers & spacing
+   ================================================================ */
+.t-divider {
+  height: 1px;
+  background: var(--border-ink);
+  margin: 0.2rem 0 0.5rem;
+}
+.t-gap { height: 0.5rem; }
+
+/* ================================================================
+   Typography utilities
    ================================================================ */
 .t-section {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--text-mid);
-  padding: 0.6rem 0 0.5rem;
-}
-.t-field-label {
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 9.5px;
+  font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-dim);
-  padding: 0.15rem 0 0.2rem;
+  font-family: var(--mono);
+  padding: 0.7rem 20px 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+/* Trailing rule after section header */
+.t-section-ruled::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.t-field-label {
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  padding: 0.1rem 20px 0.2rem;
+}
+
 .t-hint {
   font-size: 11px;
   color: var(--text-dim);
-  padding: 0.2rem 0;
+  padding: 0.15rem 20px 0.5rem;
   line-height: 1.6;
 }
-.t-gap { height: 0.5rem; }
-.t-coord {
-  font-size: 11px;
-  color: var(--success);
-  padding: 0.15rem 0;
-  line-height: 1.4;
-  font-family: var(--mono);
-}
+
 .t-status {
   font-size: 11px;
   color: var(--text-dim);
-  padding: 0.2rem 0 0.3rem;
+  padding: 0.2rem 20px 0.3rem;
   line-height: 1.5;
 }
+
 .t-via {
   font-size: 11px;
   font-family: var(--mono);
   color: var(--text-mid);
-  padding: 0.15rem 0;
-}
-.t-warn {
-  font-size: 11px;
-  color: var(--alert);
-  padding: 0.2rem 0;
-}
-.t-success {
-  padding: 1.5rem 0;
-  font-size: 13px;
-  line-height: 1.7;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin: 0.8rem 0;
-  background: rgba(52, 211, 153, 0.06);
+  padding: 0.1rem 20px;
 }
 
 /* ================================================================
-   Stepper (horizontal numbered dots)
-   Target the 5-column row uniquely (only stepper has 5 cols)
+   Coordinate chip
+   ================================================================ */
+.t-coord {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-family: var(--mono);
+  color: var(--teal);
+  background: var(--teal-dim);
+  border: 1px solid var(--teal-border);
+  padding: 2px 7px;
+  border-radius: 4px;
+  line-height: 1.4;
+}
+.t-coord::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--teal);
+}
+
+/* ================================================================
+   Status pills
+   ================================================================ */
+.t-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 100px;
+  font-size: 9.5px;
+  font-family: var(--mono);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  border: 1px solid transparent;
+}
+.t-pill::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.t-pill--success {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: var(--success-border);
+}
+.t-pill--warning {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border-color: var(--warning-border);
+}
+.t-pill--danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: var(--danger-border);
+}
+.t-pill--info {
+  background: var(--info-bg);
+  color: var(--info);
+  border-color: var(--border);
+}
+
+/* ================================================================
+   Stepper — 5-column horizontal dot row
    ================================================================ */
 [data-testid="stColumn"]:first-child
   [data-testid="stHorizontalBlock"]:has(
@@ -310,10 +433,10 @@ header[data-testid="stHeader"],
   align-items: center !important;
   justify-content: center !important;
   gap: 0 !important;
-  padding: 0.9rem 1rem 0.6rem !important;
+  padding: 0.85rem 1rem 0.6rem !important;
+  border-bottom: 1px solid var(--border-ink) !important;
 }
 
-/* Each column in the dot row */
 [data-testid="stColumn"]:first-child
   [data-testid="stHorizontalBlock"]:has(
     > [data-testid="stColumn"]:nth-child(5):last-child
@@ -322,143 +445,157 @@ header[data-testid="stHeader"],
   width: auto !important;
   max-width: none !important;
   min-width: auto !important;
-  padding: 0 6px !important;
+  padding: 0 5px !important;
 }
 
-/* All dot buttons: circle shape */
+/* All step dots */
 [data-testid="stColumn"]:first-child
   [data-testid="stHorizontalBlock"]:has(
     > [data-testid="stColumn"]:nth-child(5):last-child
   ) .stButton > button {
-  width: 30px !important;
-  height: 30px !important;
-  min-height: 30px !important;
-  max-width: 30px !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  max-width: 26px !important;
   border-radius: 50% !important;
   padding: 0 !important;
-  font-size: 11px !important;
-  font-weight: 600 !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
   font-family: var(--mono) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   text-align: center !important;
+  background: var(--surface-ink) !important;
+  border-color: rgba(1, 180, 175, 0.25) !important;
+  color: var(--teal) !important;
 }
 
-/* Done steps: subtle filled circle */
+/* Active step: golden yellow */
 [data-testid="stColumn"]:first-child
   [data-testid="stHorizontalBlock"]:has(
     > [data-testid="stColumn"]:nth-child(5):last-child
-  ) .stButton > button:not([kind="primary"]):not(:disabled) {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: var(--text) !important;
+  ) .stButton > button[kind="primary"] {
+  background: var(--yellow) !important;
+  color: var(--charcoal) !important;
+  border-color: var(--yellow) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 0 0 3px rgba(255, 177, 0, 0.15) !important;
 }
 
-/* Current step: white (styled by primary button rules) */
-
-/* Future steps: dim (already styled by :disabled rules) */
+/* Future steps: dimmed */
 [data-testid="stColumn"]:first-child
   [data-testid="stHorizontalBlock"]:has(
     > [data-testid="stColumn"]:nth-child(5):last-child
   ) .stButton > button:disabled {
-  width: 30px !important;
-  height: 30px !important;
+  width: 26px !important;
+  height: 26px !important;
   border-radius: 50% !important;
-  opacity: 0.25 !important;
+  background: transparent !important;
+  border-color: var(--border) !important;
+  color: var(--text-ghost) !important;
+  opacity: 1 !important;
 }
 
-/* Connector bars between dots (via column gaps) */
+/* Connector bars */
 [data-testid="stColumn"]:first-child
   [data-testid="stHorizontalBlock"]:has(
     > [data-testid="stColumn"]:nth-child(5):last-child
   ) > [data-testid="stColumn"]:not(:last-child)::after {
   content: '';
   position: absolute;
-  right: -6px;
+  right: -5px;
   top: 50%;
-  width: 12px;
-  height: 1.5px;
-  background: rgba(247, 247, 247, 0.12);
+  width: 10px;
+  height: 1px;
+  background: var(--border-ink);
 }
 
 /* ================================================================
-   Instruction nodes (refinement step)
+   Instruction / refinement nodes
    ================================================================ */
 .t-node {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0.5rem 0;
+  padding: 7px 20px;
   cursor: pointer;
   border-left: 2px solid transparent;
   transition: all var(--transition);
 }
 .t-node:hover {
-  background: rgba(247, 247, 247, 0.04);
+  background: var(--surface);
 }
 .t-node--active {
-  border-left-color: var(--text) !important;
-  background: rgba(247, 247, 247, 0.05) !important;
+  border-left-color: var(--yellow) !important;
+  background: rgba(255, 177, 0, 0.05) !important;
 }
 .t-node-num {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  border: 1.5px solid var(--text-mid);
+  border: 1px solid var(--border-hover);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
-  font-weight: 600;
-  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 500;
   font-family: var(--mono);
   color: var(--text-mid);
+  flex-shrink: 0;
   transition: all var(--transition);
 }
 .t-node--active .t-node-num {
-  background: var(--text);
-  color: var(--bg);
+  background: var(--yellow);
+  color: var(--charcoal);
+  border-color: var(--yellow);
+  font-weight: 600;
 }
 .t-node-meta {
   font-size: 10px;
-  letter-spacing: 0.1em;
-  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  color: var(--text-ghost);
   text-transform: uppercase;
   font-family: var(--mono);
+  margin-left: auto;
+}
+.t-node--active .t-node-meta {
+  color: var(--yellow);
 }
 .t-node-text {
-  font-size: 11px;
-  color: var(--text-dim);
-  padding: 0.15rem 0 0.3rem 2rem;
-  line-height: 1.5;
+  font-size: 12px;
+  color: var(--text-mid);
+  transition: color var(--transition);
+}
+.t-node--active .t-node-text {
+  color: var(--text);
 }
 
 /* ================================================================
-   Widget overrides (clean bottom-border inputs)
+   Form inputs — bottom-border style with yellow focus
    ================================================================ */
 [data-testid="stTextInput"] input,
 [data-testid="stTextArea"] textarea,
 [data-testid="stNumberInput"] input {
   background: transparent !important;
   border: none !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-bottom: 1px solid var(--border-ink) !important;
   border-radius: 0 !important;
   color: var(--text) !important;
-  font-size: 13px !important;
+  font-size: 12.5px !important;
   font-family: var(--font) !important;
-  padding: 0.5rem 0 !important;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+  padding: 5px 0 !important;
+  transition: border-color var(--transition), box-shadow var(--transition) !important;
 }
 [data-baseweb="select"] > div {
   background: transparent !important;
   border: none !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-bottom: 1px solid var(--border-ink) !important;
   border-radius: 0 !important;
   color: var(--text) !important;
-  font-size: 13px !important;
+  font-size: 12.5px !important;
   font-family: var(--font) !important;
-  transition: border-color 0.3s ease !important;
+  transition: border-color var(--transition) !important;
 }
 [data-testid="stTextInput"] input::placeholder,
 [data-testid="stTextArea"] textarea::placeholder {
@@ -467,20 +604,24 @@ header[data-testid="stHeader"],
 [data-testid="stTextInput"] input:focus,
 [data-testid="stTextArea"] textarea:focus,
 [data-testid="stNumberInput"] input:focus {
-  border-bottom-color: rgba(255, 255, 255, 0.5) !important;
-  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.2) !important;
+  border-bottom-color: var(--yellow) !important;
+  box-shadow: 0 1px 0 0 rgba(255, 177, 0, 0.25) !important;
   outline: none !important;
 }
 [data-testid="stTextArea"] textarea {
-  caret-color: var(--text) !important;
-}
-label, [data-testid="stWidgetLabel"] {
-  font-size: 11px !important;
-  color: var(--text-dim) !important;
-  font-family: var(--font) !important;
+  caret-color: var(--yellow) !important;
 }
 
-/* Select dropdowns */
+label, [data-testid="stWidgetLabel"] {
+  font-size: 9.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase !important;
+  color: var(--text-dim) !important;
+  font-family: var(--mono) !important;
+}
+
+/* ── Select dropdowns ── */
 [data-baseweb="select"] [data-baseweb="select-option"] {
   font-size: 12px !important;
   background: var(--panel-solid) !important;
@@ -488,25 +629,40 @@ label, [data-testid="stWidgetLabel"] {
 }
 [data-baseweb="popover"] > div {
   background: var(--panel-solid) !important;
-  border: 1px solid var(--border) !important;
+  border: 1px solid var(--border-ink) !important;
   border-radius: var(--radius-sm) !important;
 }
 [data-baseweb="select"] [data-baseweb="select-option"]:hover {
-  background: rgba(247, 247, 247, 0.06) !important;
+  background: var(--surface) !important;
+}
+
+/* ── Sidebar widget inset ── */
+.main [data-testid="stHorizontalBlock"]:first-of-type
+  > [data-testid="stColumn"]:first-child [data-testid="stTextInput"],
+.main [data-testid="stHorizontalBlock"]:first-of-type
+  > [data-testid="stColumn"]:first-child [data-testid="stTextArea"],
+.main [data-testid="stHorizontalBlock"]:first-of-type
+  > [data-testid="stColumn"]:first-child [data-testid="stButton"],
+.main [data-testid="stHorizontalBlock"]:first-of-type
+  > [data-testid="stColumn"]:first-child [data-testid="stDownloadButton"],
+.main [data-testid="stHorizontalBlock"]:first-of-type
+  > [data-testid="stColumn"]:first-child [data-baseweb="select"] {
+  padding-left: 20px !important;
+  padding-right: 20px !important;
 }
 
 /* ================================================================
    Buttons
    ================================================================ */
 .stButton > button {
-  background: rgba(247, 247, 247, 0.04) !important;
+  background: var(--surface) !important;
   color: var(--text-mid) !important;
-  border: 1px solid var(--border) !important;
+  border: 1px solid var(--border-ink) !important;
   border-radius: var(--radius) !important;
   font-size: 12px !important;
   font-weight: 500 !important;
   font-family: var(--font) !important;
-  padding: 0.45rem 0.75rem !important;
+  padding: 0.42rem 0.75rem !important;
   box-shadow: none !important;
   text-align: left !important;
   justify-content: flex-start !important;
@@ -515,23 +671,25 @@ label, [data-testid="stWidgetLabel"] {
 }
 .stButton > button:hover {
   border-color: var(--border-hover) !important;
-  background: rgba(247, 247, 247, 0.07) !important;
+  background: var(--surface-hover) !important;
   color: var(--text) !important;
 }
 
-/* Primary buttons — Clean White */
+/* Primary — Golden Yellow */
 .stButton > button[kind="primary"] {
-  background: var(--text) !important;
-  color: var(--bg) !important;
-  border-color: var(--text) !important;
+  background: var(--yellow) !important;
+  color: var(--charcoal) !important;
+  border-color: var(--yellow) !important;
   font-weight: 600 !important;
   text-align: center !important;
   justify-content: center !important;
 }
 .stButton > button[kind="primary"]:hover {
-  background: var(--accent-hover) !important;
-  border-color: var(--accent-hover) !important;
+  background: #e8a200 !important;
+  border-color: #e8a200 !important;
+  color: var(--charcoal) !important;
 }
+
 .stButton > button:disabled {
   opacity: 0.3 !important;
   cursor: not-allowed !important;
@@ -539,9 +697,9 @@ label, [data-testid="stWidgetLabel"] {
 
 /* Download buttons */
 .stDownloadButton > button {
-  background: rgba(247, 247, 247, 0.04) !important;
+  background: var(--surface) !important;
   color: var(--text-mid) !important;
-  border: 1px solid var(--border) !important;
+  border: 1px solid var(--border-ink) !important;
   border-radius: var(--radius) !important;
   font-size: 12px !important;
   font-family: var(--font) !important;
@@ -549,88 +707,137 @@ label, [data-testid="stWidgetLabel"] {
 }
 .stDownloadButton > button:hover {
   border-color: var(--border-hover) !important;
+  background: var(--surface-hover) !important;
 }
 
-/* Alert button */
-.t-alert-btn > button {
-  background: rgba(255, 255, 255, 0.06) !important;
-  color: var(--text) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
+/* Teal secondary button helper class */
+.t-teal-btn > button {
+  background: var(--teal-dim) !important;
+  color: var(--teal) !important;
+  border-color: var(--teal-border) !important;
   text-align: center !important;
   justify-content: center !important;
-  font-weight: 600 !important;
 }
-.t-alert-btn > button:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.35) !important;
+.t-teal-btn > button:hover {
+  background: rgba(1, 180, 175, 0.14) !important;
+  border-color: var(--teal) !important;
 }
 
+/* Danger soft helper class */
+.t-danger-btn > button {
+  background: var(--danger-bg) !important;
+  color: var(--danger) !important;
+  border-color: var(--danger-border) !important;
+  text-align: center !important;
+  justify-content: center !important;
+}
+.t-danger-btn > button:hover {
+  border-color: var(--danger) !important;
+}
+
+/* ================================================================
+   Expander
+   ================================================================ */
 div[data-testid="stExpander"] {
-  border: 1px solid var(--border) !important;
+  border: 1px solid var(--border-ink) !important;
   border-radius: var(--radius) !important;
   background: transparent !important;
 }
 
-/* ── Sidebar widget vertical spacing ── */
-.main [data-testid="stHorizontalBlock"]:first-of-type
-  > [data-testid="stColumn"]:first-child
-  [data-testid="stVerticalBlock"] {
-  gap: 0.25rem !important;
-  padding-bottom: 2rem !important;
-  height: auto !important;
-  min-height: 0 !important;
-  max-height: none !important;
-  overflow: visible !important;
-  flex: 0 0 auto !important;
+/* ================================================================
+   AI log / streaming card
+   ================================================================ */
+.t-ai-log {
+  margin: 4px 16px 6px;
+  padding: 10px 12px;
+  font-size: 10.5px;
+  line-height: 1.8;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  background: rgba(27, 53, 79, 0.25);
+  border: 1px solid var(--border-ink);
+  border-left: 2px solid var(--ink-light);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.t-ai-log .t-log-hi   { color: var(--text-mid); }
+.t-ai-log .t-log-ok   { color: var(--teal); }
+.t-ai-log .t-log-warn { color: var(--yellow); }
+.t-ai-log .t-log-err  { color: var(--danger); }
+
+/* ================================================================
+   Result / success card
+   ================================================================ */
+.t-result-card {
+  margin: 4px 16px 8px;
+  padding: 12px 14px;
+  background: rgba(255, 177, 0, 0.05);
+  border: 1px solid var(--yellow-border);
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.7;
+}
+.t-result-card .t-result-label {
+  font-size: 9.5px;
+  font-family: var(--mono);
+  color: var(--yellow);
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  display: block;
+}
+
+/* Legacy success card alias */
+.t-success {
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text);
+  border: 1px solid var(--success-border);
+  border-radius: var(--radius);
+  margin: 0.5rem 16px;
+  background: var(--success-bg);
+}
+
+/* Warning card */
+.t-warn {
+  font-size: 11px;
+  color: var(--warning);
+  padding: 0.2rem 20px;
 }
 
 /* ================================================================
    Spinner / loading
    ================================================================ */
 .stSpinner > div {
-  border-top-color: var(--accent) !important;
+  border-top-color: var(--yellow) !important;
 }
 
 /* ================================================================
    Streaming text animation
    ================================================================ */
 @keyframes t-fade-in {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(3px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .t-stream {
-  animation: t-fade-in 0.4s ease-out both;
+  animation: t-fade-in 0.35s ease-out both;
 }
 .t-stream-line {
   display: block;
-  animation: t-fade-in 0.3s ease-out both;
+  animation: t-fade-in 0.28s ease-out both;
 }
-.t-stream-line:nth-child(2) { animation-delay: 0.08s; }
-.t-stream-line:nth-child(3) { animation-delay: 0.16s; }
-.t-stream-line:nth-child(4) { animation-delay: 0.24s; }
-.t-stream-line:nth-child(5) { animation-delay: 0.32s; }
-.t-stream-line:nth-child(6) { animation-delay: 0.40s; }
-
-/* ================================================================
-   AI log / streaming card
-   ================================================================ */
-.t-ai-log {
-  padding: 0.8rem;
-  font-size: 11px;
-  line-height: 1.7;
-  color: var(--text-dim);
-  font-family: var(--mono);
-  border-left: 2px solid var(--text-dim);
-  margin: 0.4rem 0;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-}
+.t-stream-line:nth-child(2) { animation-delay: 0.07s; }
+.t-stream-line:nth-child(3) { animation-delay: 0.14s; }
+.t-stream-line:nth-child(4) { animation-delay: 0.21s; }
+.t-stream-line:nth-child(5) { animation-delay: 0.28s; }
+.t-stream-line:nth-child(6) { animation-delay: 0.35s; }
 
 /* ================================================================
    Studio fade-in transition
    ================================================================ */
 .t-studio-enter {
-  animation: t-studio-fade 0.5s ease-in-out both;
+  animation: t-studio-fade 0.45s ease-in-out both;
 }
 @keyframes t-studio-fade {
   from { opacity: 0; }
@@ -638,16 +845,12 @@ div[data-testid="stExpander"] {
 }
 
 /* ================================================================
-   Onboarding overlay — hides the main studio
+   Onboarding overlay
    ================================================================ */
 .onboarding-hide .main [data-testid="stHorizontalBlock"]:first-of-type {
   display: none !important;
 }
 
-/* ================================================================
-   Onboarding iframe — fill full viewport so the component is visible
-   before the two-column studio layout renders.
-   ================================================================ */
 [data-testid="stCustomComponentV1"] iframe {
   min-height: 100vh;
 }
