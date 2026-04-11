@@ -300,6 +300,7 @@ with left_col:
     st.markdown(
         '<div class="t-brand-title">O&amp;M Studio</div>'
         '<div class="t-brand-subtitle">Create and upload custom routes to your community in minutes</div>'
+        '<div class="t-version" style="color:#FFB100;font-size:0.85rem;padding:0.2rem 20px 0.5rem;">Version: 2026.04.11-1</div>'
         '</div>',
         unsafe_allow_html=True,
     )
