@@ -96,7 +96,7 @@ header[data-testid="stHeader"],
   backdrop-filter: var(--blur) !important;
   -webkit-backdrop-filter: var(--blur) !important;
   border-right: 1px solid var(--border) !important;
-  padding: 0 !important;
+  padding: 0 0 0 1rem !important;
   margin: 0 !important;
   z-index: 10 !important;
 }
