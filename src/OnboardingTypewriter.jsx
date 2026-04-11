@@ -6,8 +6,9 @@ const GRAIN_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='h
 
 const questions = [
   { label: "let's give this route a name.", key: "routeName", placeholder: "e.g. Downtown Loop" },
-  { label: "which email should we update you on?", key: "email", placeholder: "your@email.com" },
-  { label: "and who's creating this route?", key: "ownerName", placeholder: "Your name" },
+  { label: "organisation code, if applicable.", key: "orgCode", placeholder: "e.g. TP-2024 or skip with Enter" },
+  { label: "and your name?", key: "ownerName", placeholder: "Creator name" },
+  { label: "best email to reach you on?", key: "email", placeholder: "your@email.com" },
 ];
 
 export function OnboardingTypewriter({ onComplete }) {

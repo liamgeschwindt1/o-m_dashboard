@@ -6,7 +6,6 @@ import PlanningStep from "./PlanningStep";
 import CalibrationStep from "./CalibrationStep";
 import RefinementStep from "./RefinementStep";
 import SubmitSheet from "./SubmitSheet";
-import CompleteScreen from "./CompleteScreen";
 
 // Teal 1px sweep line — slides top→bottom over the full viewport on studio reveal
 function SweepLine({ active }) {
@@ -32,7 +31,7 @@ function SweepLine({ active }) {
 }
 
 export default function App() {
-  // phase: 'welcome' | 'onboarding' | 'ascending' | 'studio' | 'complete'
+  // phase: 'welcome' | 'onboarding' | 'ascending' | 'studio'
   const [phase, setPhase] = useState("welcome");
   const [swept, setSwept] = useState(false);
 
@@ -51,8 +50,6 @@ export default function App() {
     setTimeout(() => setPhase("studio"), 950);
   };
 
-  const handleSubmitComplete = () => setPhase("complete");
-
   const handleRestart = () => {
     setStep(1);
     setIdentity(null);
@@ -64,21 +61,6 @@ export default function App() {
 
   return (
     <div style={{ width: "100vw", height: "100vh", overflow: "hidden", fontFamily: "Inter, sans-serif", position: "relative", background: "#031119" }}>
-
-      {/* ── Complete screen — slides up from below when studio descends ── */}
-      <AnimatePresence>
-        {phase === "complete" && (
-          <motion.div
-            key="complete"
-            style={{ position: "absolute", inset: 0, zIndex: 0 }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3, delay: 0.35 }}
-          >
-            <CompleteScreen identity={identity} onRestart={handleRestart} />
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* ── Studio layer — slides up from below, exits by sliding down ── */}
       <AnimatePresence>
@@ -120,7 +102,7 @@ export default function App() {
                 identity={identity}
                 route={route}
                 nodes={nodes}
-                onConfirm={handleSubmitComplete}
+                onConfirm={handleRestart}
               />
             )}
           </motion.div>
