@@ -1,27 +1,27 @@
 TIERA_STYLES = """
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --bg:           #031119;
-  --panel:        rgba(27, 53, 79, 0.55);
-  --panel-solid:  #1B354F;
-  --border:       rgba(247, 247, 247, 0.08);
-  --border-hover: rgba(247, 247, 247, 0.18);
-  --text:         #F7F7F7;
-  --text-dim:     rgba(247, 247, 247, 0.45);
-  --text-mid:     rgba(247, 247, 247, 0.7);
-  --accent:       #FFB100;
-  --accent-hover: #FFC233;
-  --accent-dim:   rgba(255, 177, 0, 0.10);
-  --alert:        #FFB100;
-  --alert-dim:    rgba(255, 177, 0, 0.12);
+  --bg:           #0A0A0A;
+  --panel:        rgba(18, 18, 18, 0.92);
+  --panel-solid:  #141414;
+  --border:       rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.18);
+  --text:         #F5F5F5;
+  --text-dim:     rgba(255, 255, 255, 0.40);
+  --text-mid:     rgba(255, 255, 255, 0.65);
+  --accent:       #FFFFFF;
+  --accent-hover: #E0E0E0;
+  --accent-dim:   rgba(255, 255, 255, 0.08);
+  --alert:        #FFFFFF;
+  --alert-dim:    rgba(255, 255, 255, 0.08);
   --danger:       #FF4D4D;
   --success:      #34D399;
   --radius:       8px;
   --radius-sm:    6px;
   --transition:   0.2s ease-in-out;
-  --blur:         saturate(1.6) blur(20px);
-  --font:         'Poppins', sans-serif;
+  --blur:         saturate(1.2) blur(24px);
+  --font:         'Inter', sans-serif;
   --mono:         'JetBrains Mono', monospace;
 }
 
@@ -96,7 +96,7 @@ header[data-testid="stHeader"],
   backdrop-filter: var(--blur) !important;
   -webkit-backdrop-filter: var(--blur) !important;
   border-right: 1px solid var(--border) !important;
-  padding: 0 0 0 1rem !important;
+  padding: 0 !important;
   margin: 0 !important;
   z-index: 10 !important;
 }
@@ -208,19 +208,28 @@ header[data-testid="stHeader"],
    ================================================================ */
 /* Brand area: logo + subtitle */
 .main [data-testid="stColumn"]:first-child [data-testid="stImage"] {
-  padding: 1rem 1.8rem 0 !important;
+  padding: 24px 24px 0 24px !important;
   margin: 0 !important;
 }
 .main [data-testid="stColumn"]:first-child [data-testid="stImage"] img {
   max-width: 160px !important;
 }
+.t-brand-title {
+  font-family: var(--font);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  padding: 0.6rem 24px 0;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
 .t-brand-subtitle {
   font-family: var(--font);
-  font-size: 10px;
+  font-size: 0.9rem;
   font-weight: 400;
-  letter-spacing: 0.1em;
-  color: var(--text-dim);
-  padding: 0.15rem 1.8rem 0.8rem;
+  color: rgba(255, 255, 255, 0.35);
+  padding: 0.25rem 24px 1rem;
+  line-height: 1.5;
   border-bottom: 1px solid var(--border);
 }
 
@@ -343,12 +352,12 @@ header[data-testid="stHeader"],
   [data-testid="stHorizontalBlock"]:has(
     > [data-testid="stColumn"]:nth-child(5):last-child
   ) .stButton > button:not([kind="primary"]):not(:disabled) {
-  background: rgba(247, 247, 247, 0.1) !important;
-  border-color: rgba(247, 247, 247, 0.2) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
   color: var(--text) !important;
 }
 
-/* Current step: golden (already styled by primary button rules) */
+/* Current step: white (styled by primary button rules) */
 
 /* Future steps: dim (already styled by :disabled rules) */
 [data-testid="stColumn"]:first-child
@@ -428,28 +437,41 @@ header[data-testid="stHeader"],
 }
 
 /* ================================================================
-   Widget overrides (dark inputs)
+   Widget overrides (clean bottom-border inputs)
    ================================================================ */
 [data-testid="stTextInput"] input,
 [data-testid="stTextArea"] textarea,
-[data-testid="stNumberInput"] input,
-[data-baseweb="select"] > div {
-  background: rgba(17, 17, 17, 0.5) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: var(--radius-sm) !important;
+[data-testid="stNumberInput"] input {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 0 !important;
   color: var(--text) !important;
-  font-size: 12px !important;
+  font-size: 13px !important;
   font-family: var(--font) !important;
-  transition: border-color var(--transition) !important;
+  padding: 0.5rem 0 !important;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+[data-baseweb="select"] > div {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 0 !important;
+  color: var(--text) !important;
+  font-size: 13px !important;
+  font-family: var(--font) !important;
+  transition: border-color 0.3s ease !important;
 }
 [data-testid="stTextInput"] input::placeholder,
 [data-testid="stTextArea"] textarea::placeholder {
   color: var(--text-dim) !important;
 }
 [data-testid="stTextInput"] input:focus,
-[data-testid="stTextArea"] textarea:focus {
-  border-color: rgba(247, 247, 247, 0.3) !important;
-  box-shadow: 0 0 0 1px rgba(247, 247, 247, 0.15) !important;
+[data-testid="stTextArea"] textarea:focus,
+[data-testid="stNumberInput"] input:focus {
+  border-bottom-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.2) !important;
+  outline: none !important;
 }
 [data-testid="stTextArea"] textarea {
   caret-color: var(--text) !important;
@@ -499,17 +521,18 @@ label, [data-testid="stWidgetLabel"] {
   color: var(--text) !important;
 }
 
-/* Primary buttons — Golden Yellow */
+/* Primary buttons — Clean White */
 .stButton > button[kind="primary"] {
-  background: var(--accent) !important;
+  background: var(--text) !important;
   color: var(--bg) !important;
-  border-color: var(--accent) !important;
+  border-color: var(--text) !important;
   font-weight: 600 !important;
   text-align: center !important;
   justify-content: center !important;
 }
 .stButton > button[kind="primary"]:hover {
   background: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
 }
 .stButton > button:disabled {
   opacity: 0.3 !important;
@@ -530,19 +553,18 @@ label, [data-testid="stWidgetLabel"] {
   border-color: var(--border-hover) !important;
 }
 
-/* Alert button (golden yellow) */
+/* Alert button */
 .t-alert-btn > button {
-  background: var(--alert-dim) !important;
-  color: var(--alert) !important;
-  border-color: rgba(255, 177, 0, 0.25) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--text) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
   text-align: center !important;
   justify-content: center !important;
   font-weight: 600 !important;
 }
 .t-alert-btn > button:hover {
-  background: rgba(255, 177, 0, 0.2) !important;
-  border-color: rgba(255, 177, 0, 0.5) !important;
-  box-shadow: 0 0 14px rgba(255, 177, 0, 0.2) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
 }
 
 div[data-testid="stExpander"] {
@@ -604,7 +626,25 @@ div[data-testid="stExpander"] {
   font-family: var(--mono);
   border-left: 2px solid var(--text-dim);
   margin: 0.4rem 1.8rem;
-  background: rgba(52, 211, 153, 0.04);
+  background: rgba(255, 255, 255, 0.02);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+/* ================================================================
+   Studio fade-in transition
+   ================================================================ */
+.t-studio-enter {
+  animation: t-studio-fade 0.5s ease-in-out both;
+}
+@keyframes t-studio-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ================================================================
+   Onboarding overlay — hides the main studio
+   ================================================================ */
+.onboarding-hide .main [data-testid="stHorizontalBlock"]:first-of-type {
+  display: none !important;
 }
 """

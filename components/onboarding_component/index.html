@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #0A0A0A;
+      color: #F5F5F5;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+    }
+
+    .onboarding {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 15vw;
+      background: #0A0A0A;
+      transition: opacity 0.5s ease-in-out;
+      z-index: 9999;
+    }
+    .onboarding.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Brand header — fixed top-left */
+    .ob-brand {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      z-index: 10000;
+    }
+    .ob-brand img {
+      max-width: 140px;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .ob-brand-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #F5F5F5;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+    .ob-brand-sub {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: #666666;
+      line-height: 1.5;
+      margin-top: 4px;
+    }
+
+    /* Conversation log */
+    .ob-log {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      max-width: 600px;
+    }
+
+    .ob-pair {
+      animation: slideUp 0.4s ease-out both;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .ob-question {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 0.5rem;
+      min-height: 1.4em;
+    }
+    .ob-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: rgba(255,255,255,0.6);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 0.8s step-end infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    .ob-answer-display {
+      font-size: 16px;
+      font-weight: 500;
+      color: #F5F5F5;
+      padding: 0.3rem 0;
+    }
+
+    /* Active input */
+    .ob-input-wrap {
+      position: relative;
+    }
+    .ob-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      color: #F5F5F5;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      padding: 0.5rem 0;
+      outline: none;
+      caret-color: #F5F5F5;
+      transition: border-color 0.3s ease;
+    }
+    .ob-input:focus {
+      border-bottom-color: rgba(255,255,255,0.5);
+    }
+    .ob-input::placeholder {
+      color: rgba(255,255,255,0.2);
+    }
+
+    /* Loading message */
+    .ob-loading {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0A0A0A;
+      z-index: 10001;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease-in-out;
+    }
+    .ob-loading.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .ob-loading-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.05em;
+    }
+    .ob-loading-text .dot-anim::after {
+      content: '';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+    @keyframes dots {
+      0%  { content: ''; }
+      25% { content: '.'; }
+      50% { content: '..'; }
+      75% { content: '...'; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="ob-brand" id="brand">
+  <img id="brandLogo" src="" alt="Logo" style="display:none"/>
+  <div class="ob-brand-title">O&amp;M Studio</div>
+  <div class="ob-brand-sub">Create and upload custom routes to your community in minutes</div>
+</div>
+
+<div class="onboarding" id="onboarding">
+  <div class="ob-log" id="log"></div>
+</div>
+
+<div class="ob-loading" id="loading">
+  <div class="ob-loading-text">Loading studio environment<span class="dot-anim"></span></div>
+</div>
+
+<script>
+  /* ── Streamlit Component Protocol ── */
+  function sendToStreamlit(type, data) {
+    window.parent.postMessage(Object.assign({isStreamlitMessage: true, type: type}, data || {}), "*");
+  }
+  function setComponentValue(value) {
+    sendToStreamlit("streamlit:setComponentValue", {value: value});
+  }
+  function setFrameHeight(h) {
+    sendToStreamlit("streamlit:setFrameHeight", {height: h});
+  }
+
+  var questions = [];
+  var answers = {};
+  var currentIdx = 0;
+  var typing = false;
+  var initialized = false;
+
+  function typeText(el, text, speed, callback) {
+    typing = true;
+    var i = 0;
+    var cursor = document.createElement('span');
+    cursor.className = 'ob-cursor';
+    el.appendChild(cursor);
+
+    function tick() {
+      if (i < text.length) {
+        el.insertBefore(document.createTextNode(text[i]), cursor);
+        i++;
+        setTimeout(tick, speed);
+      } else {
+        cursor.remove();
+        typing = false;
+        if (callback) callback();
+      }
+    }
+    tick();
+  }
+
+  function showQuestion(idx) {
+    if (idx >= questions.length) {
+      finishOnboarding();
+      return;
+    }
+    currentIdx = idx;
+    var q = questions[idx];
+    var pair = document.createElement('div');
+    pair.className = 'ob-pair';
+    pair.id = 'pair-' + idx;
+
+    var qDiv = document.createElement('div');
+    qDiv.className = 'ob-question';
+    qDiv.id = 'q-' + idx;
+    pair.appendChild(qDiv);
+
+    var inputWrap = document.createElement('div');
+    inputWrap.className = 'ob-input-wrap';
+    inputWrap.id = 'input-wrap-' + idx;
+
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'ob-input';
+    input.id = 'input-' + idx;
+    input.placeholder = q.placeholder || '';
+    input.autocomplete = 'off';
+
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !typing) {
+        var val = input.value.trim();
+        if (!val) return;
+        answers[q.key] = val;
+
+        /* Replace input with static answer text */
+        inputWrap.remove();
+        var ansDiv = document.createElement('div');
+        ansDiv.className = 'ob-answer-display';
+        ansDiv.textContent = val;
+        pair.appendChild(ansDiv);
+
+        /* Next question */
+        showQuestion(idx + 1);
+      }
+    });
+
+    inputWrap.appendChild(input);
+    pair.appendChild(inputWrap);
+
+    document.getElementById('log').appendChild(pair);
+
+    /* Typewriter the question text */
+    typeText(qDiv, q.label, 30, function() {
+      input.focus();
+    });
+  }
+
+  function finishOnboarding() {
+    /* Show loading screen */
+    var loading = document.getElementById('loading');
+    loading.classList.add('visible');
+    document.getElementById('onboarding').classList.add('fade-out');
+
+    setTimeout(function() {
+      setComponentValue({ type: 'onboarding_complete', answers: answers, ts: Date.now() });
+    }, 2000);
+  }
+
+  function onRender(args) {
+    if (initialized) return;
+    initialized = true;
+
+    questions = args.questions || [];
+    var logoUrl = args.logo_url || '';
+
+    if (logoUrl) {
+      var img = document.getElementById('brandLogo');
+      img.src = logoUrl;
+      img.style.display = 'block';
+    }
+
+    setFrameHeight(window.innerHeight);
+
+    /* Start the sequence */
+    setTimeout(function() {
+      showQuestion(0);
+    }, 600);
+  }
+
+  /* ── Listen for Streamlit render events ── */
+  window.addEventListener("message", function(event) {
+    if (event.data && event.data.type === "streamlit:render") {
+      onRender(event.data.args);
+    }
+  });
+
+  /* ── Signal component ready ── */
+  sendToStreamlit("streamlit:componentReady", {apiVersion: 1});
+  setFrameHeight(window.innerHeight);
+</script>
+</body>
+</html>

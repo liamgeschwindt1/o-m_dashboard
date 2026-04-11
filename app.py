@@ -12,6 +12,7 @@ import streamlit as st
 
 from assets.tiera_styles import TIERA_STYLES
 from components.leaflet_component import leaflet_map
+from components.onboarding_component import onboarding_sequence
 
 # ── ORS ────────────────────────────────────────────────────────────────────────
 ORS_DIRECTIONS_URL = (
@@ -108,6 +109,7 @@ def _reroute() -> tuple[bool, str]:
 # ── Session state ───────────────────────────────────────────────────────────────
 def init():
     defaults: dict[str, Any] = {
+        "onboarding_done": False,
         "step": 0,
         "metadata": {"route_name": "", "org_code": "", "owner": "", "contact": ""},
         "start_address":    "",
@@ -254,6 +256,32 @@ try:
 except Exception:
     maptiler_key = ""
 
+# ── Onboarding gate ─────────────────────────────────────────────────────────────
+if not st.session_state.onboarding_done:
+    ONBOARDING_QUESTIONS = [
+        {"key": "route_name", "label": "What is the name of this route?", "placeholder": "e.g. Highgate Loop A"},
+        {"key": "org_code",   "label": "What is your organization code?", "placeholder": "e.g. TP-001"},
+        {"key": "owner",      "label": "Who is the route owner?",         "placeholder": "e.g. J. Smith"},
+        {"key": "contact",    "label": "What is the best contact email?", "placeholder": "e.g. j@org.com"},
+    ]
+    result = onboarding_sequence(
+        questions=ONBOARDING_QUESTIONS,
+        key="onboarding",
+    )
+    if result and isinstance(result, dict) and result.get("type") == "onboarding_complete":
+        answers = result.get("answers", {})
+        st.session_state.metadata = {
+            "route_name": answers.get("route_name", ""),
+            "org_code":   answers.get("org_code", ""),
+            "owner":      answers.get("owner", ""),
+            "contact":    answers.get("contact", ""),
+        }
+        st.session_state.onboarding_done = True
+        st.session_state.step = 1
+        st.rerun()
+    st.stop()
+
+# ── Main studio (shown after onboarding) ────────────────────────────────────────
 step = st.session_state.step
 
 # ── Two-column layout ───────────────────────────────────────────────────────────
@@ -270,7 +298,8 @@ with left_col:
         width=180,
     )
     st.markdown(
-        '<div class="t-brand-subtitle">O&amp;M Studio</div>'
+        '<div class="t-brand-title">O&amp;M Studio</div>'
+        '<div class="t-brand-subtitle">Create and upload custom routes to your community in minutes</div>'
         '</div>',
         unsafe_allow_html=True,
     )
@@ -289,7 +318,7 @@ with left_col:
                 st.rerun()
     st.markdown('<div class="t-divider"></div>', unsafe_allow_html=True)
 
-    # ── Step 0: Identity ──────────────────────────────────────────────────────
+    # ── Step 0: Identity (review / edit) ─────────────────────────────────────
     if step == 0:
         st.markdown('<div class="t-section t-stream">Route Identity</div>', unsafe_allow_html=True)
         meta = st.session_state.metadata
