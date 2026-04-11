@@ -675,6 +675,11 @@ label, [data-testid="stWidgetLabel"] {
   color: var(--text) !important;
 }
 
+/* Push main content away from left edge */
+.main .block-container {
+  padding-left: 2.5rem !important;
+}
+
 /* Primary — Golden Yellow */
 .stButton > button[kind="primary"] {
   background: var(--yellow) !important;

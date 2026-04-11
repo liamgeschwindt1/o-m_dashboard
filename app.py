@@ -577,39 +577,19 @@ with left_col:
             )
         else:
             st.markdown('<div class="t-section t-stream">Uplink</div>', unsafe_allow_html=True)
-            st.markdown(
-                '<div class="t-hint">Enter your email address to receive a confirmation.</div>',
-                unsafe_allow_html=True,
-            )
-            email_v = st.text_input(
-                "Email", value=st.session_state.submit_email,
-                placeholder="you@organisation.com", key="email_in",
-                label_visibility="collapsed",
-            )
-            st.session_state.submit_email = email_v
-
+            # Email already collected in onboarding; no need to ask again
             def _valid(s: str) -> bool:
                 return bool(_re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", s.strip()))
 
             st.markdown('<div class="t-gap"></div>', unsafe_allow_html=True)
             if st.button("Submit custom route", key="submit_btn",
                          use_container_width=True, type="primary",
-                         disabled=not _valid(email_v)):
+                         disabled=not _valid(st.session_state.metadata.get("contact", ""))):
                 # TODO: integrate with submission API / email service
                 st.session_state.submitted = True
                 st.rerun()
 
-            st.download_button(
-                "Export JSON", data=export_json(),
-                file_name="tiera-route.json", mime="application/json",
-                use_container_width=True,
-            )
-
-            st.markdown('<div class="t-gap"></div>', unsafe_allow_html=True)
-            st.markdown('<div class="t-alert-btn">', unsafe_allow_html=True)
-            if st.button("☎ Call Operator", key="call_op", use_container_width=True):
-                pass  # Human-in-the-loop placeholder
-            st.markdown('</div>', unsafe_allow_html=True)
+            # Removed Export JSON and Call Operator buttons as requested
 
             if st.button("← Back", key="s4_back", use_container_width=True):
                 st.session_state.step = 3
