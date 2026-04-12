@@ -54,16 +54,6 @@ export default function WelcomeScreen({ onContinue, exiting }) {
           <img src={logo} alt="Touchpulse" style={{ height: 32, display: "block" }} />
         </div>
 
-        {/* Eyebrow */}
-        <div style={{
-          fontSize: 11, letterSpacing: "0.12em",
-          color: "rgba(247,247,247,0.40)",
-          textTransform: "uppercase",
-          marginBottom: 20, fontWeight: 400,
-        }}>
-          Instructor Studio
-        </div>
-
         {/* Heading — subtle glow shimmer every 5s */}
         <motion.h1
           animate={{
@@ -85,7 +75,7 @@ export default function WelcomeScreen({ onContinue, exiting }) {
             marginBottom: 18,
             maxWidth: 620,
           }}>
-          Touchpulse Instructor Studio
+          Welcome to the Instructor Studio
         </motion.h1>
 
         {/* Sub-headline */}
