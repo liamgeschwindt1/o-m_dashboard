@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { useState, useRef } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import StudioSidebar from "./StudioSidebar";
@@ -16,6 +16,16 @@ function letterIcon(letter) {
 const startIcon = letterIcon("A");
 const endIcon = letterIcon("B");
 
+function FlyToLocation({ coords }) {
+  const map = useMap();
+  const flown = useRef(false);
+  if (coords && !flown.current) {
+    flown.current = true;
+    map.flyTo(coords, 15, { duration: 1.4 });
+  }
+  return null;
+}
+
 function MapClicker({ active, onPlace }) {
   useMapEvents({
     click(e) {
@@ -29,6 +39,23 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
   const [start, setStart] = useState(null);
   const [end, setEnd] = useState(null);
   const [placing, setPlacing] = useState("start"); // "start" | "end" | null
+  const [userLocation, setUserLocation] = useState(null);
+  const [locStatus, setLocStatus] = useState("idle"); // "idle" | "loading" | "granted" | "denied"
+
+  function requestLocation() {
+    if (!navigator.geolocation) {
+      setLocStatus("denied");
+      return;
+    }
+    setLocStatus("loading");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation([pos.coords.latitude, pos.coords.longitude]);
+        setLocStatus("granted");
+      },
+      () => setLocStatus("denied")
+    );
+  }
 
   function handlePlace(latlng) {
     if (placing === "start") {
@@ -74,6 +101,31 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
           <div style={{ fontSize: 12, fontWeight: 500, color: end ? "#01B4AF" : "rgba(247,247,247,0.25)", fontFamily: "JetBrains Mono, monospace" }}>
             {end ? `${end[0].toFixed(5)},  ${end[1].toFixed(5)}` : "not set"}
           </div>
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <button
+            onClick={requestLocation}
+            disabled={locStatus === "loading" || locStatus === "granted"}
+            style={{
+              width: "100%",
+              padding: "8px 0",
+              background: locStatus === "granted" ? "rgba(1,180,175,0.12)" : "transparent",
+              border: locStatus === "granted" ? "0.5px solid rgba(1,180,175,0.5)" : "0.5px solid rgba(255,255,255,0.18)",
+              borderRadius: 6,
+              color: locStatus === "denied" ? "#FF7230" : locStatus === "granted" ? "#01B4AF" : "rgba(247,247,247,0.7)",
+              fontSize: 12,
+              fontFamily: "Inter, sans-serif",
+              fontWeight: 500,
+              cursor: locStatus === "loading" || locStatus === "granted" ? "default" : "pointer",
+              transition: "all 200ms ease",
+            }}
+          >
+            {locStatus === "loading" && "Locating…"}
+            {locStatus === "granted" && "✓ Map centred on your location"}
+            {locStatus === "denied" && "Location access denied"}
+            {locStatus === "idle" && "⊕ Use my location"}
+          </button>
         </div>
 
         {(start || end) && (
@@ -151,6 +203,7 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
             attribution="&copy; CARTO"
           />
           <MapClicker active={!!placing} onPlace={handlePlace} />
+          <FlyToLocation coords={userLocation} />
           {start && <Marker position={start} icon={startIcon} />}
           {end && <Marker position={end} icon={endIcon} />}
         </MapContainer>
