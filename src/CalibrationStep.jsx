@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Polyline, useMap, useMapEvents } from 
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import StudioSidebar from "./StudioSidebar";
+import MapLayerControl, { TILE_LAYERS } from "./MapLayerControl";
 
 const GH_KEY = "1e8939e3-07a3-4b03-83e2-8698c3b12586";
 
@@ -66,6 +67,7 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [addMode, setAddMode] = useState(false);
+  const [basemap, setBasemap] = useState("dark");
 
   async function loadRoute(wps) {
     setLoading(true);
@@ -249,6 +251,7 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
       </StudioSidebar>
 
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+        <MapLayerControl active={basemap} onChange={setBasemap} />
         <MapContainer
           center={pins.start}
           zoom={14}
@@ -256,8 +259,9 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
           zoomControl={false}
         >
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            attribution="&copy; CARTO"
+            key={basemap}
+            url={TILE_LAYERS[basemap].url}
+            attribution={TILE_LAYERS[basemap].attribution}
           />
           <MapClickListener addMode={addMode} onMapClick={handleMapClick} />
           {routePath && <FitBounds path={routePath} trigger={pins} />}

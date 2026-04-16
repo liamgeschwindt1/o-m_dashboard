@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Polyline } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import StudioSidebar from "./StudioSidebar";
+import MapLayerControl, { TILE_LAYERS } from "./MapLayerControl";
 
 function makeNodeIcon(active) {
   if (active) {
@@ -38,6 +39,7 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
 
   const [nodes, setNodes] = useState(() => buildNodes(rawInstructions, path));
   const [activeNode, setActiveNode] = useState(null);
+  const [basemap, setBasemap] = useState("dark");
   const listRef = useRef(null);
 
   function selectNode(id) {
@@ -196,6 +198,7 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
       </StudioSidebar>
 
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+        <MapLayerControl active={basemap} onChange={setBasemap} />
         <MapContainer
           center={mapCenter}
           zoom={15}
@@ -203,8 +206,9 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
           zoomControl={false}
         >
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            attribution="&copy; CARTO"
+            key={basemap}
+            url={TILE_LAYERS[basemap].url}
+            attribution={TILE_LAYERS[basemap].attribution}
           />
           <Polyline
             positions={path}

@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-lea
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import StudioSidebar from "./StudioSidebar";
+import MapLayerControl, { TILE_LAYERS } from "./MapLayerControl";
 
 function letterIcon(letter) {
   return L.divIcon({
@@ -41,6 +42,7 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
   const [placing, setPlacing] = useState("start"); // "start" | "end" | null
   const [userLocation, setUserLocation] = useState(null);
   const [locStatus, setLocStatus] = useState("idle"); // "idle" | "loading" | "granted" | "denied"
+  const [basemap, setBasemap] = useState("dark");
 
   function requestLocation() {
     if (!navigator.geolocation) {
@@ -192,6 +194,7 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
       </StudioSidebar>
 
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+        <MapLayerControl active={basemap} onChange={setBasemap} />
         <MapContainer
           center={[37.7749, -122.4194]}
           zoom={13}
@@ -199,8 +202,9 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
           zoomControl={false}
         >
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            attribution="&copy; CARTO"
+            key={basemap}
+            url={TILE_LAYERS[basemap].url}
+            attribution={TILE_LAYERS[basemap].attribution}
           />
           <MapClicker active={!!placing} onPlace={handlePlace} />
           <FlyToLocation coords={userLocation} />
