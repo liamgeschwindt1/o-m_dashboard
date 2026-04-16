@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Polyline } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import StudioSidebar from "./StudioSidebar";
-import MapLayerControl, { TILE_LAYERS } from "./MapLayerControl";
+import MapLayerControl, { TILE_LAYERS, MapViewportTracker } from "./MapLayerControl";
 
 function makeNodeIcon(active) {
   if (active) {
@@ -34,13 +34,17 @@ function buildNodes(instructions, path) {
     }));
 }
 
-export default function RefinementStep({ currentStep, route, onBack, onNext }) {
+export default function RefinementStep({ currentStep, route, mapView, onMapViewChange, onBack, onNext }) {
   const { path, instructions: rawInstructions } = route;
 
   const [nodes, setNodes] = useState(() => buildNodes(rawInstructions, path));
   const [activeNode, setActiveNode] = useState(null);
-  const [basemap, setBasemap] = useState("dark");
   const listRef = useRef(null);
+  const basemap = mapView.basemap;
+
+  function handleBasemapChange(nextBasemap) {
+    onMapViewChange({ ...mapView, basemap: nextBasemap });
+  }
 
   function selectNode(id) {
     const next = id === activeNode ? null : id;
@@ -69,8 +73,6 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
     setNodes((ns) => [...ns, newNode]);
     setActiveNode(newNode.id);
   }
-
-  const mapCenter = path[Math.floor(path.length / 2)] || [37.7749, -122.4194];
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
@@ -198,10 +200,10 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
       </StudioSidebar>
 
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
-        <MapLayerControl active={basemap} onChange={setBasemap} />
+        <MapLayerControl active={basemap} onChange={handleBasemapChange} />
         <MapContainer
-          center={mapCenter}
-          zoom={15}
+          center={mapView.center}
+          zoom={mapView.zoom}
           style={{ height: "100%", width: "100%" }}
           zoomControl={false}
         >
@@ -210,9 +212,10 @@ export default function RefinementStep({ currentStep, route, onBack, onNext }) {
             url={TILE_LAYERS[basemap].url}
             attribution={TILE_LAYERS[basemap].attribution}
           />
+          <MapViewportTracker basemap={basemap} onChange={onMapViewChange} />
           <Polyline
             positions={path}
-            pathOptions={{ color: "#FF7230", weight: 1.5, opacity: 1 }}
+            pathOptions={{ color: "#FFB100", weight: 1.5, opacity: 1 }}
             eventHandlers={{ click: injectNodeOnPolyline }}
           />
           {nodes.map((node, i) => (

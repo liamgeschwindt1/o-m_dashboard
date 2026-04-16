@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Polyline, useMap, useMapEvents } from 
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import StudioSidebar from "./StudioSidebar";
-import MapLayerControl, { TILE_LAYERS } from "./MapLayerControl";
+import MapLayerControl, { TILE_LAYERS, MapViewportTracker } from "./MapLayerControl";
 
 const GH_KEY = "1e8939e3-07a3-4b03-83e2-8698c3b12586";
 
@@ -36,16 +36,21 @@ async function fetchGHRoute(waypoints) {
   return res.json();
 }
 
-function FitBounds({ path, trigger }) {
+function FitBounds({ path, disabled, trigger }) {
   const map = useMap();
   const didFit = useRef(false);
   useEffect(() => {
+    if (disabled) {
+      didFit.current = true;
+      return;
+    }
+
     if (!didFit.current && path && path.length > 1) {
       const bounds = L.latLngBounds(path);
       map.fitBounds(bounds, { padding: [48, 48] });
       didFit.current = true;
     }
-  }, [map, path, trigger]);
+  }, [disabled, map, path, trigger]);
   return null;
 }
 
@@ -59,7 +64,7 @@ function MapClickListener({ addMode, onMapClick }) {
   return null;
 }
 
-export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
+export default function CalibrationStep({ currentStep, pins, mapView, onMapViewChange, onBack, onNext }) {
   // waypoints = [start, ...vias, end]
   const [waypoints, setWaypoints] = useState([pins.start, pins.end]);
   const [routePath, setRoutePath] = useState(null);
@@ -67,7 +72,11 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [addMode, setAddMode] = useState(false);
-  const [basemap, setBasemap] = useState("dark");
+  const basemap = mapView.basemap;
+
+  function handleBasemapChange(nextBasemap) {
+    onMapViewChange({ ...mapView, basemap: nextBasemap });
+  }
 
   async function loadRoute(wps) {
     setLoading(true);
@@ -251,10 +260,10 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
       </StudioSidebar>
 
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
-        <MapLayerControl active={basemap} onChange={setBasemap} />
+        <MapLayerControl active={basemap} onChange={handleBasemapChange} />
         <MapContainer
-          center={pins.start}
-          zoom={14}
+          center={mapView.center}
+          zoom={mapView.zoom}
           style={{ height: "100%", width: "100%" }}
           zoomControl={false}
         >
@@ -264,11 +273,12 @@ export default function CalibrationStep({ currentStep, pins, onBack, onNext }) {
             attribution={TILE_LAYERS[basemap].attribution}
           />
           <MapClickListener addMode={addMode} onMapClick={handleMapClick} />
-          {routePath && <FitBounds path={routePath} trigger={pins} />}
+          <MapViewportTracker basemap={basemap} onChange={onMapViewChange} />
+          {routePath && <FitBounds path={routePath} disabled={!!mapView.center} trigger={pins} />}
           {routePath && (
             <Polyline
               positions={routePath}
-              pathOptions={{ color: "#FF7230", weight: 1.5, opacity: 1 }}
+              pathOptions={{ color: "#FFB100", weight: 1.5, opacity: 1 }}
             />
           )}
           {/* Start marker */}

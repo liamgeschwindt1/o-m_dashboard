@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-lea
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import StudioSidebar from "./StudioSidebar";
-import MapLayerControl, { TILE_LAYERS } from "./MapLayerControl";
+import MapLayerControl, { TILE_LAYERS, MapViewportTracker } from "./MapLayerControl";
 
 function letterIcon(letter) {
   return L.divIcon({
@@ -36,13 +36,17 @@ function MapClicker({ active, onPlace }) {
   return null;
 }
 
-export default function PlanningStep({ currentStep, onBack, onNext }) {
+export default function PlanningStep({ currentStep, mapView, onMapViewChange, onBack, onNext }) {
   const [start, setStart] = useState(null);
   const [end, setEnd] = useState(null);
   const [placing, setPlacing] = useState("start"); // "start" | "end" | null
   const [userLocation, setUserLocation] = useState(null);
   const [locStatus, setLocStatus] = useState("idle"); // "idle" | "loading" | "granted" | "denied"
-  const [basemap, setBasemap] = useState("dark");
+  const basemap = mapView.basemap;
+
+  function handleBasemapChange(nextBasemap) {
+    onMapViewChange({ ...mapView, basemap: nextBasemap });
+  }
 
   function requestLocation() {
     if (!navigator.geolocation) {
@@ -194,10 +198,10 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
       </StudioSidebar>
 
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
-        <MapLayerControl active={basemap} onChange={setBasemap} />
+        <MapLayerControl active={basemap} onChange={handleBasemapChange} />
         <MapContainer
-          center={[37.7749, -122.4194]}
-          zoom={13}
+          center={mapView.center}
+          zoom={mapView.zoom}
           style={{ height: "100%", width: "100%" }}
           zoomControl={false}
         >
@@ -208,6 +212,7 @@ export default function PlanningStep({ currentStep, onBack, onNext }) {
           />
           <MapClicker active={!!placing} onPlace={handlePlace} />
           <FlyToLocation coords={userLocation} />
+          <MapViewportTracker basemap={basemap} onChange={onMapViewChange} />
           {start && <Marker position={start} icon={startIcon} />}
           {end && <Marker position={end} icon={endIcon} />}
         </MapContainer>

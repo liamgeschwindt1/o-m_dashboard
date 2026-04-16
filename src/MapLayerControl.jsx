@@ -1,3 +1,5 @@
+import { useMapEvents } from "react-leaflet";
+
 export const TILE_LAYERS = {
   dark: {
     url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
@@ -65,4 +67,29 @@ export default function MapLayerControl({ active, onChange }) {
       })}
     </div>
   );
+}
+
+export function MapViewportTracker({ basemap, onChange }) {
+  useMapEvents({
+    moveend(event) {
+      const map = event.target;
+      const center = map.getCenter();
+      onChange({
+        basemap,
+        center: [center.lat, center.lng],
+        zoom: map.getZoom(),
+      });
+    },
+    zoomend(event) {
+      const map = event.target;
+      const center = map.getCenter();
+      onChange({
+        basemap,
+        center: [center.lat, center.lng],
+        zoom: map.getZoom(),
+      });
+    },
+  });
+
+  return null;
 }

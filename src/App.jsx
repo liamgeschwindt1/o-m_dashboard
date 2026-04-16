@@ -7,6 +7,12 @@ import CalibrationStep from "./CalibrationStep";
 import RefinementStep from "./RefinementStep";
 import SubmitSheet from "./SubmitSheet";
 
+const DEFAULT_MAP_VIEW = {
+  basemap: "satellite",
+  center: [37.7749, -122.4194],
+  zoom: 13,
+};
+
 // Teal 1px sweep line — slides top→bottom over the full viewport on studio reveal
 function SweepLine({ active }) {
   if (!active) return null;
@@ -40,6 +46,7 @@ export default function App() {
   const [pins, setPins] = useState(null);
   const [route, setRoute] = useState(null);
   const [nodes, setNodes] = useState(null);
+  const [mapView, setMapView] = useState(DEFAULT_MAP_VIEW);
 
   const handleWelcomeContinue = () => setPhase("onboarding");
 
@@ -56,6 +63,7 @@ export default function App() {
     setPins(null);
     setRoute(null);
     setNodes(null);
+    setMapView(DEFAULT_MAP_VIEW);
     setPhase("welcome");
   };
 
@@ -77,6 +85,8 @@ export default function App() {
             {step === 1 && (
               <PlanningStep
                 currentStep={1}
+                mapView={mapView}
+                onMapViewChange={setMapView}
                 onBack={() => setPhase("onboarding")}
                 onNext={(data) => { setPins(data); setStep(2); }}
               />
@@ -85,6 +95,8 @@ export default function App() {
               <CalibrationStep
                 currentStep={2}
                 pins={pins}
+                mapView={mapView}
+                onMapViewChange={setMapView}
                 onBack={() => setStep(1)}
                 onNext={(routeData) => { setRoute(routeData); setStep(3); }}
               />
@@ -93,6 +105,8 @@ export default function App() {
               <RefinementStep
                 currentStep={3}
                 route={route}
+                mapView={mapView}
+                onMapViewChange={setMapView}
                 onBack={() => setStep(2)}
                 onNext={(refinedNodes) => { setNodes(refinedNodes); setStep(4); }}
               />
