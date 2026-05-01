@@ -81,8 +81,12 @@ export default function DashboardLayout({ children, action }) {
                 transition: "all 0.15s",
               })}
             >
-              <Icon size={16} strokeWidth={isActive ? 2.2 : 1.8} />
-              {label}
+              {({ isActive }) => (
+                <>
+                  <Icon size={16} strokeWidth={isActive ? 2.2 : 1.8} />
+                  {label}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
