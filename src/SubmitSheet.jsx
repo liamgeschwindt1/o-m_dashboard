@@ -73,6 +73,7 @@ export default function SubmitSheet({ identity, route, nodes, onConfirm }) {
   // stage: "sheet" | "processing" | "success"
   const [stage, setStage] = useState("sheet");
   const [btnHovered, setBtnHovered] = useState(false);
+  const [routeId, setRouteId] = useState(null);
 
   const now = new Date();
   const dateStr = now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
@@ -93,8 +94,7 @@ export default function SubmitSheet({ identity, route, nodes, onConfirm }) {
       })()
     : null;
 
-  // TODO: CTO to replace with actual API endpoint
-  const API_ENDPOINT = "https://YOUR_API_ENDPOINT_HERE/routes";
+  const API_ENDPOINT = import.meta.env.VITE_SUBMIT_ENDPOINT;
 
   async function handleConfirm() {
     setStage("processing");
@@ -114,11 +114,13 @@ export default function SubmitSheet({ identity, route, nodes, onConfirm }) {
     };
 
     try {
-      await fetch(API_ENDPOINT, {
+      const res = await fetch(API_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      const data = await res.json();
+      if (data?.route_id) setRouteId(data.route_id);
     } catch (_) {
       // Network errors are silently swallowed so the UX flow continues
     }
@@ -285,6 +287,11 @@ export default function SubmitSheet({ identity, route, nodes, onConfirm }) {
                   ? <><span style={{ color: "#01B4AF" }}>{identity.routeName}</span><br />is live.</>
                   : "Route submitted."}
               </div>
+              {routeId && (
+                <div style={{ fontSize: 12, color: "rgba(1,180,175,0.85)", letterSpacing: "0.06em", marginBottom: 10, fontVariantNumeric: "tabular-nums" }}>
+                  Route ID: {routeId}
+                </div>
+              )}
               <div style={{ fontSize: 14, color: "rgba(247,247,247,0.5)", lineHeight: 1.8, maxWidth: 320 }}>
                 Check your mail for when your route<br />is available in the app.
               </div>
