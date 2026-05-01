@@ -55,6 +55,57 @@ textarea::placeholder {
   overflow: auto !important;
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   ACCESSIBILITY MODE — high-contrast black/white, larger text.
+   Activated by setting data-a11y="true" on <html>.
+   Uses !important to override the inline styles used throughout the app.
+   ────────────────────────────────────────────────────────────────────────── */
+html[data-a11y="true"] {
+  font-size: 20px; /* base scale up */
+}
+html[data-a11y="true"] body,
+html[data-a11y="true"] #root,
+html[data-a11y="true"] body * {
+  background-color: #000 !important;
+  background-image: none !important;
+  color: #FFF !important;
+  border-color: #FFF !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+/* Keep interactive controls obvious */
+html[data-a11y="true"] button,
+html[data-a11y="true"] a,
+html[data-a11y="true"] input,
+html[data-a11y="true"] textarea,
+html[data-a11y="true"] select {
+  background-color: #000 !important;
+  color: #FFF !important;
+  border: 2px solid #FFF !important;
+  font-size: 1.05rem !important;
+  font-weight: 600 !important;
+}
+html[data-a11y="true"] button:hover,
+html[data-a11y="true"] a:hover {
+  background-color: #FFF !important;
+  color: #000 !important;
+}
+html[data-a11y="true"] *::placeholder {
+  color: #DDD !important;
+}
+/* Hide decorative noise/grain layers in a11y mode */
+html[data-a11y="true"] [aria-hidden="true"] {
+  display: none !important;
+}
+/* Keep map tiles legible — don't force-paint over Leaflet image tiles */
+html[data-a11y="true"] .leaflet-tile,
+html[data-a11y="true"] img.leaflet-tile {
+  filter: invert(1) hue-rotate(180deg) contrast(1.1) !important;
+  background: transparent !important;
+}
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }

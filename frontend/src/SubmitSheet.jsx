@@ -103,7 +103,8 @@ export default function SubmitSheet({ identity, route, nodes, onConfirm }) {
     const payload = {
       name: identity?.routeName,
       org_code: identity?.orgCode,
-      instructor_email: identity?.email,
+      // IdentityStep stores the email under `contact`; fall back to `email` for safety.
+      instructor_email: identity?.contact || identity?.email,
       instructor_name: identity?.ownerName,
       payload: {
         submittedAt: new Date().toISOString(),

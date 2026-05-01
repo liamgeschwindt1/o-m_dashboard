@@ -1,5 +1,23 @@
 import { useState } from "react";
 
+// Read currently signed-in instructor from sessionStorage so submitted routes
+// are auto-attributed to the right org. Falls back to empty strings.
+function getDefaults() {
+  try {
+    const raw = sessionStorage.getItem("om_instructor");
+    if (raw) {
+      const i = JSON.parse(raw);
+      return {
+        routeName: "",
+        orgCode:   i.org_code ?? "",
+        ownerName: i.name      ?? "",
+        contact:   i.email     ?? "",
+      };
+    }
+  } catch {}
+  return { routeName: "", orgCode: "", ownerName: "", contact: "" };
+}
+
 const inputStyle = {
   width: "100%",
   border: "none",
@@ -13,12 +31,7 @@ const inputStyle = {
 };
 
 export default function IdentityStep({ onComplete }) {
-  const [fields, setFields] = useState({
-    routeName: "",
-    orgCode: "",
-    ownerName: "",
-    contact: "",
-  });
+  const [fields, setFields] = useState(getDefaults);
 
   return (
     <div style={{

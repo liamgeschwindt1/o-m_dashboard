@@ -2,8 +2,12 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './index.css'
+import { initA11y }     from './dashboard/a11y.js'
 import ErrorBoundary    from './ErrorBoundary.jsx'
 import LoginPage        from './dashboard/LoginPage.jsx'
+
+initA11y()
+
 import DashboardPage    from './dashboard/DashboardPage.jsx'
 import ClientsPage      from './dashboard/ClientsPage.jsx'
 import ClientProfilePage from './dashboard/ClientProfilePage.jsx'

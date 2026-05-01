@@ -8,6 +8,7 @@ export const INSTRUCTOR = {
   name: "Sarah Mitchell",
   email: "sarah@clearpathmobility.org",
   initials: "SM",
+  org_code: ORG.code,
 };
 
 // ── Fake VI clients ────────────────────────────────────────────────────────────

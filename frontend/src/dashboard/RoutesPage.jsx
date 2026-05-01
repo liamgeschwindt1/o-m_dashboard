@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { PenLine, Share2, Plus, Eye, MapPin } from "lucide-react";
 import DashboardLayout from "./DashboardLayout";
 import ShareModal from "./ShareModal";
+import { INSTRUCTOR } from "./seedData";
 
 const API = import.meta.env.VITE_API_URL ?? "";
 
@@ -19,7 +20,11 @@ export default function RoutesPage() {
 
   function load() {
     setLoading(true);
-    fetch(`${API}/api/routes`)
+    const orgCode = INSTRUCTOR.org_code;
+    const url = orgCode
+      ? `${API}/api/routes?org_code=${encodeURIComponent(orgCode)}`
+      : `${API}/api/routes`;
+    fetch(url)
       .then((r) => r.json())
       .then((data) => { setRoutes(Array.isArray(data) ? data : []); setLoading(false); })
       .catch(() => setLoading(false));

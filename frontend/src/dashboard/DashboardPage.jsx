@@ -10,7 +10,7 @@ import {
 import DashboardLayout from "./DashboardLayout";
 import AddClientModal from "./AddClientModal";
 import { useClients } from "./clientsStore";
-import { ACTIVITY, WEEKLY_VIEWS } from "./seedData";
+import { ACTIVITY, WEEKLY_VIEWS, INSTRUCTOR } from "./seedData";
 
 const API = import.meta.env.VITE_API_URL ?? "";
 
@@ -83,9 +83,13 @@ export default function DashboardPage() {
   const [showAdd, setShowAdd] = useState(false);
 
   useEffect(() => {
-    fetch(`${API}/api/routes`)
+    const orgCode = INSTRUCTOR.org_code;
+    const url = orgCode
+      ? `${API}/api/routes?org_code=${encodeURIComponent(orgCode)}`
+      : `${API}/api/routes`;
+    fetch(url)
       .then((r) => r.json())
-      .then(setRoutes)
+      .then((d) => setRoutes(Array.isArray(d) ? d : []))
       .catch(() => {});
   }, []);
 

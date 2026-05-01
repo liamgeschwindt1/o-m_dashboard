@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Lock, ArrowRight } from "lucide-react";
+import { Mail, Lock, ArrowRight, Eye } from "lucide-react";
 import logo from "../../assets/logo.png";
 import { INSTRUCTOR } from "./seedData";
+import { isA11yOn, toggleA11y } from "./a11y";
 
 const GRAIN_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState(INSTRUCTOR.email);
   const [password, setPassword] = useState("demo");
   const [submitting, setSubmitting] = useState(false);
+  const [a11y, setA11yState] = useState(isA11yOn());
 
   // Already authed → bounce to dashboard
   if (sessionStorage.getItem("om_auth") === "true") {
@@ -24,6 +26,12 @@ export default function LoginPage() {
     // Fake auth — accept any non-empty email + password
     setTimeout(() => {
       sessionStorage.setItem("om_auth", "true");
+      // Persist the active instructor so Studio submissions are auto-attributed
+      // to the right org_code in the database.
+      sessionStorage.setItem("om_instructor", JSON.stringify({
+        ...INSTRUCTOR,
+        email, // honour whatever was typed on the login form
+      }));
       navigate("/dashboard");
     }, 600);
   }
@@ -103,6 +111,28 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit}>
+            {/* Accessibility mode — first action */}
+            <button
+              type="button"
+              onClick={() => { toggleA11y(); setA11yState(isA11yOn()); }}
+              style={{
+                width: "100%", padding: "11px 0",
+                background: a11y ? "#FFF" : "transparent",
+                color: a11y ? "#000" : "#F7F7F7",
+                border: "1.5px solid #FFF",
+                borderRadius: 8,
+                fontWeight: 700, fontSize: 13,
+                cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                fontFamily: "Inter, sans-serif",
+                marginBottom: 20,
+                letterSpacing: "0.02em",
+              }}
+            >
+              <Eye size={15} />
+              Accessibility mode: {a11y ? "ON" : "OFF"}
+            </button>
+
             {/* Email */}
             <label style={{ fontSize: 11, color: "rgba(247,247,247,0.45)", textTransform: "uppercase", letterSpacing: "0.05em", display: "block", marginBottom: 6 }}>
               Email
