@@ -5,6 +5,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    allowedHosts: ['studio.touchpulse.ai']
+    allowedHosts: ['studio.touchpulse.ai', '.up.railway.app']
+  },
+  preview: {
+    allowedHosts: ['studio.touchpulse.ai', '.up.railway.app']
   }
 })
