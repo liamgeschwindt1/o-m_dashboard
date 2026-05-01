@@ -1,0 +1,10 @@
+[build]
+builder = "dockerfile"
+
+[[services]]
+name = "frontend"
+source = "frontend"
+
+[[services]]
+name = "backend"
+source = "backend"

@@ -93,24 +93,25 @@ export default function SubmitSheet({ identity, route, nodes, onConfirm }) {
       })()
     : null;
 
-  // TODO: CTO to replace with actual API endpoint
-  const API_ENDPOINT = "https://YOUR_API_ENDPOINT_HERE/routes";
+  const API_ENDPOINT = `${import.meta.env.VITE_API_URL ?? ""}/api/routes`;
 
   async function handleConfirm() {
     setStage("processing");
 
     const payload = {
-      routeName: identity?.routeName,
-      ownerName: identity?.ownerName,
-      orgCode: identity?.orgCode,
-      email: identity?.email,
-      submittedAt: new Date().toISOString(),
-      route: {
-        waypoints: route?.waypoints ?? [],
-        path: route?.path ?? [],
-        distanceKm: distKm ? parseFloat(distKm) : null,
+      name: identity?.routeName,
+      org_code: identity?.orgCode,
+      instructor_email: identity?.email,
+      instructor_name: identity?.ownerName,
+      payload: {
+        submittedAt: new Date().toISOString(),
+        route: {
+          waypoints: route?.waypoints ?? [],
+          path: route?.path ?? [],
+          distanceKm: distKm ? parseFloat(distKm) : null,
+        },
+        instructions: (nodes ?? []).map((n) => ({ id: n.id, pos: n.pos, text: n.text })),
       },
-      instructions: (nodes ?? []).map((n) => ({ id: n.id, pos: n.pos, text: n.text })),
     };
 
     try {
