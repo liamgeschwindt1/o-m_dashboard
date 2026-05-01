@@ -1,11 +1,13 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
   MapPin,
   PenLine,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
+import logo from "../../assets/logo.png";
 import { ORG, INSTRUCTOR } from "./seedData";
 
 const NAV = [
@@ -24,8 +26,14 @@ const PAGE_TITLES = {
 
 export default function DashboardLayout({ children, action }) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const base = "/" + pathname.split("/")[1];
   const { title, sub } = PAGE_TITLES[base] ?? { title: "Dashboard", sub: "" };
+
+  function handleLogout() {
+    sessionStorage.removeItem("om_auth");
+    navigate("/login");
+  }
 
   return (
     <div style={{
@@ -49,13 +57,8 @@ export default function DashboardLayout({ children, action }) {
         zIndex: 10,
       }}>
         {/* Org branding */}
-        <div style={{ padding: "0 20px 24px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 8,
-            background: "linear-gradient(135deg,#01B4AF,#007a77)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 13, fontWeight: 700, color: "#031119", marginBottom: 10,
-          }}>CP</div>
+        <div style={{ padding: "0 20px 20px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+          <img src={logo} alt="Touchpulse" style={{ height: 24, display: "block", marginBottom: 14 }} />
           <div style={{ fontSize: 13, fontWeight: 600, color: "#F7F7F7", lineHeight: 1.3 }}>{ORG.name}</div>
           <div style={{ fontSize: 11, color: "rgba(247,247,247,0.4)", marginTop: 2 }}>{ORG.code}</div>
         </div>
@@ -103,7 +106,7 @@ export default function DashboardLayout({ children, action }) {
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 12, fontWeight: 700, color: "#031119", flexShrink: 0,
           }}>{INSTRUCTOR.initials}</div>
-          <div style={{ overflow: "hidden" }}>
+          <div style={{ overflow: "hidden", flex: 1 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: "#F7F7F7", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {INSTRUCTOR.name}
             </div>
@@ -111,6 +114,20 @@ export default function DashboardLayout({ children, action }) {
               {INSTRUCTOR.email}
             </div>
           </div>
+          <button
+            onClick={handleLogout}
+            title="Sign out"
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              padding: 6, borderRadius: 6,
+              color: "rgba(247,247,247,0.4)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "#FF7230"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(247,247,247,0.4)"; }}
+          >
+            <LogOut size={14} />
+          </button>
         </div>
       </aside>
 

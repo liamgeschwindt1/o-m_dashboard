@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 
 const GRAIN_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
@@ -73,6 +74,7 @@ export default function SubmitSheet({ identity, route, nodes, onConfirm }) {
   // stage: "sheet" | "processing" | "success"
   const [stage, setStage] = useState("sheet");
   const [btnHovered, setBtnHovered] = useState(false);
+  const navigate = useNavigate();
 
   const now = new Date();
   const dateStr = now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
@@ -290,27 +292,45 @@ export default function SubmitSheet({ identity, route, nodes, onConfirm }) {
                 Check your mail for when your route<br />is available in the app.
               </div>
             </div>
-            <button
-              onClick={onConfirm}
-              style={{
-                marginTop: 4,
-                padding: "10px 28px",
-                background: "transparent",
-                color: "rgba(247,247,247,0.45)",
-                border: "0.5px solid rgba(255,255,255,0.15)",
-                borderRadius: 6,
-                fontWeight: 500,
-                fontSize: 12,
-                fontFamily: "Inter, sans-serif",
-                cursor: "pointer",
-                letterSpacing: 0.3,
-                transition: "color 150ms ease, border-color 150ms ease",
-              }}
-              onMouseEnter={e => { e.currentTarget.style.color = "#F7F7F7"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.35)"; }}
-              onMouseLeave={e => { e.currentTarget.style.color = "rgba(247,247,247,0.45)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
-            >
-              Submit another route →
-            </button>
+            <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+              <button
+                onClick={onConfirm}
+                style={{
+                  padding: "10px 22px",
+                  background: "transparent",
+                  color: "rgba(247,247,247,0.45)",
+                  border: "0.5px solid rgba(255,255,255,0.15)",
+                  borderRadius: 6,
+                  fontWeight: 500,
+                  fontSize: 12,
+                  fontFamily: "Inter, sans-serif",
+                  cursor: "pointer",
+                  letterSpacing: 0.3,
+                  transition: "color 150ms ease, border-color 150ms ease",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = "#F7F7F7"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.35)"; }}
+                onMouseLeave={e => { e.currentTarget.style.color = "rgba(247,247,247,0.45)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+              >
+                Submit another route →
+              </button>
+              <button
+                onClick={() => navigate("/dashboard")}
+                style={{
+                  padding: "10px 22px",
+                  background: "#01B4AF",
+                  color: "#031119",
+                  border: "none",
+                  borderRadius: 6,
+                  fontWeight: 600,
+                  fontSize: 12,
+                  fontFamily: "Inter, sans-serif",
+                  cursor: "pointer",
+                  letterSpacing: 0.3,
+                }}
+              >
+                Return to dashboard ↗
+              </button>
+            </div>
           </motion.div>
         )}
 

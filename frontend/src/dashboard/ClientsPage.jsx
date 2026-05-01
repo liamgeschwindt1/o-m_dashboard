@@ -2,14 +2,17 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, UserPlus, ChevronRight } from "lucide-react";
 import DashboardLayout from "./DashboardLayout";
-import { CLIENTS } from "./seedData";
+import AddClientModal from "./AddClientModal";
+import { useClients } from "./clientsStore";
 
 export default function ClientsPage() {
   const navigate = useNavigate();
+  const clients = useClients();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [showAdd, setShowAdd] = useState(false);
 
-  const filtered = CLIENTS.filter((c) => {
+  const filtered = clients.filter((c) => {
     const matchName = c.name.toLowerCase().includes(query.toLowerCase());
     const matchStatus = statusFilter === "all" || c.status === statusFilter;
     return matchName && matchStatus;
@@ -17,6 +20,7 @@ export default function ClientsPage() {
 
   const action = (
     <button
+      onClick={() => setShowAdd(true)}
       style={{
         display: "flex", alignItems: "center", gap: 6,
         padding: "8px 14px", borderRadius: 8,
@@ -30,6 +34,7 @@ export default function ClientsPage() {
 
   return (
     <DashboardLayout action={action}>
+      {showAdd && <AddClientModal onClose={() => setShowAdd(false)} />}
       {/* Filters */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
         {/* Search */}

@@ -8,7 +8,9 @@ import {
   Activity, ArrowUpRight,
 } from "lucide-react";
 import DashboardLayout from "./DashboardLayout";
-import { CLIENTS, ACTIVITY, WEEKLY_VIEWS } from "./seedData";
+import AddClientModal from "./AddClientModal";
+import { useClients } from "./clientsStore";
+import { ACTIVITY, WEEKLY_VIEWS } from "./seedData";
 
 const API = import.meta.env.VITE_API_URL ?? "";
 
@@ -76,7 +78,9 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const clients = useClients();
   const [routes, setRoutes] = useState([]);
+  const [showAdd, setShowAdd] = useState(false);
 
   useEffect(() => {
     fetch(`${API}/api/routes`)
@@ -85,13 +89,13 @@ export default function DashboardPage() {
       .catch(() => {});
   }, []);
 
-  const activeClients = CLIENTS.filter((c) => c.status === "active").length;
+  const activeClients = clients.filter((c) => c.status === "active").length;
   const totalViews = WEEKLY_VIEWS.reduce((s, d) => s + d.views, 0);
 
   const action = (
     <div style={{ display: "flex", gap: 10 }}>
       <button
-        onClick={() => navigate("/clients")}
+        onClick={() => setShowAdd(true)}
         style={{
           display: "flex", alignItems: "center", gap: 6,
           padding: "8px 14px", borderRadius: 8,
@@ -119,9 +123,10 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout action={action}>
+      {showAdd && <AddClientModal onClose={() => setShowAdd(false)} />}
       {/* Stats row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginBottom: 28 }}>
-        <StatCard icon={Users}  label="Total Clients"    value={CLIENTS.length} color="#01B4AF" delta="+1 this month" />
+        <StatCard icon={Users}  label="Total Clients"    value={clients.length} color="#01B4AF" delta="+1 this month" />
         <StatCard icon={MapPin} label="Routes Created"   value={routes.length}  color="#FFB100" />
         <StatCard icon={Share2} label="Routes Shared"    value={routes.length}  color="#FF7230" />
         <StatCard icon={Eye}    label="Views This Week"  value={totalViews}     color="#a78bfa" delta="+18% vs last week" />
@@ -188,7 +193,7 @@ export default function DashboardPage() {
           >View all →</button>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-          {CLIENTS.slice(0, 4).map((c, i) => (
+          {clients.slice(0, 4).map((c, i) => (
             <div
               key={c.id}
               onClick={() => navigate(`/clients/${c.id}`)}

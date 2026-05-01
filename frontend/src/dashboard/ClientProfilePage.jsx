@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Eye, Calendar, PenLine } from "lucide-react";
 import DashboardLayout from "./DashboardLayout";
-import { CLIENTS } from "./seedData";
+import { useClients } from "./clientsStore";
 
 const API = import.meta.env.VITE_API_URL ?? "";
 
 export default function ClientProfilePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const client = CLIENTS.find((c) => c.id === id);
+  const clients = useClients();
+  const client = clients.find((c) => c.id === id);
 
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
