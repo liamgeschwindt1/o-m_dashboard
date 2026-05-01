@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import StudioSidebar from "./StudioSidebar";
 import MapLayerControl, { TILE_LAYERS, MapViewportTracker } from "./MapLayerControl";
 
-const GH_KEY = "1e8939e3-07a3-4b03-83e2-8698c3b12586";
+const GH_KEY = import.meta.env.VITE_GRAPHHOPPER_API_KEY ?? "";
 
 function letterIcon(letter) {
   return L.divIcon({

@@ -50,3 +50,13 @@ textarea::placeholder {
   outline-offset: 2px;
 }
 
+/* Dashboard pages — allow scroll */
+.dashboard-scroll {
+  overflow: auto !important;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
